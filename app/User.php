@@ -26,4 +26,15 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function updateUser($request, $id)
+    {
+        $user = User::find($id);
+        $user->role = $request['role'];
+        $user->name = $request['name'];
+        $user->email = $request['email'];
+        $answer = $user->save();
+
+        return $answer;
+    }
 }
