@@ -1,4 +1,7 @@
 <?php
+Route::get('/1','TestController@index');
+Route::get('/importCustomers/{id}','ImportCustomersController@index');
+
 Route::any('/','Auth\LoginController@showLoginForm')->name('login');
 Route::group(['middleware'=>['checkAdmin']],function (){
     Route::get('/admin/index',['uses'=>'Admin\MainController@index','as'=>'main.index']);
@@ -19,10 +22,14 @@ Route::group(['middleware'=>['checkAdmin']],function (){
 Route::group(['middleware'=>['checkLogin']],function (){
     Route::get('/profile',['uses'=>'Profile@getProfile','as'=>'Profile.getProfile']);
     Route::put('/profile',['uses'=>'getProfile@saveProfile','as'=>'Profile.saveProfile']);
+
+    Route::get('/customers',['uses'=>'CustomersController@index','as'=>'CustomersController.index']);
+
 });
+
+
+
 //Auth::routes();
-
-
 Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
 Route::post('login', 'Auth\LoginController@login');
 Route::post('logout', 'Auth\LoginController@logout')->name('logout');

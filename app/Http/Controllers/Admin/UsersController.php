@@ -7,7 +7,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -51,10 +51,19 @@ class UsersController extends Controller
     public function store(Request $request)
     {
         $user = new User();
-        $user->create($request->all());
+        $data=$request->all();
+        $pass=str_random(8);
+        $data['password']=Hash::make($pass);
 
+        $create=$user->create($data);
+        /*
+        if($create) {
+            Mail::to($data['email'])->send(new AdminRegister(['name' => $data['name'], 'pass' => $pass]));
+        }
+        */
         return redirect('admin/users');
     }
+
 
     /**
      * Display the specified resource.
