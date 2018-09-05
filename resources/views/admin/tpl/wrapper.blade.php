@@ -26,7 +26,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
 
-                @include('admin.template.sidebar')
+                @include('admin.tpl.sidebar')
 
             </ul>
         </div>
