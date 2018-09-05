@@ -5,6 +5,9 @@ Route::get('/importCustomers/{id}','ImportCustomersController@index');
 Route::any('/','Auth\LoginController@showLoginForm')->name('login');
 Route::group(['middleware'=>['checkAdmin']],function (){
     Route::get('/admin/index',['uses'=>'Admin\MainController@index','as'=>'main.index']);
+
+    Route::get('/admin/templates',['uses'=>'Admin\TemplatesGroupsController@index','as'=>'templates.index']);
+
     Route::get('/admin/users',['uses'=>'Admin\UsersController@index','as'=>'users.index']);
     Route::resource('admin/users','Admin\UsersController',[
         'except'=>[
