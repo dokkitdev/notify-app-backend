@@ -7,6 +7,7 @@ Route::group(['middleware'=>['checkAdmin']],function (){
     Route::get('/admin/index',['uses'=>'Admin\MainController@index','as'=>'main.index']);
 
     Route::get('/admin/templates',['uses'=>'Admin\TemplatesGroupsController@index','as'=>'templates.index']);
+    Route::post('/admin/template/{id}',['uses'=>'Admin\TemplatesController@update','as'=>'template.update']);
 
     Route::get('/admin/users',['uses'=>'Admin\UsersController@index','as'=>'users.index']);
     Route::resource('admin/users','Admin\UsersController',[

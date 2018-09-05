@@ -9,19 +9,27 @@
             <div class="content">
                 <h3>{{$tg->customer_type}}</h3>
                 <div class="border">
-                    <table>
+                    <table class="table">
                         @foreach ($tg['templates'] as $template)
+                            <form action="/admin/template/{{$template->id}}" method="POST" enctype="multipart/form-data">
+                                {{ csrf_field() }}
                         <tr>
                             <td>Letter {{$template->state}}</td>
                             <td>
-                                <select name="term[{{$tg->id}}][{{$template->id}}]">
-                                    <option value="{{$template->term}}">{{$template->term}}</option>
+                                <select name="term">
+                                    @foreach($terms as $termKey=>$term)
+                                        <option value="{{$termKey}}" {{$termKey==$template->term?'selected=selected':''}}>{{$term}}</option>
+                                    @endforeach
                                 </select>
                             </td>
-                            <td>Download</td>
-                            <td>Upload</td>
+                            <td>
+                                <input type="file" name="upltemplate">
+                                <input type="submit" value="Update template">
+                            </td>
+                            <td><a href="{{$template->file_link}}">Download</a></td>
                             <td>Email</td>
                         </tr>
+                            </form>
                         @endforeach
                     </table>
                 </div>
