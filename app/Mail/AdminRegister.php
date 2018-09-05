@@ -30,6 +30,6 @@ class AdminRegister extends Mailable
      */
     public function build()
     {
-        return $this->from('example@example.com')->view('mail.adminregister')->with(['data'=>$this->data]);
+        return $this->from(getenv('MAIL_FROM_ADDRESS'))->view('mail.adminregister')->with(['data'=>$this->data]);
     }
 }
