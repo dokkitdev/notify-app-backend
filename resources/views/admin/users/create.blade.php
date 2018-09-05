@@ -1,4 +1,4 @@
-@extends('admin.template.wrapper')
+@extends('admin.tpl.wrapper')
 
 @section('content')
 
