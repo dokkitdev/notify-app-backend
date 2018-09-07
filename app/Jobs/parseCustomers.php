@@ -45,8 +45,8 @@ class parseCustomers implements ShouldQueue
 
 
         if($parsedCustomerContract) {
-            $customer->start_date = isset($parsedCustomerContract->StartDate) ? $parsedCustomerContract->StartDate : '';
-            $customer->end_date = isset($parsedCustomerContract->EndDate) ? $parsedCustomerContract->EndDate : '';
+            $customer->start_date = isset($parsedCustomerContract->StartDate) ? strtotime($parsedCustomerContract->StartDate) : '';
+            $customer->end_date = isset($parsedCustomerContract->EndDate) ? strtotime($parsedCustomerContract->EndDate) : '';
             $customer->contract_no = isset($parsedCustomerContract->ContractNo) ? $parsedCustomerContract->ContractNo : '';
             $customer->contract_name = isset($parsedCustomerContract->Name) ? $parsedCustomerContract->Name : '';
         }
