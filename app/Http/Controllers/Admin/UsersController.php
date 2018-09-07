@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\UserRequest;
+use App\Mail\AdminRegister;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class UsersController extends Controller
 {
@@ -56,11 +58,11 @@ class UsersController extends Controller
         $data['password']=Hash::make($pass);
 
         $create=$user->create($data);
-        /*
+        //$create=true;
         if($create) {
             Mail::to($data['email'])->send(new AdminRegister(['name' => $data['name'], 'pass' => $pass]));
         }
-        */
+
         return redirect('admin/users');
     }
 
