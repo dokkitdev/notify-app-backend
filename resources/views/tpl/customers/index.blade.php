@@ -4,8 +4,12 @@
 
     <div class="container">
 
-        <h2>Customers</h2>
-
+        <h2>{{$title}}</h2>
+        <ul style="list-style: none">
+        @foreach($tags as $tag)
+            <li style="float: left; padding-right: 20px;"><a href="/customers/{{$tag['id']}}">{{$tag['name']}}</a></li>
+        @endforeach
+        </ul>
         <table class="table">
             <thead>
             <tr>
