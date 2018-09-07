@@ -7,7 +7,7 @@
         <h2>Templates</h2>
         @foreach ($templatesGroups as $tg)
             <div class="content">
-                <h3>{{$tg->customer_type}}</h3>
+                <h3>{{$tg->customer_group_tag}}</h3>
                 <div class="border">
                     <table class="table">
                         @foreach ($tg['templates'] as $template)
