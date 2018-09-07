@@ -26,7 +26,9 @@
                                 <input type="file" name="upltemplate">
                                 <input type="submit" value="Update template">
                             </td>
-                            <td><a href="{{$template->file_link}}">Download</a></td>
+                            <td>
+                                @if($template->file_link!='')<a target="_blank" href="/admin/template/{{$template->id}}">Download</a>@endif</td>
+
                             <td>Email</td>
                         </tr>
                             </form>

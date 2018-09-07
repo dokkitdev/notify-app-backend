@@ -11,6 +11,7 @@ namespace App\Service;
 
 use App\Customers;
 use App\Jobs\parseCustomers;
+use App\Jobs\parseCustomersLinks;
 use App\Settings;
 use GuzzleHttp\Client;
 
@@ -24,16 +25,65 @@ class simProService
     public function updateSimProCustomer($data,Customers $customer){
         $res=$this->patchRequest('PATCH',$customer->apiurl,$data);
     }
-    public function index(){
+
+    public function importCustomers(){
         $companies=$this->parseCompanies();
         if(!$companies) {
             print 'err_companies';
             return false;
         }
-        $customersLinks=$this->parseCustomersLinks($companies);
-        $this->parseCustomers($customersLinks);
+        $this->parseCustomersCompaniesPg($companies);
         exit;
     }
+
+    public function getRequestPage($method,$url){
+        $client = new Client();
+        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.'?access_token='.$this->token,
+            ['headers'=>[
+                'Accept'     => 'application/json', #todo required
+            ]
+            ]
+        );
+        if((int)$res->getStatusCode()==200){
+            $headers=$res->getHeaders();
+            $urls[]=$url;
+            if(isset($headers['Result-Pages'][0])&&$headers['Result-Pages'][0]>1){
+                for($i=2;$i<$headers['Result-Pages'][0];$i++){
+                    $urls[]=$url.'?page='.$i;
+                }
+            }
+            return $urls;
+        }else{
+            return false;
+        }
+    }
+
+    function parseCustomersCompaniesPg($companies){
+        $customersLinks=[];
+        foreach ($companies as $v){
+            $customers=$this->getRequestPage('GET','/api/v1.0/companies/'.$v->ID.'/customers/');
+            if(count($customers)>0){
+                foreach ($customers as $val){
+                    //$customersLinks[]=$val;
+                    parseCustomersLinks::dispatch($val)->delay(now()->addSecond(2));
+                }
+            }
+        }
+        return $customersLinks;
+    }
+    public function parseCustomerLinks($link){
+        $customers=$this->getRequest('GET',$link);
+        if(count($customers)>0){
+            foreach ($customers as $val){
+//                $customersLinks[]=$val->_href;
+                parseCustomers::dispatch($val->_href)->delay(now()->addSecond(2));
+            }
+        }
+
+        //       return $customersLinks;
+    }
+
+
     function parseCustomers($customers=[]){
         foreach($customers as $v) {
             parseCustomers::dispatch($v)->delay(now()->addSecond(5));
@@ -43,6 +93,29 @@ class simProService
     function parseCustomerByUrl($url){
         $customer=$this->getRequest('GET',$url);
         return $customer;
+    }
+    function parseCustomerContractByUrl($url){
+        $parsedContracts=false;
+        $contracts=$this->getRequest('GET',$url); # забираем краткую информацию по контрактам
+        if(count($contracts)>0){
+            foreach ($contracts as $contract) { # забираем подробную информацию по контрактам
+                $parsedContracts[]=$this->getRequest('GET',$url.$contract->ID);
+            }
+
+        }
+
+        $res=false;
+        if(is_array($parsedContracts)&&count($parsedContracts)>1){ #если несколько контрактов ищем первый НЕ Архивный
+            foreach($parsedContracts as $v){
+                if($v->Archived==false){
+                    $res=$v;
+                    break;
+                }
+            }
+            return $res;
+        }else {
+            return isset($parsedContracts[0])?$parsedContracts[0]:false;
+        }
     }
     private function parseCompanies(){
         $companies=$this->getRequest('GET','/api/v1.0/companies/');
@@ -54,7 +127,7 @@ class simProService
     }
     public function getRequest($method,$url){
         $client = new Client();
-        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.'?access_token='.$this->token,
+        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.((strpos($url,'?')!=false)?'&':'?').'access_token='.$this->token,
             ['headers'=>[
                 'Accept'     => 'application/json', #todo required
             ]
@@ -81,6 +154,7 @@ class simProService
             return false;
         }
     }
+
     private function parseCustomersLinks($companies){
         $customersLinks=[];
         foreach ($companies as $v){
