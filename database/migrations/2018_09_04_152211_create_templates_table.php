@@ -17,7 +17,7 @@ class CreateTemplatesTable extends Migration
             $table->increments('id');
             $table->integer('template_group_id')->unsigned();
             $table->foreign('template_group_id')->references('id')->on('templates_groups')->onDelete('cascade');
-            $table->string('file_link');
+            $table->string('file_link')->default('');
             $table->enum('state',[1,2,3])->default(1)->description('state of send');
             $table->bigInteger('term')->default(604800)->description('term of send');
             $table->timestamps();
