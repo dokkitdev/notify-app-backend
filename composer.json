@@ -9,6 +9,7 @@
         "aws/aws-sdk-php": "^3.67",
         "aws/aws-sdk-php-laravel": "^3.1",
         "barryvdh/laravel-async-queue": "^0.7.1",
+        "doctrine/dbal": "^2.8",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.6.*",
         "laravel/tinker": "^1.0",
