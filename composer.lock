@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb1f4769931a4227c0aadc658ecbdbc2",
+    "content-hash": "74d490d12a40331d8d3eb2ab23c7a6b4",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.67.4",
+            "version": "3.67.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "df94a9ad78c9e817a9887bedf0e5b269c4f25810"
+                "reference": "fa7689ba2865e9e00ac44efefc2c3f2ea8424c63"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/df94a9ad78c9e817a9887bedf0e5b269c4f25810",
-                "reference": "df94a9ad78c9e817a9887bedf0e5b269c4f25810",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/fa7689ba2865e9e00ac44efefc2c3f2ea8424c63",
+                "reference": "fa7689ba2865e9e00ac44efefc2c3f2ea8424c63",
                 "shasum": ""
             },
             "require": {
@@ -141,61 +141,6 @@
                 "sdk"
             ],
             "time": "2016-01-18T06:57:07+00:00"
-        },
-        {
-            "name": "barryvdh/laravel-async-queue",
-            "version": "v0.7.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/barryvdh/laravel-async-queue.git",
-                "reference": "638574bceafaced815b8501e47f626d9d8dc34e9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-async-queue/zipball/638574bceafaced815b8501e47f626d9d8dc34e9",
-                "reference": "638574bceafaced815b8501e47f626d9d8dc34e9",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/console": "5.4.x|5.5.x|5.6.x",
-                "illuminate/support": "5.4.x|5.5.x|5.6.x",
-                "php": ">=5.6.4",
-                "symfony/process": "^3.2|^4"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.7-dev"
-                },
-                "laravel": {
-                    "providers": [
-                        "Barryvdh\\Queue\\AsyncServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Barryvdh\\Queue\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Barry vd. Heuvel",
-                    "email": "barryvdh@gmail.com"
-                }
-            ],
-            "description": "Async Queue Driver for Laravel (Push to background)",
-            "keywords": [
-                "async",
-                "background",
-                "laravel",
-                "queue"
-            ],
-            "time": "2018-04-30T13:16:35+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1178,53 +1123,6 @@
                 "storage"
             ],
             "time": "2018-08-22T07:45:22+00:00"
-        },
-        {
-            "name": "league/flysystem-aws-s3-v3",
-            "version": "1.0.19",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/flysystem-aws-s3-v3.git",
-                "reference": "f135691ef6761542af301b7c9880f140fb12dc74"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem-aws-s3-v3/zipball/f135691ef6761542af301b7c9880f140fb12dc74",
-                "reference": "f135691ef6761542af301b7c9880f140fb12dc74",
-                "shasum": ""
-            },
-            "require": {
-                "aws/aws-sdk-php": "^3.0.0",
-                "league/flysystem": "^1.0.40",
-                "php": ">=5.5.0"
-            },
-            "require-dev": {
-                "henrikbjorn/phpspec-code-coverage": "~1.0.1",
-                "phpspec/phpspec": "^2.0.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "League\\Flysystem\\AwsS3v3\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Frank de Jonge",
-                    "email": "info@frenky.net"
-                }
-            ],
-            "description": "Flysystem adapter for the AWS S3 SDK v3.x",
-            "time": "2018-03-27T20:33:59+00:00"
         },
         {
             "name": "monolog/monolog",
