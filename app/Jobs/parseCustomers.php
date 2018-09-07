@@ -32,16 +32,31 @@ class parseCustomers implements ShouldQueue
      */
     public function handle()
     {
-        if($this->attempts()>3){ # удаление после 3-х не удачных попыток
+        if($this->attempts()>5){ # удаление после 3-х не удачных попыток
             $this->delete();
         }
-        preg_match('!\D(\/companies\/|\/individuals\/)(.*+)$!',$this->url,$matches);
+        preg_match('!\D(\/companies\/|\/individuals\/)(.*+)$!',$this->url,$matches); # get the customer id
+        preg_match('!\/companies\/(.*)\/customers\/!',$this->url,$matchesC); # get the customer id
         $customer=$this->getCustomer(isset($matches[2])?$matches[2]:false);
         $simProservice=new simProService();
         $parsedCustomer=$simProservice->parseCustomerByUrl($this->url);
+        $parsedCustomerContract=$simProservice->parseCustomerContractByUrl('/api/v1.0/companies/'.$matchesC[1].'/customers/'.$matches[2].'/contracts/');
         if(!$parsedCustomer)$this->delete();
 
-        $customer->email=isset($parsedCustomer->Email)?$parsedCustomer->Email:'';
+
+        if($parsedCustomerContract) {
+            $customer->start_date = isset($parsedCustomerContract->StartDate) ? $parsedCustomerContract->StartDate : '';
+            $customer->end_date = isset($parsedCustomerContract->EndDate) ? $parsedCustomerContract->EndDate : '';
+            $customer->contract_no = isset($parsedCustomerContract->ContractNo) ? $parsedCustomerContract->ContractNo : '';
+            $customer->contract_name = isset($parsedCustomerContract->Name) ? $parsedCustomerContract->Name : '';
+        }
+
+        if(count($parsedCustomer->Tags)>0){
+            $customer->customer_group_tag = $parsedCustomer->Tags[0]->Name;
+            $customer->customer_group_tag_id = $parsedCustomer->Tags[0]->ID;
+        }
+
+
         $customer->company_name=isset($parsedCustomer->CompanyName)?$parsedCustomer->CompanyName:'';
         $customer->given_name=isset($parsedCustomer->GivenName)?$parsedCustomer->GivenName:'';
         $customer->family_name=isset($parsedCustomer->FamilyName)?$parsedCustomer->FamilyName:'';
@@ -52,6 +67,12 @@ class parseCustomers implements ShouldQueue
         $customer->postal_code=isset($parsedCustomer->Address->PostalCode)?$parsedCustomer->Address->PostalCode:'';
         $customer->country=isset($parsedCustomer->Address->Country)?$parsedCustomer->Address->Country:'';
         $customer->customer_type=isset($parsedCustomer->CustomerType)?$parsedCustomer->CustomerType:'';
+
+        if($customer->customer_type=='Lead'){ # dont process the Lead, only Customer
+            $this->delete();
+            return true;
+        }
+
         $customer->apiurl=$this->url;
         //$customer->customer_group=isset($parsedCustomer->Profile->CustomerGroup)?$parsedCustomer->Profile->CustomerGroup:'';
         $customer->save();

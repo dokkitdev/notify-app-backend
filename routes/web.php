@@ -8,6 +8,9 @@ Route::group(['middleware'=>['checkAdmin']],function (){
 
     Route::get('/admin/templates',['uses'=>'Admin\TemplatesGroupsController@index','as'=>'templates.index']);
 
+    Route::post('/admin/template/{id}',['uses'=>'Admin\TemplatesController@update','as'=>'template.update']);
+    Route::get('/admin/template/{id}',['uses'=>'Admin\TemplatesController@getTemplate','as'=>'template.show']);
+
     Route::get('/admin/users',['uses'=>'Admin\UsersController@index','as'=>'users.index']);
     Route::resource('admin/users','Admin\UsersController',[
         'except'=>[
@@ -23,7 +26,7 @@ Route::group(['middleware'=>['checkLogin']],function (){
     Route::get('/profile',['uses'=>'Profile@getProfile','as'=>'Profile.getProfile']);
     Route::put('/profile',['uses'=>'getProfile@saveProfile','as'=>'Profile.saveProfile']);
 
-    Route::get('/customers',['uses'=>'CustomersController@index','as'=>'CustomersController.index']);
+    Route::get('/customers/{id}',['uses'=>'CustomersController@index','as'=>'CustomersController.index']);
 
 });
 
