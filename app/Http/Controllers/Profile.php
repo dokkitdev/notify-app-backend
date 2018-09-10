@@ -14,10 +14,12 @@ class Profile extends Controller
         $title='Profile';
         return view('auth.profile', ['user'=>User::find(Auth::id())])->with('title',$title);
     }
-    public function saveProfile($data){
+    public function saveProfile(Request $request){
         $user=User::find(Auth::id());
-        $user->name=$data['name'];
+        $data=$request->all();
+        //$user->name=$data['name'];
         $user->password=Hash::make($data['newpass']);
         $user->save();
+        return redirect('/profile');
     }
 }
