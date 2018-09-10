@@ -151,6 +151,7 @@ return [
          * Package Service Providers...
          */
         Aws\Laravel\AwsServiceProvider::class,
+        Barryvdh\Queue\AsyncServiceProvider::class,
 
         /*
          * Application Service Providers...

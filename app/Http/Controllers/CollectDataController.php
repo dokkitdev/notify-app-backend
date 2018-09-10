@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Service\simProService;
+use App\Service\collectDataService;
 use Illuminate\Http\Request;
 
-class ImportCustomersController extends Controller
+class CollectDataController extends Controller
 {
     public function index($id){
         if($id!='n34u9bf')return false;
-        $ps=new simProService();
-        $ps->importCustomers();
+        $cds=new collectDataService();
+        $cds->collectData();
     }
 }
