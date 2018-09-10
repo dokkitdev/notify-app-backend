@@ -26,11 +26,11 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
     Route::get('/admin/users/{id}/edit',['uses'=>'Admin\UsersController@edit','as'=>'users.edit']);
     Route::get('/admin/users/destroy/{id}',['uses'=>'Admin\UsersController@destroy','as'=>'users.destroy']);
     Route::put('/admin/users/{id}',['uses'=>'Admin\UsersController@update','as'=>'users.update']);
-    Route::get('/admin/block/blocking/{id}',['uses'=>'Admin\UsersController@blocking','as'=>'users.blocking']);
+    //Route::get('/admin/block/blocking/{id}',['uses'=>'Admin\UsersController@blocking','as'=>'users.blocking']);
 });
 Route::group(['middleware'=>['CheckLogin']],function (){
     Route::get('/profile',['uses'=>'Profile@getProfile','as'=>'Profile.getProfile']);
-    Route::put('/profile',['uses'=>'getProfile@saveProfile','as'=>'Profile.saveProfile']);
+    Route::put('/profile',['uses'=>'Profile@saveProfile','as'=>'Profile.saveProfile']);
 
     Route::get('/customers/{id}',['uses'=>'CustomersController@index','as'=>'CustomersController.index']);
 
