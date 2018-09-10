@@ -15,7 +15,8 @@ class CreateTemplatesGroupsTable extends Migration
     {
         Schema::create('templates_groups', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('customer_type')->default('');
+            $table->string('customer_group_tag')->default('');
+            $table->integer('customer_group_tag_id')->default(0);
             $table->timestamps();
         });
     }
@@ -27,6 +28,9 @@ class CreateTemplatesGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('templates_groups');
+        Schema::table('templates_groups',function (Blueprint $table){
+            $table->dropColumn('customer_group_tag_id');
+            $table->dropColumn('customer_group_tag');
+        });
     }
 }

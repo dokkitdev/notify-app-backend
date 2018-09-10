@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Customers;
 use App\Jobs\parseCustomers;
+use App\Jobs\parseCustomersLinks;
 use App\Settings;
 use App\User;
 use GuzzleHttp\Client;
@@ -19,30 +20,340 @@ class TestController extends Controller
     {
         $this->getToken();
     }
+    private function parseCompanies(){
+        $companies=$this->getRequest('GET','/api/v1.0/companies/');
+        if(!$companies) {
+            print 'err_companies';
+            return false;
+        }
+        return $companies;
+    }
+    public function importCustomers(){
 
 
-    public function patchRequest($method,$url,$data){
+        $companies=$this->parseCompanies();
+        if(!$companies) {
+            print 'err_companies';
+            return false;
+        }
+        $customersLinks=$this->parseCustomersCompaniesPg($companies);
+        exit;
+    }
+    function parseCustomersCompaniesPg($companies){
+        $customersLinks=[];
+        foreach ($companies as $v){
+            $customers=$this->getRequestPage('GET','/api/v1.0/companies/'.$v->ID.'/customers/');
+            if(count($customers)>0){
+                foreach ($customers as $val){
+                    //$customersLinks[]=$val;
+                    parseCustomersLinks::dispatch($val)->delay(now()->addSecond(5));
+                }
+            }
+        }
+        return $customersLinks;
+    }
+    private function parseCustomersLinks($companies){
+        $customersLinks=[];
+        foreach ($companies as $v){
+            $customers=$this->getRequestPage('GET','/api/v1.0/companies/'.$v->ID.'/customers/');
+            if(count($customers)>0){
+                foreach ($customers as $val){
+                    $customersLinks[]=$val->_href;
+                }
+            }
+        }
+        return $customersLinks;
+    }
+    private function parseCustomerLinks($link){
+        $customers=$this->getRequest('GET',$link);
+        if(count($customers)>0){
+            foreach ($customers as $val){
+//                $customersLinks[]=$val->_href;
+                parseCustomers::dispatch($val->_href)->delay(now()->addSecond(5));
+            }
+        }
+
+ //       return $customersLinks;
+    }
+
+    /**
+     * @param $method
+     * @param $url
+     * @return array|bool
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getRequestPage($method,$url){
         $client = new Client();
         $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.'?access_token='.$this->token,
             ['headers'=>[
                 'Accept'     => 'application/json', #todo required
-            ],
-                'form_params'=>$data
+            ]
             ]
         );
         if((int)$res->getStatusCode()==200){
-            return $res->getStatusCode();
+            $headers=$res->getHeaders();
+            $urls[]=$url;
+            if(isset($headers['Result-Pages'][0])&&$headers['Result-Pages'][0]>1){
+                for($i=2;$i<$headers['Result-Pages'][0];$i++){
+                    $urls[]=$url.'?page='.$i;
+                }
+            }
+            return $urls;
         }else{
             return false;
         }
     }
-    public function updateSimProCustomer($data,Customers $customer){
-        $res=$this->patchRequest('PATCH',$customer->apiurl,$data);
-        $res=$this->getRequest('GET',$customer->apiurl);
-        dd($res);
+
+    function parseCustomerContractByUrl($url){
+        $parsedContracts=false;
+        $contracts=$this->getRequest('GET',$url); # забираем краткую информацию по контрактам
+        if(count($contracts)>0){
+            foreach ($contracts as $contract) { # забираем подробную информацию по контрактам
+                $parsedContracts[]=$this->getRequest('GET',$url.$contract->ID);
+            }
+
+        }
+
+        $res=false;
+        if(is_array($parsedContracts)&&count($parsedContracts)>1){ #если несколько контрактов ищем первый НЕ Архивный
+            foreach($parsedContracts as $v){
+                if($v->Archived==false){
+                    $res=$v;
+                    break;
+                }
+            }
+            return $res;
+        }else {
+            return isset($parsedContracts[0])?$parsedContracts[0]:false;
+        }
     }
     public function index(){
-        dd($this->getRequest('GET','/api/v1.0/customers/'));
+       $in[]='/api/v1.0/companies/2/customers/individuals/13102';
+        $in[]='/api/v1.0/companies/2/customers/companies/13103';
+        $in[]='/api/v1.0/companies/0/customers/companies/75';
+        /*
+       $in[]='/api/v1.0/companies/0/customers/companies/74';
+       $in[]='/api/v1.0/companies/0/customers/companies/4386';
+       $in[]='/api/v1.0/companies/0/customers/companies/4413';
+       $in[]='/api/v1.0/companies/0/customers/companies/4387';
+       $in[]='/api/v1.0/companies/0/customers/companies/4388';
+        $in[]='/api/v1.0/companies/0/customers/companies/4411';
+        $in[]='/api/v1.0/companies/0/customers/companies/4389';
+        $in[]='/api/v1.0/companies/0/customers/companies/4404';
+        $in[]='/api/v1.0/companies/0/customers/individuals/4405';
+        /*$in[]='/api/v1.0/companies/0/customers/companies/4390';
+        $in[]='/api/v1.0/companies/0/customers/individuals/4406';
+        $in[]='/api/v1.0/companies/0/customers/individuals/4407';
+        $in[]='/api/v1.0/companies/0/customers/companies/4391';
+        $in[]='/api/v1.0/companies/0/customers/companies/4392';
+        $in[]='/api/v1.0/companies/0/customers/companies/4393';
+        $in[]='/api/v1.0/companies/0/customers/companies/4394';
+        $in[]='/api/v1.0/companies/0/customers/individuals/4412';
+        $in[]='/api/v1.0/companies/0/customers/companies/4414';
+        $in[]='/api/v1.0/companies/0/customers/companies/4395';
+        $in[]='/api/v1.0/companies/0/customers/companies/4396';
+        $in[]='/api/v1.0/companies/0/customers/companies/4397';
+        $in[]='/api/v1.0/companies/0/customers/companies/4398';
+        $in[]='/api/v1.0/companies/0/customers/companies/4410';
+        $in[]='/api/v1.0/companies/0/customers/companies/4399';
+        $in[]='/api/v1.0/companies/0/customers/companies/4401';
+        $in[]='/api/v1.0/companies/0/customers/companies/4400';
+        $in[]='/api/v1.0/companies/0/customers/individuals/4349';
+        $in[]='/api/v1.0/companies/2/customers/companies/4890';
+        $in[]='/api/v1.0/companies/2/customers/individuals/9310';
+        $in[]='/api/v1.0/companies/2/customers/individuals/2917';
+        $in[]='/api/v1.0/companies/2/customers/individuals/3449';
+        $in[]='/api/v1.0/companies/2/customers/individuals/2857';
+        $in[]='/api/v1.0/companies/2/customers/individuals/3647';
+        $in[]='/api/v1.0/companies/2/customers/individuals/2863';
+        $in[]='/api/v1.0/companies/2/customers/companies/2420';
+        $in[]='/api/v1.0/companies/2/customers/companies/2423';
+        $in[]='/api/v1.0/companies/2/customers/companies/2424';
+        $in[]='/api/v1.0/companies/2/customers/companies/4943';
+        $in[]='/api/v1.0/companies/2/customers/individuals/4897';
+        $in[]='/api/v1.0/companies/2/customers/companies/13091';
+        $in[]='/api/v1.0/companies/2/customers/companies/2425';
+        $in[]='/api/v1.0/companies/2/customers/companies/5861';
+        $in[]='/api/v1.0/companies/2/customers/individuals/9352';
+        $in[]='/api/v1.0/companies/2/customers/companies/4420';
+        $in[]='/api/v1.0/companies/2/customers/companies/4369';
+        $in[]='/api/v1.0/companies/2/customers/companies/2453';
+        $in[]='/api/v1.0/companies/2/customers/individuals/9349';
+        $in[]='/api/v1.0/companies/2/customers/companies/13066';
+        $in[]='/api/v1.0/companies/2/customers/individuals/9341';
+        $in[]='/api/v1.0/companies/2/customers/individuals/2416';
+        $in[]='/api/v1.0/companies/2/customers/companies/2426';
+        $in[]='/api/v1.0/companies/2/customers/companies/3017';
+        $in[]='/api/v1.0/companies/2/customers/companies/4416';
+        $in[]='/api/v1.0/companies/2/customers/companies/4944';
+        $in[]='/api/v1.0/companies/2/customers/individuals/4895';
+        $in[]='/api/v1.0/companies/2/customers/companies/2427';
+        $in[]='/api/v1.0/companies/2/customers/individuals/4934';
+        $in[]='/api/v1.0/companies/2/customers/companies/2851';
+        $in[]='/api/v1.0/companies/2/customers/companies/2852';
+        $in[]='/api/v1.0/companies/2/customers/companies/3569';
+        $in[]='/api/v1.0/companies/2/customers/companies/4959';
+        $in[]='/api/v1.0/companies/2/customers/companies/2976';
+        $in[]='/api/v1.0/companies/2/customers/companies/2977';
+        $in[]='/api/v1.0/companies/2/customers/companies/2978';
+        $in[]='/api/v1.0/companies/2/customers/companies/3644';
+        $in[]='/api/v1.0/companies/2/customers/companies/3621';
+        $in[]='/api/v1.0/companies/2/customers/companies/2947';
+        $in[]='/api/v1.0/companies/2/customers/individuals/2864';
+        $in[]='/api/v1.0/companies/2/customers/individuals/2868';
+        $in[]='/api/v1.0/companies/2/customers/companies/2979';
+        $in[]='/api/v1.0/companies/2/customers/companies/2971';
+        $in[]='/api/v1.0/companies/2/customers/companies/2972';
+        $in[]='/api/v1.0/companies/2/customers/companies/2973';
+        $in[]='/api/v1.0/companies/2/customers/companies/2974';
+        $in[]='/api/v1.0/companies/2/customers/companies/2975';
+        $in[]='/api/v1.0/companies/2/customers/individuals/2414';
+        $in[]='/api/v1.0/companies/2/customers/companies/2534';
+        $in[]='/api/v1.0/companies/2/customers/companies/2542';
+        $in[]='/api/v1.0/companies/2/customers/companies/2535';
+        $in[]='/api/v1.0/companies/2/customers/companies/2536';
+        $in[]='/api/v1.0/companies/2/customers/companies/2537';
+        $in[]='/api/v1.0/companies/2/customers/companies/2538';
+        $in[]='/api/v1.0/companies/2/customers/companies/2539';
+        $in[]='/api/v1.0/companies/2/customers/companies/2540';
+        $in[]='/api/v1.0/companies/2/customers/companies/2541';
+        $in[]='/api/v1.0/companies/2/customers/companies/7';
+        $in[]='/api/v1.0/companies/2/customers/companies/2543';
+        $in[]='/api/v1.0/companies/2/customers/companies/2544';
+        $in[]='/api/v1.0/companies/2/customers/companies/2545';
+        $in[]='/api/v1.0/companies/2/customers/companies/2546';
+        $in[]='/api/v1.0/companies/2/customers/companies/2547';
+        $in[]='/api/v1.0/companies/2/customers/companies/13041';
+        $in[]='/api/v1.0/companies/2/customers/companies/9411';
+        $in[]='/api/v1.0/companies/2/customers/companies/2548';
+        $in[]='/api/v1.0/companies/2/customers/companies/2549';
+        $in[]='/api/v1.0/companies/2/customers/companies/4214';
+        $in[]='/api/v1.0/companies/2/customers/companies/544';
+        $in[]='/api/v1.0/companies/2/customers/companies/4419';
+        $in[]='/api/v1.0/companies/2/customers/companies/5855';
+        $in[]='/api/v1.0/companies/2/customers/companies/2551';
+        $in[]='/api/v1.0/companies/2/customers/individuals/13063';
+        $in[]='/api/v1.0/companies/2/customers/individuals/13077';
+        $in[]='/api/v1.0/companies/2/customers/individuals/13092';
+        $in[]='/api/v1.0/companies/2/customers/individuals/13093';
+        $in[]='/api/v1.0/companies/2/customers/individuals/13095';
+        $in[]='/api/v1.0/companies/2/customers/individuals/13094';
+        $in[]='/api/v1.0/companies/2/customers/individuals/4870';
+        $in[]='/api/v1.0/companies/2/customers/companies/2550';
+        $in[]='/api/v1.0/companies/2/customers/companies/2552';
+        $in[]='/api/v1.0/companies/2/customers/companies/2553';
+        $in[]='/api/v1.0/companies/2/customers/companies/2554';
+        $in[]='/api/v1.0/companies/2/customers/companies/2555';
+        $in[]='/api/v1.0/companies/2/customers/individuals/9311';
+        $in[]='/api/v1.0/companies/2/customers/companies/2556';
+        $in[]='/api/v1.0/companies/2/customers/individuals/4171';
+        $in[]='/api/v1.0/companies/2/customers/individuals/9500';
+        $in[]='/api/v1.0/companies/2/customers/companies/2558';
+        $in[]='/api/v1.0/companies/2/customers/companies/4378';
+        $in[]='/api/v1.0/companies/2/customers/companies/2398';
+        $in[]='/api/v1.0/companies/2/customers/companies/2559';
+        $in[]='/api/v1.0/companies/2/customers/individuals/9455';
+        $in[]='/api/v1.0/companies/2/customers/individuals/9472';
+        $in[]='/api/v1.0/companies/2/customers/companies/2560';
+        $in[]='/api/v1.0/companies/2/customers/companies/2561';
+        $in[]='/api/v1.0/companies/2/customers/companies/5863';
+        $in[]='/api/v1.0/companies/2/customers/companies/2562';
+        $in[]='/api/v1.0/companies/2/customers/individuals/4172';
+        $in[]='/api/v1.0/companies/2/customers/companies/2563';
+        $in[]='/api/v1.0/companies/2/customers/companies/2564';
+        $in[]='/api/v1.0/companies/2/customers/companies/2565';
+        $in[]='/api/v1.0/companies/2/customers/companies/2566';
+        $in[]='/api/v1.0/companies/2/customers/companies/2567';
+        $in[]='/api/v1.0/companies/2/customers/companies/2568';
+        $in[]='/api/v1.0/companies/2/customers/companies/2569';
+        $in[]='/api/v1.0/companies/2/customers/companies/2570';
+        $in[]='/api/v1.0/companies/2/customers/individuals/9328';
+        $in[]='/api/v1.0/companies/2/customers/companies/4955';
+        $in[]='/api/v1.0/companies/2/customers/companies/2571';
+        $in[]='/api/v1.0/companies/2/customers/companies/4939';
+        $in[]='/api/v1.0/companies/2/customers/companies/2572';
+        $in[]='/api/v1.0/companies/2/customers/companies/2573';
+        $in[]='/api/v1.0/companies/2/customers/companies/549';
+        $in[]='/api/v1.0/companies/2/customers/companies/2574';
+        $in[]='/api/v1.0/companies/2/customers/companies/2575';
+        $in[]='/api/v1.0/companies/2/customers/companies/545';
+        $in[]='/api/v1.0/companies/2/customers/companies/2576';
+        $in[]='/api/v1.0/companies/2/customers/companies/2577';
+        $in[]='/api/v1.0/companies/2/customers/companies/2578';
+        $in[]='/api/v1.0/companies/2/customers/individuals/493';
+        $in[]='/api/v1.0/companies/2/customers/companies/569';
+        $in[]='/api/v1.0/companies/2/customers/companies/2579';
+        $in[]='/api/v1.0/companies/2/customers/companies/2580';
+        $in[]='/api/v1.0/companies/2/customers/companies/2581';
+        $in[]='/api/v1.0/companies/2/customers/companies/2582';
+        $in[]='/api/v1.0/companies/2/customers/companies/2392';
+        $in[]='/api/v1.0/companies/2/customers/companies/2583';
+        $in[]='/api/v1.0/companies/2/customers/companies/2584';
+        $in[]='/api/v1.0/companies/2/customers/companies/2585';
+        $in[]='/api/v1.0/companies/2/customers/companies/2586';
+        $in[]='/api/v1.0/companies/2/customers/companies/2393';
+        $in[]='/api/v1.0/companies/2/customers/companies/2587';
+        $in[]='/api/v1.0/companies/2/customers/companies/2588';
+        $in[]='/api/v1.0/companies/2/customers/companies/2589';
+        $in[]='/api/v1.0/companies/2/customers/companies/2590';
+        $in[]='/api/v1.0/companies/2/customers/companies/4918';
+        $in[]='/api/v1.0/companies/2/customers/companies/2591';
+        $in[]='/api/v1.0/companies/2/customers/companies/2592';
+        $in[]='/api/v1.0/companies/2/customers/companies/2602';
+        $in[]='/api/v1.0/companies/2/customers/companies/2593';
+        $in[]='/api/v1.0/companies/2/customers/companies/2594';
+        $in[]='/api/v1.0/companies/2/customers/companies/546';
+        $in[]='/api/v1.0/companies/2/customers/companies/2595';
+        $in[]='/api/v1.0/companies/2/customers/companies/5864';
+        $in[]='/api/v1.0/companies/2/customers/companies/18';
+        $in[]='/api/v1.0/companies/2/customers/individuals/2399';
+        $in[]='/api/v1.0/companies/2/customers/companies/2596';
+        $in[]='/api/v1.0/companies/2/customers/companies/2597';
+        $in[]='/api/v1.0/companies/2/customers/companies/2598';
+        $in[]='/api/v1.0/companies/2/customers/companies/2599';
+        $in[]='/api/v1.0/companies/2/customers/companies/2600';
+        $in[]='/api/v1.0/companies/2/customers/companies/2601';
+        $in[]='/api/v1.0/companies/2/customers/individuals/4177';
+        $in[]='/api/v1.0/companies/2/customers/companies/2603';
+        $in[]='/api/v1.0/companies/2/customers/companies/2604';
+        $in[]='/api/v1.0/companies/2/customers/companies/2605';
+        $in[]='/api/v1.0/companies/2/customers/companies/2606';
+        $in[]='/api/v1.0/companies/2/customers/companies/547';
+        $in[]='/api/v1.0/companies/2/customers/companies/2607';
+        $in[]='/api/v1.0/companies/2/customers/companies/2608';
+        $in[]='/api/v1.0/companies/2/customers/companies/2609';
+        $in[]='/api/v1.0/companies/2/customers/companies/2610';
+        $in[]='/api/v1.0/companies/2/customers/individuals/9356';
+        $in[]='/api/v1.0/companies/2/customers/individuals/4886';
+        $in[]='/api/v1.0/companies/2/customers/companies/2611';*/
+        foreach ($in as $v) {
+            print '<pre>'.print_r($this->getRequest('GET',$v),1).'</pre>';
+            preg_match('!\D(\/companies\/|\/individuals\/)(.*+)$!',$v,$matches); # get the customer id
+            preg_match('!\/companies\/(.*)\/customers\/!',$v,$matchesC); # get the customer id
+            $res[] = $this->parseCustomerContractByUrl('/api/v1.0/companies/'.$matchesC[1].'/customers/'.$matches[2].'/contracts/');
+        }
+        dd($res);
+
+        preg_match('!\/companies\/(.*)\/customers\/!','/api/v1.0/companies/2/customers/companies/13101',$matches); # get the customer id
+        dd($matches[1]);
+exit;
+        print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/2/customers/companies/13101'),1).'</pre>';
+        exit;
+        print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/0/customers/13102/contracts/'),1).'</pre>';
+        print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/0/customers/13102/contracts/13098'),1).'</pre>';
+        exit;
+        /*$arr=$this->getRequest('GET','/api/v1.0/companies/3/customers/individuals/');
+        foreach ($arr as $v){
+            print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/3/customers/'.$v->ID.'/contracts/'),1).'</pre>';
+        }
+
+        */
+        print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/3/customers/2388/contracts/'),1).'</pre>';
+        print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/3/customers/individuals/'),1).'</pre>';
+        //print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/3/customers/individuals/2184'),1).'</pre>';
+        //print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/3/jobs/',2),1).'</pre>';
+        //dd($this->getRequest('GET','/api/v1.0/companies/3/jobs/2072/invoices/'));
+        exit;
         $this->updateSimProCustomer(['GivenName'=>'TTTname'],Customers::find(10));
         exit;
         $arr[]='/api/v1.0/companies/0/customers/companies/75';
@@ -109,17 +420,19 @@ class TestController extends Controller
 
     public function getRequest($method,$url){
         $client = new Client();
-        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.'?access_token='.$this->token,
+        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.((strpos($url,'page=')!=false)?'&':'?').'access_token='.$this->token,
             ['headers'=>[
                 'Accept'     => 'application/json', #todo required
             ]
             ]
         );
+
         if((int)$res->getStatusCode()==200){
             return json_decode($res->getBody());
         }else{
             return false;
         }
     }
+
 
 }
