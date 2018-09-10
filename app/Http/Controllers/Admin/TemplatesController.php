@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Service\sesTemplatesService;
 use App\Template;
 use Illuminate\Http\FileHelpers;
 use Illuminate\Http\Request;
@@ -40,5 +41,30 @@ class TemplatesController extends Controller
             $data=Storage::disk('s3')->download($template->file_link);
         }
         return $data;
+    }
+    function createTemplate(Request $request,$id){
+        //$data=$request->all();
+        $STS=new sesTemplatesService();
+
+        $data['name']='Tname';
+        $data['subject']='Tsubject';
+        $data['html_body']='html_body';
+        $data['plaintext_body']='plaintext_body';
+
+        $STS->name=$data['name'];
+        $STS->subject=$data['subject'];
+        $STS->html_body=$data['html_body'];
+        $STS->plaintext_body=$data['plaintext_body'];
+        $rez=$STS->createSesTemplate();
+
+    }
+    function updateTemplate(){
+
+    }
+    function deleteTemplate(){
+
+    }
+    function emailTemplate(){
+
     }
 }
