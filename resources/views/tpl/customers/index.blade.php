@@ -31,12 +31,19 @@
                             <td scope="row"><input type="checkbox" name="customerActive[{{$customer->id}}]"></td>
                             <td>{{$customer->given_name}} {{$customer->family_name}}</td>
                             <td>{{$customer->address}}</td>
-                            <td> - </td>
+                            <td>
+                                @if($customer->letter_state==1)
+                                    1st Letter
+                                @elseif($customer->letter_state==2)
+                                    2nd Letter
+                                @elseif($customer->letter_state==3)
+                                    3rd Letter
+                                @endif
+                            </td>
                             <td>{{$customer->created_at}}</td>
-                            <td> - </td>
+                            <td>{{$customer->contract_name}} <br><nobr>{{date("Y-m-d",$customer->start_date)}} - {{date("Y-m-d",$customer->end_date)}}</nobr></td>
                             <td>{{$customer->email}}</td>
 
-                            <td></td>
                         </tr>
                 @endforeach
 

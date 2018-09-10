@@ -13,7 +13,7 @@
 
         <div class="form-group">
             {!! Form::label('Name', 'Name') !!}
-            {!! Form::text('name',$user['name'],['class'=>'form-control']) !!}
+            {!! Form::text('name',$user['name'],['class'=>'form-control','disabled'=>'disabled']) !!}
         </div>
         <div class="form-group">
             {!! Form::label('New password', 'newpass') !!}
