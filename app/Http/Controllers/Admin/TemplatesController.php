@@ -8,12 +8,13 @@ use Illuminate\Http\FileHelpers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Testing\MimeType;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class TemplatesController extends Controller
 {
     use FileHelpers;
-    public function update($id,Request $request){
+    public function update_old($id,Request $request){
         $data=$request->all();
         unset($data['_token']);
         $template=Template::find($id);
@@ -33,7 +34,7 @@ class TemplatesController extends Controller
         return redirect('admin/templates');
 
     }
-    function getTemplate($id){
+    function getTemplate_old($id){
         $data='No file';
         $template=Template::find($id);
         $exists = Storage::disk('s3')->exists($template->file_link);
@@ -42,29 +43,58 @@ class TemplatesController extends Controller
         }
         return $data;
     }
-    function createTemplate(Request $request,$id){
-        //$data=$request->all();
+    public function create($id)
+    {
+        $template=Template::find($id);
+        if(!$template)return redirect('/admin/templates');
+        $title = 'Create template';
+        return view('admin.templates.create',['template'=>$template,'terms'=>TemplatesGroupsController::$terms])->with('title',$title);
+    }
+    function createTemplate(Request $request){
+        $data=$request->all();
+        $id=$data['id'];
         $STS=new sesTemplatesService();
-
-        $data['name']='Tname';
-        $data['subject']='Tsubject';
-        $data['html_body']='html_body';
-        $data['plaintext_body']='plaintext_body';
-
-        $STS->name=$data['name'];
-        $STS->subject=$data['subject'];
-        $STS->html_body=$data['html_body'];
-        $STS->plaintext_body=$data['plaintext_body'];
-        $rez=$STS->createSesTemplate();
+        $rez=$STS->createSesTemplate('Template'.$id,$data['html_body'],$data['subject'],$data['plaintext_body']);
+        if($rez=='200'){
+            $template=Template::find($id);
+            $template->name='Template'.$id;
+            $template->term=$data['term'];
+            $template->save();
+        }
+        return redirect('/admin/templates');
 
     }
-    function updateTemplate(){
+    function updateTemplate(Request $request,$id){
+        $data=$request->all();
+        $STS=new sesTemplatesService();
+        $template=Template::find($id);
+        if(!$template)return false;
+        $rez=$STS->updateSesTemplate('Template'.$id,$data['html_body'],$data['subject'],$data['plaintext_body']);
+        if($rez=='200'){
+            $template->name='Template'.$id;
+            $template->term=$data['term'];
+            $template->save();
+        }
+        return redirect('/admin/templates');
 
+    }
+    function getTemplate($id){
+        $title = 'Update template';
+        $STS=new sesTemplatesService();
+        $template=Template::find($id);
+        if(!$template||$template->name=='')return false;
+        $ses=$STS->getSesTemplate($template->name);
+        if(!is_array($ses))return redirect('/admin/templates');
+        return view('admin.templates.edit',['template'=>$template,'ses'=>$ses,'terms'=>TemplatesGroupsController::$terms])->with('title',$title);
     }
     function deleteTemplate(){
 
     }
-    function emailTemplate(){
-
+    function emailTemplate($id){
+        $STS=new sesTemplatesService();
+        $template=Template::find($id);
+        if(!$template||$template->name=='')return false;
+        $STS->sendSesTemplateEmail($template->name,Auth::user()->email,Auth::user()->email,['name'=>Auth::user()->name]);
+        return redirect('/admin/templates');
     }
 }

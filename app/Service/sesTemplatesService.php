@@ -2,8 +2,6 @@
 
 namespace App\Service;
 
-use App\Customers;
-use App\TemplateGroup;
 use Aws\Credentials\CredentialProvider;
 use Aws\Exception\AwsException;
 use Aws\Ses\SesClient;
@@ -15,7 +13,7 @@ class sesTemplatesService
     public $subject;
     public $plaintext_body;
 
-    public function CreateSesClient():SesClient{
+    private function CreateSesClient():SesClient{
         $provider = CredentialProvider::defaultProvider();
         $SesClient=new SesClient([
             'profile'=>'default',
@@ -25,14 +23,23 @@ class sesTemplatesService
         ]);
         return $SesClient;
     }
-    public function createSesTemplate(){
+    /**
+     * обработка кривого ответа от Amazon
+     * @param AwsException $e
+     * @return string
+     */
+    private function getErr(AwsException $e){
+        try {
+            dd($e->getMessage());
+            preg_match('~<Code>(.*?)</Code>~', $e->getMessage(), $m);
+            return $m[1];
+        }catch (\Exception $e){
+            return '';
+        }
+
+    }
+    public function createSesTemplate($name,$html_body,$subject,$plaintext_body=''){
         $SesClient=$this->CreateSesClient();
-        $name = $this->name;
-        $html_body = $this->html_body;
-        $subject = $this->subject;
-        $plaintext_body = $this->plaintext_body;
-
-
         try {
             $result = $SesClient->createTemplate([
                 'Template' => [
@@ -42,64 +49,67 @@ class sesTemplatesService
                     'TextPart' => $plaintext_body,
                 ],
             ]);
-            print_r($result);
-            var_dump($result);
-            dd($result);
+            return $result->toArray()['@metadata']['statusCode'];
         } catch (AwsException $e) {
-            // output error message if fails
-            echo $e->getMessage();
-            echo "\n";
+            throw new \Exception($this->getErr($e));
+
         }
     }
-    public function deleteSesTemplate(){
+    public function updateSesTemplate($name,$html_body,$subject,$plaintext_body){
         $SesClient=$this->CreateSesClient();
-        $name = 'Template_Name';
+        try {
+            $result = $SesClient->updateTemplate([
+                'Template' => [
+                    'HtmlPart' => $html_body,
+                    'SubjectPart' => $subject,
+                    'TemplateName' => $name,
+                    'TextPart' => $plaintext_body,
+                ],
+            ]);
+            return $result->toArray()['@metadata']['statusCode'];
+        } catch (AwsException $e) {
+            throw new \Exception($this->getErr($e));
+        }
+    }
+    public function deleteSesTemplate($name){
+        $SesClient=$this->CreateSesClient();
         try {
             $result = $SesClient->deleteTemplate([
                 'TemplateName' => $name,
             ]);
-            dd($result);
+            return $result->toArray()['@metadata']['statusCode'];
         } catch (AwsException $e) {
-            // output error message if fails
-            echo $e->getMessage();
-            echo "\n";
+            throw new \Exception($this->getErr($e));
         }
     }
-    public function getSesTemplate(){
+    public function getSesTemplate($name){
         $SesClient=$this->CreateSesClient();
-        $name = 'Template_Name';
         try {
             $result = $SesClient->getTemplate([
                 'TemplateName' => $name,
             ]);
-            dd($result);
+            return $result->toArray()['Template'];
         } catch (AwsException $e) {
-            // output error message if fails
-            echo $e->getMessage();
-            echo "\n";
+            throw new \Exception($this->getErr($e));
         }
     }
-    public function sendSesTemplateEmail(){
+    public function sendSesTemplateEmail($name,$sender_email,$recipeint_emails,$data=[]){
         $SesClient=$this->CreateSesClient();
-        $name = 'Template_Name';
-        $sender_email = 'omenpars@gmail.com';
-        $recipeint_emails = ['max2225@yandex.ru'];
         try {
             $result = $SesClient->sendTemplatedEmail([
                 'Destination' => [
-                    'ToAddresses' => $recipeint_emails,
+                    'ToAddresses' => [$recipeint_emails],
                 ],
                 'ReplyToAddresses' => [$sender_email],
                 'Source' => $sender_email,
 
                 'Template' => $name,
-                'TemplateData' => json_encode(['name'=>'MMMax'])
+                'TemplateData' => json_encode($data)
             ]);
-            dd($result);
+            $result=$result->toArray();
+            return ['statusCode'=>$result['@metadata']['statusCode'],'MessageId'=>$result['MessageId']];
         } catch (AwsException $e) {
-            // output error message if fails
-            echo $e->getMessage();
-            echo "\n";
+            throw new \Exception($this->getErr($e));
         }
     }
     public function listSesTemplates(){
@@ -108,11 +118,10 @@ class sesTemplatesService
             $result = $SesClient->listTemplates([
                 'MaxItems' => 100,
             ]);
-            dd($result);
+            return $result->toArray()['TemplatesMetadata'];
         } catch (AwsException $e) {
-            // output error message if fails
-            echo $e->getMessage();
-            echo "\n";
+            throw new \Exception($this->getErr($e));
         }
     }
+
 }

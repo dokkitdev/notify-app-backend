@@ -11,27 +11,21 @@
                 <div class="border">
                     <table class="table">
                         @foreach ($tg['templates'] as $template)
-                            <form action="/admin/template/{{$template->id}}" method="POST" enctype="multipart/form-data">
-                                {{ csrf_field() }}
                         <tr>
                             <td>Letter {{$template->state}}</td>
                             <td>
-                                <select name="term">
-                                    @foreach($terms as $termKey=>$term)
-                                        <option value="{{$termKey}}" {{$termKey==$template->term?'selected=selected':''}}>{{$term}}</option>
-                                    @endforeach
-                                </select>
+                                {{$terms[$template->term]}}
                             </td>
                             <td>
-                                <input type="file" name="upltemplate">
-                                <input type="submit" value="Update template">
+                                @if($template->name=='')<a href="/admin/template/{{$template->id}}">Create</a>@endif
                             </td>
                             <td>
-                                @if($template->file_link!='')<a target="_blank" href="/admin/template/{{$template->id}}">Download</a>@endif</td>
-
-                            <td>Email</td>
+                                @if($template->name!='')<a href="/admin/template/{{$template->id}}/edit">Edit</a>@endif
+                            </td>
+                            <td>
+                                @if($template->name!='')<a href="/admin/template/{{$template->id}}/email">Email to Me</a>@endif
+                            </td>
                         </tr>
-                            </form>
                         @endforeach
                     </table>
                 </div>
