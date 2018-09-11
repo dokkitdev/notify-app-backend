@@ -36,10 +36,11 @@ class parseCustomers implements ShouldQueue
             $this->delete();
         }
         preg_match('!\D(\/companies\/|\/individuals\/)(.*+)$!',$this->url,$matches); # get the customer id
-        preg_match('!\/companies\/(.*)\/customers\/!',$this->url,$matchesC); # get the customer id
+        preg_match('!\/companies\/(.*)\/customers\/!',$this->url,$matchesC); # get the companie id
         $customer=$this->getCustomer(isset($matches[2])?$matches[2]:false);
         $simProservice=new simProService();
         $parsedCustomer=$simProservice->parseCustomerByUrl($this->url);
+        #todo надо забирать ВСЕ контракты и инсертить(апдэйтить) их в таблицу контрактов в связке с текущим кастомером
         $parsedCustomerContract=$simProservice->parseCustomerContractByUrl('/api/v1.0/companies/'.$matchesC[1].'/customers/'.$matches[2].'/contracts/');
         if(!$parsedCustomer)$this->delete();
 
@@ -52,6 +53,7 @@ class parseCustomers implements ShouldQueue
         }
 
         if(count($parsedCustomer->Tags)>0){
+            #todo форычить тэги и искать Housing если найден такой это Housing иначе это Private
             $customer->customer_group_tag = $parsedCustomer->Tags[0]->Name;
             $customer->customer_group_tag_id = $parsedCustomer->Tags[0]->ID;
         }
@@ -68,7 +70,7 @@ class parseCustomers implements ShouldQueue
         $customer->country=isset($parsedCustomer->Address->Country)?$parsedCustomer->Address->Country:'';
         $customer->customer_type=isset($parsedCustomer->CustomerType)?$parsedCustomer->CustomerType:'';
 
-        if($customer->customer_type=='Lead'){ # dont process the Lead, only Customer
+        if($customer->customer_type=='Lead'){ # don't process the Lead, only Customer
             $this->delete();
             return true;
         }
