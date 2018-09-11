@@ -1,0 +1,39 @@
+@extends('admin.tpl.wrapper')
+
+@section('content')
+
+    <div class="container">
+
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+
+        <h2>Create new template</h2>
+        {!! Form::open(['url' => '/admin/template', 'method' => 'POST','enctype'=>'multipart/form-data']) !!}
+
+            <input type="hidden" name="id" value="{{$template->id}}">
+        <div class="form-group">
+            {!! Form::label('Term', 'Term') !!}
+            {!! Form::select('term',$terms,$template->term,['class'=>'form-control']) !!}
+        </div>
+        <div class="form-group">
+            {!! Form::label('Name', 'Name') !!}
+            {!! Form::text('name','Template'.$template->id,['class'=>'form-control', 'disabled'=>'disabled']) !!}
+        </div>
+        <div class="form-group">
+            {!! Form::label('Subject', 'subject') !!}
+            {!! Form::text('subject','',['class'=>'form-control']) !!}
+        </div>
+        <div class="form-group">
+            {!! Form::label('Html body', 'html_body') !!}
+            {!! Form::textarea('html_body','',['class'=>'form-control']) !!}
+        </div>
+       <div class="form-group">
+            {!! Form::label('plaintext_body', 'plaintext_body') !!}
+            {!! Form::textarea('plaintext_body','',['class'=>'form-control']) !!}
+        </div>
+
+        {!! Form::submit('Create', ['class'=>'btn btn-primary']) !!}
+    </div>
+
+@endsection

@@ -7,6 +7,9 @@ use App\Jobs\parseCustomers;
 use App\Jobs\parseCustomersLinks;
 use App\Settings;
 use App\User;
+use Aws\Credentials\CredentialProvider;
+use Aws\Exception\AwsException;
+use Aws\Ses\SesClient;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer;
@@ -16,6 +19,7 @@ use Illuminate\Support\Facades\Hash;
 class TestController extends Controller
 {
     private $token;
+    private $SesClient;
     public function __construct()
     {
         $this->getToken();
@@ -73,7 +77,7 @@ class TestController extends Controller
             }
         }
 
- //       return $customersLinks;
+        //       return $customersLinks;
     }
 
     /**
@@ -127,8 +131,179 @@ class TestController extends Controller
             return isset($parsedContracts[0])?$parsedContracts[0]:false;
         }
     }
+    public function CreateSesClient():SesClient{
+        $provider = CredentialProvider::defaultProvider();
+        $SesClient=new SesClient([
+            'profile'=>'default',
+            'version' => '2010-12-01',
+            'region'  => 'us-east-1',
+            'credentials' => $provider,
+        ]);
+        return $SesClient;
+    }
+    public function createSesTemplate(){
+        $SesClient=$this->CreateSesClient();
+
+        $name = 'Template_Name2';
+        $html_body = '<h1> {{name}} AWS Amazon Simple Email Service Test Email</h1>'.
+            '<p>This email was sent with <a href="https://aws.amazon.com/ses/">'.
+            'Amazon SES</a> using the <a href="https://aws.amazon.com/sdk-for-php/">'.
+            'AWS SDK for PHP</a>.</p>';
+        $subject = 'Amazon SES test (AWS SDK for PHP)';
+        $plaintext_body = 'This email was send with Amazon SES using the AWS SDK for PHP.' ;
+
+
+        try {
+
+            $result = $SesClient->createTemplate([
+                'Template' => [
+                    'HtmlPart' => $html_body,
+                    'SubjectPart' => $subject,
+                    'TemplateName' => $name,
+                    'TextPart' => $plaintext_body,
+                ],
+            ]);
+            return $result->toArray()['@metadata']['statusCode'];
+        } catch (AwsException $e) {
+            throw new \Exception($this->getErr($e));
+
+        }
+    }
+
+    /**
+     * обработка кривого ответа от Amazon
+     * @param AwsException $e
+     * @return string
+     */
+    function getErr(AwsException $e){
+        try {
+            preg_match('~<Code>(.*?)</Code>~', $e->getMessage(), $m);
+            return $m[1];
+        }catch (\Exception $e){
+            return '';
+        }
+
+    }
+    public function deleteSesTemplate($name){
+        $SesClient=$this->CreateSesClient();
+        //$name = 'Template_Name';
+        try {
+            $result = $SesClient->deleteTemplate([
+                'TemplateName' => $name,
+            ]);
+            return $result->toArray()['@metadata']['statusCode'];
+        } catch (AwsException $e) {
+            throw new \Exception($this->getErr($e));
+        }
+    }
+    public function getSesTemplate(){
+        $SesClient=$this->CreateSesClient();
+        $name = 'Template_Name';
+        try {
+            $result = $SesClient->getTemplate([
+                'TemplateName' => $name,
+            ]);
+            return $result->toArray()['Template'];
+        } catch (AwsException $e) {
+            throw new \Exception($this->getErr($e));
+        }
+    }
+    public function sendSesTemplateEmail(){
+        $SesClient=$this->CreateSesClient();
+        $template_name = 'Template_Name';
+        $sender_email = 'omenpars@gmail.com';
+        $recipeint_emails = ['max2225@yandex.ru'];
+        try {
+            $result = $SesClient->sendTemplatedEmail([
+                'Destination' => [
+                    'ToAddresses' => $recipeint_emails,
+                ],
+                'ReplyToAddresses' => [$sender_email],
+                'Source' => $sender_email,
+
+                'Template' => $template_name,
+                'TemplateData' => json_encode(['name'=>'MMMax'])
+            ]);
+            $result=$result->toArray();
+            return ['statusCode'=>$result['@metadata']['statusCode'],'MessageId'=>$result['MessageId']];
+        } catch (AwsException $e) {
+            throw new \Exception($this->getErr($e));
+        }
+    }
+    public function listSesTemplates(){
+        $SesClient=$this->CreateSesClient();
+        try {
+            $result = $SesClient->listTemplates([
+                'MaxItems' => 100,
+            ]);
+            return $result->toArray()['TemplatesMetadata'];
+        } catch (AwsException $e) {
+            throw new \Exception($this->getErr($e));
+        }
+    }
+    public function updateSesTemplate(){
+        $SesClient=$this->CreateSesClient();
+        $name = 'Template_Name';
+        $html_body = '<h1>AWS Amazon Simple Email Service Test Email</h1>'.
+            '<p>This email was sent with <a href="https://aws.amazon.com/ses/">'.
+            'Amazon SES</a> using the <a href="https://aws.amazon.com/sdk-for-php/">'.
+            'AWS SDK for PHP</a>.</p>';
+        $subject = 'Amazon SES test (AWS SDK for PHP)';
+        $plaintext_body = 'This email was send with Amazon SES using the AWS SDK for PHP.' ;
+        try {
+            $result = $SesClient->updateTemplate([
+                'Template' => [
+                    'HtmlPart' => $html_body,
+                    'SubjectPart' => $subject,
+                    'TemplateName' => $name,
+                    'TextPart' => $plaintext_body,
+                ],
+            ]);
+            return $result->toArray()['@metadata']['statusCode'];
+        } catch (AwsException $e) {
+            throw new \Exception($this->getErr($e));
+        }
+    }
+
     public function index(){
-       $in[]='/api/v1.0/companies/2/customers/individuals/13102';
+        //dd(\App\Http\Middleware\CheckLogin::class);
+        //$this->createSesTemplate();
+        #$this->deleteSesTemplate();
+        //$this->sendSesTemplateEmail();
+        //$this->getSesTemplate();
+        try {
+            //$rez=$this->updateSesTemplate();
+            //$rez=$this->sendSesTemplateEmail();
+            //$rez=$this->createSesTemplate();
+            $arr=[
+'Template1',
+'Template2',
+'Template3',
+'Template_Name',
+'Template_Name1',
+'Template_Name111',
+'Template_Name2'];
+            foreach($arr as $v) {
+                $rez = $this->deleteSesTemplate($v);
+            }
+            //$rez=$this->getSesTemplate();
+            //$rez=$this->listSesTemplates();
+        }catch (\Exception $e){
+
+            print $e->getMessage();
+            exit;
+        }
+        print_r($rez);
+
+        exit;
+        /**
+         * за 3 дня
+         */
+
+
+        //exit;
+
+        $in[]='/api/v1.0/companies/2/customers/individuals/13102';
         $in[]='/api/v1.0/companies/2/customers/companies/13103';
         $in[]='/api/v1.0/companies/0/customers/companies/75';
         /*
@@ -326,6 +501,12 @@ class TestController extends Controller
         $in[]='/api/v1.0/companies/2/customers/individuals/9356';
         $in[]='/api/v1.0/companies/2/customers/individuals/4886';
         $in[]='/api/v1.0/companies/2/customers/companies/2611';*/
+        ///api/v1.0/companies/{companyID}/jobs/{jobID}/sections/{sectionID}/costCenters/{costCenterID}/contractorJobs/{contractorJobID}
+        //dd($this->getRequest('GET','/api/v1.0/companies/2/jobs/4220/sections/2413/costCenters/2689/contractorJobs/'));
+        //dd($this->getRequest('GET','/api/v1.0/companies/0/customers/13103/contracts/13100'));
+        dd($this->getRequest('GET','/api/v1.0/companies/2/jobs/4220'));
+        dd($this->getRequest('GET','/api/v1.0/companies/2/setup/tags/projects/'));
+        dd($this->getRequest('GET','/api/v1.0/companies/2/setup/tags/customers/'));
         foreach ($in as $v) {
             print '<pre>'.print_r($this->getRequest('GET',$v),1).'</pre>';
             preg_match('!\D(\/companies\/|\/individuals\/)(.*+)$!',$v,$matches); # get the customer id
@@ -336,7 +517,7 @@ class TestController extends Controller
 
         preg_match('!\/companies\/(.*)\/customers\/!','/api/v1.0/companies/2/customers/companies/13101',$matches); # get the customer id
         dd($matches[1]);
-exit;
+        exit;
         print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/2/customers/companies/13101'),1).'</pre>';
         exit;
         print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/0/customers/13102/contracts/'),1).'</pre>';
@@ -352,7 +533,7 @@ exit;
         print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/3/customers/individuals/'),1).'</pre>';
         //print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/3/customers/individuals/2184'),1).'</pre>';
         //print '<pre>'.print_r($this->getRequest('GET','/api/v1.0/companies/3/jobs/',2),1).'</pre>';
-        //dd($this->getRequest('GET','/api/v1.0/companies/3/jobs/2072/invoices/'));
+
         exit;
         $this->updateSimProCustomer(['GivenName'=>'TTTname'],Customers::find(10));
         exit;
@@ -426,7 +607,7 @@ exit;
             ]
             ]
         );
-
+        //print_r($res->getHeader());
         if((int)$res->getStatusCode()==200){
             return json_decode($res->getBody());
         }else{
