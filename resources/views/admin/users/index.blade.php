@@ -21,8 +21,7 @@
                         <tr>
                             <th scope="row">{{$user->id}}</th>
                             <td>{{$user->name}}/<span {{($user->role=='admin')?'class=text-danger':''}}>{{$user->role}}</span></td>
-                            <td><a href="{{route('users.blocking',$user['id'])}}">{{$user->active=='1'?'Block':'Unblock'}}</a><br>
-                                <a href="{{route('users.edit',$user['id'])}}">Edit</a>
+                            <td><a href="{{route('users.edit',$user['id'])}}">Edit</a>
                                 <a href="{{route('users.destroy',$user['id'])}}">Destroy</a>
                             </td>
                         </tr>
