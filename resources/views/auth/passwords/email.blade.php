@@ -1,7 +1,43 @@
-@extends('layouts.app')
-
+@extends('layouts.single-app')
+@section('title', 'Blue Flame | Reset Password')
 @section('content')
-<div class="container">
+    <div class="card card-login mx-auto mt-5">
+        <div class="card-header">{{ __('Reset Password') }}</div>
+        <div class="card-body">
+            @if (session('status'))
+                <div class="alert alert-success" role="alert">
+                    {{ session('status') }}
+                </div>
+            @endif
+            <form method="POST" action="{{ route('password.email') }}" aria-label="{{ __('Reset Password') }}">
+                @csrf
+                <div class="form-group">
+                    <div class="form-label-group">
+
+                        <input id="inputEmail" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required="required" autofocus="autofocus" placeholder="Email address">
+
+                        <label for="inputEmail">Email address</label>
+                    </div>
+                    @if ($errors->has('email'))
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $errors->first('email') }}</strong>
+                        </span>
+                    @endif
+                </div>
+
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    {{ __('Send Password Reset Link') }}
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+
+
+
+{{--<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
@@ -43,5 +79,5 @@
             </div>
         </div>
     </div>
-</div>
+</div>--}}
 @endsection
