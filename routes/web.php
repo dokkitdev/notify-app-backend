@@ -5,6 +5,7 @@ Route::get('/1','TestController@index');
 
 /* CRON routes start*/
 Route::get('/importCustomers/{id}','ImportCustomersController@index');
+Route::get('/importJobs/{id}','ImportJobsController@index');
 Route::get('/collectData/{id}','CollectDataController@index');
 /* CRON routes end*/
 

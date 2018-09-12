@@ -12,18 +12,18 @@ namespace App\Service;
 use App\Customers;
 use App\Jobs\parseCustomers;
 use App\Jobs\parseCustomersLinks;
-use App\Settings;
-use GuzzleHttp\Client;
+use App\Jobs\parseJobs;
+use App\Jobs\parseJobsLinks;
 
 class simProService
 {
-    private $token;
+    private $simProRequest;
     public function __construct()
     {
-        $this->getToken();
+        $this->simProRequest=new simProRequestService();
     }
     public function updateSimProCustomer($data,Customers $customer){
-        $res=$this->patchRequest('PATCH',$customer->apiurl,$data);
+        $res=$this->simProRequest->patchRequest('PATCH',$customer->apiurl,$data);
     }
 
     public function importCustomers(){
@@ -35,53 +35,89 @@ class simProService
         $this->parseCustomersCompaniesPg($companies);
         exit;
     }
-
-    public function getRequestPage($method,$url){
-        $client = new Client();
-        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.'?access_token='.$this->token,
-            ['headers'=>[
-                'Accept'     => 'application/json', #todo required
-            ]
-            ]
-        );
-        if((int)$res->getStatusCode()==200){
-            $headers=$res->getHeaders();
-            $urls[]=$url;
-            if(isset($headers['Result-Pages'][0])&&$headers['Result-Pages'][0]>1){
-                for($i=2;$i<$headers['Result-Pages'][0];$i++){
-                    $urls[]=$url.'?page='.$i;
-                }
-            }
-            return $urls;
-        }else{
+    public function importJobs(){
+        $companies=$this->parseCompanies();
+        if(!$companies) {
+            print 'err_companies';
             return false;
         }
+        $jobsLinksPg=$this->parseJobsCompaniesPg($companies);
+        /*foreach ($jobsLinksPg as $item) {
+
+            $jobsLinks[]=$this->parseJobsLinks($item['url'],$item['companyId']);
+
+        }
+        dd($jobsLinks);*/
+        exit;
     }
+    /**
+     * собирает ссылки на постраничку для запроса списка job определенныйх компаний
+     *
+     */
+    function parseJobsCompaniesPg($companies){
+        $jobsLinks=[];
+        foreach ($companies as $v){
+            if($v->ID==0)continue;#todo оставить (у 0 компании выдает 500 ошибку)
+            $jobs=$this->simProRequest->getRequestPage('GET','/api/v1.0/companies/'.$v->ID.'/jobs/');
+            if(count($jobs)>0){
+                foreach ($jobs as $val){
+                    $jobsLinks[]=['url'=>$val,'companyId'=>$v->ID];
+                    parseJobsLinks::dispatch($val,$v->ID)->delay(now()->addSecond(5));
+                }
+            }
+        }
+        return $jobsLinks;
+    }
+
+    /**
+     * собирает ссылки на определенный job для парсинга
+     * @param $link - ссылка с постраничкой или без для хапроа списка job
+     * @param $companyId - id компании нужно для создания сылки
+     * @return array
+     */
+    public function parseJobsLinks($link,$companyId){
+        $jobs=$this->simProRequest->getRequest('GET',$link);
+        $JobsLinks=[];
+        if(count($jobs)>0){
+            foreach ($jobs as $val){
+                $JobsLinks[]='/api/v1.0/companies/'.$companyId.'/jobs/'.$val->ID;
+                parseJobs::dispatch('/api/v1.0/companies/'.$companyId.'/jobs/'.$val->ID,$companyId,$val->ID)->delay(now()->addSecond(5));
+            }
+        }
+        return $JobsLinks;
+    }
+
 
     function parseCustomersCompaniesPg($companies){
         $customersLinks=[];
         foreach ($companies as $v){
-            $customers=$this->getRequestPage('GET','/api/v1.0/companies/'.$v->ID.'/customers/');
+            $customers=$this->simProRequest->getRequestPage('GET','/api/v1.0/companies/'.$v->ID.'/customers/');
             if(count($customers)>0){
                 foreach ($customers as $val){
                     //$customersLinks[]=$val;
-                    parseCustomersLinks::dispatch($val)->delay(now()->addSecond(2));
+                    parseCustomersLinks::dispatch($val)->delay(now()->addSecond(5));
                 }
             }
         }
         return $customersLinks;
     }
+
+
+
     public function parseCustomerLinks($link){
-        $customers=$this->getRequest('GET',$link);
+        $customers=$this->simProRequest->getRequest('GET',$link);
         if(count($customers)>0){
             foreach ($customers as $val){
 //                $customersLinks[]=$val->_href;
-                parseCustomers::dispatch($val->_href)->delay(now()->addSecond(2));
+                parseCustomers::dispatch($val->_href)->delay(now()->addSecond(5));
             }
         }
 
         //       return $customersLinks;
     }
+
+
+
 
 
     function parseCustomers($customers=[]){
@@ -91,15 +127,19 @@ class simProService
         return true;
     }
     function parseCustomerByUrl($url){
-        $customer=$this->getRequest('GET',$url);
+        $customer=$this->simProRequest->getRequest('GET',$url);
         return $customer;
+    }
+    function parseJobByUrl($url){
+        $job=$this->simProRequest->getRequest('GET',$url);
+        return $job;
     }
     function parseCustomerContractByUrl($url){
         $parsedContracts=false;
-        $contracts=$this->getRequest('GET',$url); # забираем краткую информацию по контрактам
+        $contracts=$this->simProRequest->getRequest('GET',$url); # забираем краткую информацию по контрактам
         if(count($contracts)>0){
             foreach ($contracts as $contract) { # забираем подробную информацию по контрактам
-                $parsedContracts[]=$this->getRequest('GET',$url.$contract->ID);
+                $parsedContracts[]=$this->simProRequest->getRequest('GET',$url.$contract->ID);
             }
 
         }
@@ -118,47 +158,18 @@ class simProService
         }
     }
     private function parseCompanies(){
-        $companies=$this->getRequest('GET','/api/v1.0/companies/');
+        $companies=$this->simProRequest->getRequest('GET','/api/v1.0/companies/');
         if(!$companies) {
             print 'err_companies';
             return false;
         }
         return $companies;
     }
-    public function getRequest($method,$url){
-        $client = new Client();
-        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.((strpos($url,'?')!=false)?'&':'?').'access_token='.$this->token,
-            ['headers'=>[
-                'Accept'     => 'application/json', #todo required
-            ]
-            ]
-        );
-        if((int)$res->getStatusCode()==200){
-            return json_decode($res->getBody());
-        }else{
-            return false;
-        }
-    }
-    public function patchRequest($method,$url,$data){
-        $client = new Client();
-        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.'?access_token='.$this->token,
-            ['headers'=>[
-                'Accept'     => 'application/json', #todo required
-            ],
-                'form_params'=>$data
-            ]
-        );
-        if((int)$res->getStatusCode()==200){
-            return $res->getStatusCode();
-        }else{
-            return false;
-        }
-    }
 
     private function parseCustomersLinks($companies){
         $customersLinks=[];
         foreach ($companies as $v){
-            $customers=$this->getRequest('GET','/api/v1.0/companies/'.$v->ID.'/customers/');
+            $customers=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$v->ID.'/customers/');
             if(count($customers)>0){
                 foreach ($customers as $val){
                     $customersLinks[]=$val->_href;
@@ -166,52 +177,5 @@ class simProService
             }
         }
         return $customersLinks;
-    }
-    private function getToken()
-    {
-        $settings=$this->getParam('access_token');
-        if(isset($settings['value'])&&$settings['value']!=''){
-            $dateS=(strtotime($settings['updated_at'])+$settings['expires_in']);
-            if(time()<$dateS) {
-                $this->token = $settings['value'];
-                return true;
-            }
-        }
-        $errors=array(
-            301=>'Moved permanently',
-            400=>'Bad request',
-            401=>'Unauthorized',
-            403=>'Forbidden',
-            404=>'Not found',
-            500=>'Internal server error',
-            502=>'Bad gateway',
-            503=>'Service unavailable'
-        );
-        $client = new Client();
-        try
-        {
-            $res = $client->request('POST', 'https://enterprise-sandbox-uk.simprosuite.com/oauth2/token',['form_params'=>['client_id'=>'3f9f54e78b4adea956c14f6582b5cd','client_secret'=>'e6acde1064','grant_type'=>'client_credentials']]);
-            $code=(int)$res->getStatusCode();
-            if($code!=200 && $code!=204) {
-                throw new \Exception(isset($errors[$code]) ? $errors[$code] : 'Undescribed error',$code);
-            }
-        }
-        catch(\Exception $E)
-        {
-            die('Ошибка: '.$E->getMessage().PHP_EOL.'Код ошибки: '.$E->getCode());
-        }
-        $data=json_decode($res->getBody());
-        $this->token=$data->access_token;
-
-        $settings->name='access_token';
-        $settings->value=$this->token;
-        $settings->expires_in=$data->expires_in;
-        $settings->save();
-        return true;
-    }
-    function getParam($name){
-        $settings=Settings::where(['name'=>$name])->get()->toArray();
-        if(count($settings)==0)return new Settings();
-        else return Settings::find($settings[0]['id']);
     }
 }
