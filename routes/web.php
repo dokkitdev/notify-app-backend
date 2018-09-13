@@ -37,7 +37,8 @@ Route::group(['middleware'=>['CheckLogin']],function (){
     Route::get('/profile',['uses'=>'Profile@getProfile','as'=>'Profile.getProfile']);
     Route::put('/profile',['uses'=>'Profile@saveProfile','as'=>'Profile.saveProfile']);
 
-    Route::get('/customers/{id}',['uses'=>'CustomersController@index','as'=>'CustomersController.index']);
+    Route::get('/privateContracts',['uses'=>'CustomersController@privateContracts','as'=>'CustomersController.privateContracts']);
+    Route::get('/housingCustomers',['uses'=>'CustomersController@housingCustomers','as'=>'CustomersController.housingCustomers']);
 
 });
 

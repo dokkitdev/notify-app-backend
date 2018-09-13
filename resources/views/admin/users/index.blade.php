@@ -4,7 +4,14 @@
 
     <div class="container">
 
+
+
         <h2>Users</h2>
+        @if (session('error'))
+            <div class="alert alert-error">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <a class="btn btn-primary" href="{{route('users.create')}}">Create user</a>
         <table class="table">

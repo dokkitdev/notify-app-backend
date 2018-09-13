@@ -30,7 +30,6 @@ class sesTemplatesService
      */
     private function getErr(AwsException $e){
         try {
-            dd($e->getMessage());
             preg_match('~<Code>(.*?)</Code>~', $e->getMessage(), $m);
             return $m[1];
         }catch (\Exception $e){
@@ -40,6 +39,7 @@ class sesTemplatesService
     }
     public function createSesTemplate($name,$html_body,$subject,$plaintext_body=''){
         $SesClient=$this->CreateSesClient();
+
         try {
             $result = $SesClient->createTemplate([
                 'Template' => [
@@ -51,7 +51,7 @@ class sesTemplatesService
             ]);
             return $result->toArray()['@metadata']['statusCode'];
         } catch (AwsException $e) {
-            throw new \Exception($this->getErr($e));
+            return $this->getErr($e);
 
         }
     }
