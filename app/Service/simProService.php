@@ -33,7 +33,7 @@ class simProService
             return false;
         }
         $this->parseCustomersCompaniesPg($companies);
-        exit;
+        //exit;
     }
     public function importJobs(){
         $companies=$this->parseCompanies();
@@ -41,14 +41,8 @@ class simProService
             print 'err_companies';
             return false;
         }
-        $jobsLinksPg=$this->parseJobsCompaniesPg($companies);
-        /*foreach ($jobsLinksPg as $item) {
-
-            $jobsLinks[]=$this->parseJobsLinks($item['url'],$item['companyId']);
-
-        }
-        dd($jobsLinks);*/
-        exit;
+        $this->parseJobsCompaniesPg($companies);
+        //exit;
     }
     /**
      * собирает ссылки на постраничку для запроса списка job определенныйх компаний

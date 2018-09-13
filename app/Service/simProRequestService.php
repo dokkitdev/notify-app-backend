@@ -78,12 +78,13 @@ class simProRequestService
     private function getToken()
     {
 
-        $settings=$this->getParam('access_token');
-        if(isset($settings['value'])&&$settings['value']!=''){
-            $dateS=(strtotime($settings['updated_at'])+$settings['expires_in']);
+        $settings=new Settings();
+        $set=$settings->getParam('access_token');
+
+        if(isset($set['value'])&&$set['value']!=''){
+            $dateS=(strtotime($set['updated_at'])+$set['expires_in']);
             if(time()<$dateS) {
-                $this->token = $settings['value'];
-                //dd($this->token);
+                $this->token = $set['value'];
                 return true;
             }
         }
@@ -113,10 +114,10 @@ class simProRequestService
         $data=json_decode($res->getBody());
         $this->token=$data->access_token;
 
-        $settings->name='access_token';
-        $settings->value=$this->token;
-        $settings->expires_in=$data->expires_in;
-        $settings->save();
+        $set->name='access_token';
+        $set->value=$this->token;
+        $set->expires_in=$data->expires_in;
+        $set->save();
         return true;
     }
     function getParam($name){
