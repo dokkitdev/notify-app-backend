@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Service\collectDataService;
 use App\Service\simProService;
 use App\SimProJobs;
 use Illuminate\Bus\Queueable;
@@ -43,8 +44,11 @@ class parseJobs implements ShouldQueue
         $simProservice=new simProService();
         $parsedJob=$simProservice->parseJobByUrl($this->url);
         $job->parsedData=json_encode($parsedJob);
+        $job->simpro_customer_id=$parsedJob->Customer->ID;
         $job->simpro_id=$this->jobId;
         $job->save();
+        $process=new collectDataService();
+        $process->processJob($job->id);
 
     }
     private function getJob($simpro_id){

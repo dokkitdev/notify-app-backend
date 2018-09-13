@@ -83,6 +83,7 @@ class simProRequestService
             $dateS=(strtotime($settings['updated_at'])+$settings['expires_in']);
             if(time()<$dateS) {
                 $this->token = $settings['value'];
+                //dd($this->token);
                 return true;
             }
         }

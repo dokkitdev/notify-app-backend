@@ -31,10 +31,7 @@ class CreateCustomersTable extends Migration
 
             $table->string('customer_group_tag')->default('')->nullable();
             $table->integer('customer_group_tag_id')->default(0)->nullable();
-            $table->bigInteger('start_date')->default(0)->nullable();
-            $table->bigInteger('end_date')->default(0)->nullable();
-            $table->string('contract_no')->default('')->nullable();
-            $table->string('contract_name')->default('')->nullable();
+            $table->text('parsedData');
 
 
 

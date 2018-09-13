@@ -15,8 +15,15 @@ class CreateSimProContractsTable extends Migration
     {
         Schema::create('sim_pro_contracts', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('customers_id')->unsigned();
+            $table->foreign('customers_id')->references('id')->on('customers')->onDelete('cascade');
             $table->integer('simpro_id');
             $table->text('parsedData');
+            $table->bigInteger('start_date')->default(0)->nullable();
+            $table->bigInteger('end_date')->default(0)->nullable();
+            $table->string('contract_no')->default('')->nullable();
+            $table->string('contract_name')->default('')->nullable();
+            $table->integer('active')->nullable();
             $table->timestamps();
         });
     }

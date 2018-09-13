@@ -11,6 +11,7 @@
         <h2>Edit user – "{{$user['name']}}"</h2>
         {!! Form::open(['url' => '/admin/users/'.$user['id'], 'method' => 'PUT','enctype'=>'multipart/form-data']) !!}
 
+            <input type="hidden" name="id" value={{$user['id']}}>
         <div class="form-group">
             {!! Form::label('Name', 'Name') !!}
             {!! Form::text('name',$user['name'],['class'=>'form-control']) !!}

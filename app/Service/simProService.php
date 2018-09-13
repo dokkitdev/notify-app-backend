@@ -143,8 +143,19 @@ class simProService
             }
 
         }
-
+        return $parsedContracts;
+        /*
         $res=false;
+        if(is_array($parsedContracts)){
+            foreach($parsedContracts as $v){
+                if($v->Archived==false){
+                    $res[]=$v;
+                }
+            }
+        }
+        return $res;
+
+
         if(is_array($parsedContracts)&&count($parsedContracts)>1){ #если несколько контрактов ищем первый НЕ Архивный
             foreach($parsedContracts as $v){
                 if($v->Archived==false){
@@ -156,6 +167,7 @@ class simProService
         }else {
             return isset($parsedContracts[0])?$parsedContracts[0]:false;
         }
+        */
     }
     private function parseCompanies(){
         $companies=$this->simProRequest->getRequest('GET','/api/v1.0/companies/');

@@ -16,7 +16,10 @@ class CreateSimProJobsTable extends Migration
         Schema::create('sim_pro_jobs', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('simpro_id');
+            $table->integer('simpro_customer_id');
             $table->text('parsedData');
+            $table->string('status')->nullable();
+            $table->bigInteger('set_status_date')->nullable();
             $table->timestamps();
         });
     }

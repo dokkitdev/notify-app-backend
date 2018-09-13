@@ -3,23 +3,50 @@
 namespace App\Http\Controllers;
 
 use App\Customers;
+use App\SimProContracts;
+use App\SimProJobs;
 use Illuminate\Http\Request;
 
 class CustomersController extends Controller
 {
-    public function index($id)
+    public function privateContracts()
     {
-        $title = 'Customers';
-        $tags=Customers::where('customer_group_tag_id','<>',0)->selectRaw('count(customer_group_tag_id) AS customer_group_tag_num,ANY_VALUE(customer_group_tag) AS tag,customer_group_tag_id')->groupBy('customer_group_tag_id')->get();
-        if(count($tags)>0){
-            foreach($tags as $v){
-                $t[]=['id'=>$v->customer_group_tag_id,'name'=>($v->tag!=''?$v->tag:'NoName')];
+        $title = 'Private Contracts';
+        $contracts=SimProContracts::where('active',1)->get();
+        $res=[];
+        if(count($contracts)>0){
+            foreach($contracts as $k=>$v){
+                $customer=$this->getCustomerByIdTag($v->customers_id,'Private');
+                if(!$customer)continue;
+                $res[$k]['contract']=$v;
+                $res[$k]['customer']=$customer;
             }
         }
-        $customers = Customers::where(['customer_group_tag_id'=>$id])->get();
-        if(count($customers)>0){
-            $title=' "'.$customers[0]->customer_group_tag.'" group';
+
+        return view('tpl.customers.private',['data'=>$res,'title'=>$title])->with('title',$title);
+    }
+
+    public function housingCustomers()
+    {
+        $title = 'Housing Customers';
+        $jobs=SimProJobs::where('set_status_date','<>',null)->get();
+        $res=[];
+        if(count($jobs)>0){
+            foreach($jobs as $k=>$v){
+                $res[$k]['job']=$v;
+                $res[$k]['customer']=$this->getCustomerBySimproId($v->simpro_customer_id);
+            }
         }
-        return view('tpl.customers.index',['customers'=>$customers,'title'=>$title,'tags'=>$t])->with('title',$title);
+
+        return view('tpl.customers.housing',['data'=>$res,'title'=>$title])->with('title',$title);
+    }
+    function getCustomerBySimproId($simpro_id){
+        $customers=Customers::where('simpro_id',$simpro_id)->get();
+        return $customers[0];
+    }
+    function getCustomerByIdTag($id,$tag){
+        $customers=Customers::where('id',$id)->where('customer_group_tag',$tag)->get();
+        if(!isset($customers[0]->id))return false;
+        return $customers[0];
     }
 }

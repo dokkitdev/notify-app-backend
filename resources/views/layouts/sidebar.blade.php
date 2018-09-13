@@ -7,13 +7,13 @@
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="/customers/7">
+        <a class="nav-link" href="/privateContracts">
             <i class="fas fa-fw fa-folder"></i>
             <span>Private Contracts</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="/customers/7">
+        <a class="nav-link" href="/housingCustomers">
             <i class="fas fa-fw fa-folder"></i>
             <span>Housing Customers</span>
         </a>

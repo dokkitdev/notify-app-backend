@@ -59,11 +59,16 @@ class UsersController extends Controller
 
         $create=$user->create($data);
         //$create=true;
+        $message=false;
         if($create) {
-            Mail::to($data['email'])->send(new AdminRegister(['name' => $data['name'], 'pass' => $pass]));
+            try {
+                Mail::to($data['email'])->send(new AdminRegister(['name' => $data['name'], 'pass' => $pass]));
+            }catch (\Exception $e){
+                $message=$e->getMessage();
+            }
         }
 
-        return redirect('admin/users');
+        return redirect('admin/users')->with('error',$message);
     }
 
 
@@ -102,9 +107,13 @@ class UsersController extends Controller
     {
 
         $user = new User();
-        $user->updateUser($request->all(),$id);
-
-        return redirect('admin/users');
+        $message=false;
+        try {
+            $user->updateUser($request->all(), $id);
+        }catch(\Exception $e){
+            $message=$e->getMessage();
+        }
+        return redirect('admin/users')->with('error',$message);
     }
 
     /**

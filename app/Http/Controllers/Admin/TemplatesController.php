@@ -60,6 +60,9 @@ class TemplatesController extends Controller
             $template->name='Template'.$id;
             $template->term=$data['term'];
             $template->save();
+        }else{
+            $ses=$this->deleteTemplate('Template'.$id);
+            if($ses)$this->createTemplate($request);
         }
         return redirect('/admin/templates');
 
@@ -87,8 +90,11 @@ class TemplatesController extends Controller
         if(!is_array($ses))return redirect('/admin/templates');
         return view('admin.templates.edit',['template'=>$template,'ses'=>$ses,'terms'=>TemplatesGroupsController::$terms])->with('title',$title);
     }
-    function deleteTemplate(){
-
+    function deleteTemplate($name){
+        $STS=new sesTemplatesService();
+        $ses=$STS->deleteSesTemplate($name);
+        if($ses=='200')return true;
+        else return false;
     }
     function emailTemplate($id){
         $STS=new sesTemplatesService();
