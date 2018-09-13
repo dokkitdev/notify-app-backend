@@ -30,7 +30,7 @@
                                     <nobr><button onclick="confirmation({{$customer['job']->id}})">Confirm</button>&nbsp;<button onclick="deletion({{$customer['job']->id}})">Delete</button></nobr>
                                 @endif
                             </td>
-                            <td></td>
+                            <td>{{$customer['customer']->company_name}}</td>
                             <td>{{$customer['customer']->given_name}} {{$customer['customer']->family_name}}</td>
                             <td>{{$customer['customer']->address}}</td>
                             <td>

@@ -75,6 +75,7 @@ class parseCustomers implements ShouldQueue
         $customer->postal_code=isset($parsedCustomer->Address->PostalCode)?$parsedCustomer->Address->PostalCode:'';
         $customer->country=isset($parsedCustomer->Address->Country)?$parsedCustomer->Address->Country:'';
         $customer->customer_type=isset($parsedCustomer->CustomerType)?$parsedCustomer->CustomerType:'';
+        $customer->email=isset($parsedCustomer->Email)?$parsedCustomer->Email:'';
 
         if($customer->customer_type=='Lead'){ # don't process the Lead, only Customer
             $this->delete();

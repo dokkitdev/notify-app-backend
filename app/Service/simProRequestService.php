@@ -78,7 +78,9 @@ class simProRequestService
     private function getToken()
     {
 
-        $settings=$this->getParam('access_token');
+        $set=new Settings();
+        $settings=$set->getParam('access_token');
+
         if(isset($settings['value'])&&$settings['value']!=''){
             $dateS=(strtotime($settings['updated_at'])+$settings['expires_in']);
             if(time()<$dateS) {
