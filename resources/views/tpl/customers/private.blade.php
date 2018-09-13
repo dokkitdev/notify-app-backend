@@ -18,7 +18,15 @@
             <tbody>
                 @foreach ($data as $customer)
                         <tr>
-                            <td scope="row"><input type="checkbox" name="customerActive[{{$customer['customer']->id}}]"></td>
+                            <td scope="row" id="action{{$customer['contract']->id}}">
+                                @if($customer['contract']->confirm==1&&$customer['contract']->delete==0)
+                                    Confirmed
+                                @elseif($customer['contract']->confirm==0&&$customer['contract']->delete==1)
+                                    Deleted
+                                @else
+                                    <nobr><button onclick="confirmation({{$customer['contract']->id}})">Confirm</button>&nbsp;<button onclick="deletion({{$customer['contract']->id}})">Delete</button></nobr>
+                                @endif
+                            </td>
                             <td>{{$customer['customer']->given_name}} {{$customer['customer']->family_name}}</td>
                             <td>{{$customer['customer']->address}}</td>
                             <td>
@@ -44,4 +52,41 @@
             </tbody>
         </table>
     </div>
+
+    <script>
+        function confirmation(id){
+            send(id,'update');
+        }
+        function deletion(id){
+            send(id,'delete');
+        }
+        function send(id,action) {
+            var token=document.getElementsByName('csrf-token')[0].getAttribute('content');
+            $.ajax({
+                url: 'http://bf.loc/contracts/'+action,
+                type: 'post',
+                data: {'id':id,'_token':token},
+                dataType: 'json',
+                success: function (_response) {
+                    console.log(_response);
+                    if(_response.confirm==1){
+                        editTD('action'+_response.id,'Confirmed');
+                    }
+                    if(_response.delete==1){
+                        editTD('action'+_response.id,'Deleted');
+                    }
+                    if(_response.error){
+                        alert('Error ContractID'+_response.error.id);
+                    }
+                },
+                error: function (_response) {
+                    alert('error'+_response.error.toString());
+                    // Handle error
+                }
+            });
+        }
+        function editTD(id,text) {
+            document.getElementById(id).innerHTML=text;
+        }
+    </script>
 @endsection
