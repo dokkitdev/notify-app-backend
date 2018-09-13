@@ -75,7 +75,7 @@ class collectDataService
     public function processContract($id){
         $contract=SimProContracts::find($id);
         $contract->active=1; # по-умолчанию устанавливаем активность в 1
-        $data=json_decode($contract);
+        $data=json_decode($contract->parsedData);
         # если архивный или истекший устанавливаем активность в 0
         if($data->Archived||$data->Expired)$contract->active=0;
         # если Renewed контракт то устанавливаем активность в 0
