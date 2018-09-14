@@ -18,6 +18,7 @@ class CustomersController extends Controller
             foreach ($where as $k => $val) {
                 $contracts[$k] = SimProContracts::where([
                     ['active', '=', 1],
+                    ['delete', '=', 0],
                     ['end_date', '<=', time() + $val['term']],
                     ['end_date', '>=', time() + $val['term'] - $tg->interval]
                 ])->get();
