@@ -29,8 +29,8 @@
                         <tr>
                             <th scope="row">{{$user->id}}</th>
                             <td>{{$user->name}}/<span {{($user->role=='admin')?'class=text-danger':''}}>{{$user->role}}</span></td>
-                            <td><a class="btn btn-primary" href="{{route('users.edit',$user['id'])}}"><i class="fa fa-eye" aria-hidden="true">Edit</a>
-                                <a class="btn btn-danger" href="{{route('users.destroy',$user['id'])}}">Destroy</a>
+                            <td><a class="btn btn-primary" href="{{route('users.edit',$user['id'])}}"><i class="fas fa-pen"></i></a>
+                                <a class="btn btn-danger" href="{{route('users.destroy',$user['id'])}}"><i class="fas fa-trash"></i></a>
                             </td>
                         </tr>
                 @endforeach

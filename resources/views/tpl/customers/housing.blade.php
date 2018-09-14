@@ -27,7 +27,7 @@
                                 @elseif($customer['job']->confirm==0&&$customer['job']->delete==1)
                                     Deleted
                                 @else
-                                    <nobr><button onclick="confirmation({{$customer['job']->id}})">Confirm</button>&nbsp;<button onclick="deletion({{$customer['job']->id}})">Delete</button></nobr>
+                                    <nobr><button onclick="confirmation({{$customer['job']->id}})"><i class="fas fa-check"></i></button>&nbsp;<button onclick="deletion({{$customer['job']->id}})"><i class="fas fa-trash"></i></button></nobr>
                                 @endif
                             </td>
                             <td>{{$customer['customer']->company_name}}</td>
