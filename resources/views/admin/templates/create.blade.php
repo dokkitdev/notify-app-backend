@@ -33,7 +33,7 @@
             {!! Form::textarea('plaintext_body','',['class'=>'form-control']) !!}
         </div>
 
-        {!! Form::submit('Create', ['class'=>'btn btn-primary']) !!}
+        {!! Form::submit('Create', ['class'=>'btn btn-primary float-right mb-3']) !!}
     </div>
 
 @endsection

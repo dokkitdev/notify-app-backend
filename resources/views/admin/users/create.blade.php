@@ -29,7 +29,7 @@
                 @endforeach
             </select>
         </div>
-        {!! Form::submit('Create', ['class'=>'btn btn-primary']) !!}
+        {!! Form::submit('Create', ['class'=>'btn btn-primary float-right']) !!}
     </div>
 
 @endsection

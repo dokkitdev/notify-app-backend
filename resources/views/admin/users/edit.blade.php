@@ -31,7 +31,7 @@
                 @endforeach
             </select>
         </div>
-        {!! Form::submit('Update', ['class'=>'btn btn-primary']) !!}
+        {!! Form::submit('Update', ['class'=>'btn btn-primary float-right']) !!}
     </div>
 
 @endsection

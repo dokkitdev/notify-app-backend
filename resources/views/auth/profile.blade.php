@@ -19,7 +19,7 @@
             {!! Form::label('New password', 'newpass') !!}
             {!! Form::text('newpass','',['class'=>'form-control']) !!}
         </div>
-        {!! Form::submit('Update', ['class'=>'btn btn-primary']) !!}
+        {!! Form::submit('Update', ['class'=>'btn btn-primary float-right']) !!}
     </div>
 
 @endsection
