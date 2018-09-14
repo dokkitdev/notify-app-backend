@@ -32,7 +32,7 @@
             {!! Form::textarea('plaintext_body',$ses['TextPart'],['class'=>'form-control']) !!}
         </div>
 
-        {!! Form::submit('Update', ['class'=>'btn btn-primary']) !!}
+        {!! Form::submit('Update', ['class'=>'btn btn-primary float-right mb-3']) !!}
     </div>
 
 @endsection
