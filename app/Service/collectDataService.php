@@ -9,8 +9,19 @@ use App\TemplateGroup;
 
 class collectDataService
 {
-    private $interval=60*60*24*7; # one week
+    public $interval=60*60*24*7; # one week
 
+
+    public function getPrivateTemplates(){
+        $privateTemplateGroup=TemplateGroup::where('customer_group_tag','Private')->with('templates')->get();
+        $tg=$privateTemplateGroup[0];
+        if(count($tg->templates)!=3)return false;
+        foreach($tg->templates as $template){
+            $where[$template->id]['state']=$template->state;
+            $where[$template->id]['term']=$template->term;
+        }
+        return $where;
+    }
     public function collectData(){
         $templatesGroups=TemplateGroup::where('customer_group_tag_id','<>',0)->with('templates')->get();
         if(count($templatesGroups)==0)return false;
