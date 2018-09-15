@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Hash;
 
 class TestController extends Controller
 {
+
     private $token;
     private $SesClient;
     private $simProRequest;
@@ -265,6 +266,7 @@ class TestController extends Controller
         }
     }
     public function index(){
+        dd(json_decode('{"ID":13107,"CompanyName":"Dokkit","PreferredTechs":[],"Phone":"","DoNotCall":false,"AltPhone":"07769283089","Address":{"Address":"11 The Old Steine","City":"Brighton","State":"East Sussex","PostalCode":"BN1 1EJ","Country":"United Kingdom"},"BillingAddress":{"Address":"","City":"","State":"","PostalCode":"","Country":"United Kingdom"},"CustomerType":"Customer","Tags":[],"Rates":{"PartTaxCode":{},"DiscountFee":0},"Profile":{"Notes":"","CustomerProfile":{},"CustomerGroup":{},"Currency":{"ID":"GBP","Name":"British Pound Sterling","Visible":true}},"Banking":{"AccountName":"","RoutingNo":"","AccountNo":"","PaymentMethod":{},"PaymentTerms":{"Days":0,"Type":"Invoice"},"CreditLimit":-1,"OnStop":false,"VendorOrderNoRequired":false},"Archived":false,"Sites":[{"ID":23966,"Name":"11 The Old Steine Brighton East Sussex BN1 1EJ"}],"EIN":"","Website":"","Email":"info@dokkit.co.uk","Fax":"","CompanyNumber":""}'));
         $this->processContractsTable();
         exit;
         dd($this->simProRequest->getRequest('GET','/api/v1.0/companies/2'));
