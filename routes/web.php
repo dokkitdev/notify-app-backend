@@ -22,6 +22,16 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
     Route::get('/admin/template/{id}',['uses'=>'Admin\TemplatesController@create','as'=>'template.create']);
     Route::get('/admin/template/{id}/email',['uses'=>'Admin\TemplatesController@emailTemplate','as'=>'template.email']);
 
+
+    Route::post('/admin/housingtemplategroup',['uses'=>'Admin\HousingTemplatesGroupsController@createTemplateGroup','as'=>'template.createTemplate']);
+
+    Route::post('/admin/housingtemplate',['uses'=>'Admin\HousingTemplatesController@createTemplate','as'=>'template.createTemplate']);
+    Route::put('/admin/housingtemplate/{id}',['uses'=>'Admin\HousingTemplatesController@updateTemplate','as'=>'template.update']);
+    Route::get('/admin/housingtemplate/{id}/edit',['uses'=>'Admin\HousingTemplatesController@getTemplate','as'=>'template.show']);
+    Route::get('/admin/housingtemplate/{id}',['uses'=>'Admin\HousingTemplatesController@create','as'=>'template.create']);
+    Route::get('/admin/housingtemplate/{id}/email',['uses'=>'Admin\HousingTemplatesController@emailTemplate','as'=>'template.email']);
+
+
     Route::get('/admin/users',['uses'=>'Admin\UsersController@index','as'=>'users.index']);
     Route::resource('admin/users','Admin\UsersController',[
         'except'=>[
