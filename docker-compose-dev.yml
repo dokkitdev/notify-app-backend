@@ -1,0 +1,44 @@
+version: '2'
+services:
+  php: 
+    build:
+      context: .
+      dockerfile: docker/php.Dockerfile
+    restart: always
+    depends_on: ["db"]
+    ports: []
+    volumes:
+      - .:/var/www/html/
+    
+  nginx: 
+    build:
+      context: .
+      dockerfile: docker/Nginx.Dockerfile
+    restart: always
+    depends_on: ["php"]
+    ports: ["3003:80"]
+    volumes:
+      - .:/var/www/html/
+  db:
+      image: mysql:5.7
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: bf
+        MYSQL_DATABASE: bf
+        MYSQL_USER: bf
+        MYSQL_PASSWORD: bf
+      ports:
+        - "33062:3306"
+      volumes:
+        - "./../volumes/blue_flame_mysql:/var/lib/mysql:rw"
+      
+  adminer:
+    image: adminer
+    restart: always
+    depends_on: ["db"]
+    ports:
+      - 82:8080
+
+
+
+      
