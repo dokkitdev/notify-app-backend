@@ -24,7 +24,9 @@
                                 @elseif($customer['contract']->confirm==0&&$customer['contract']->delete==1)
                                     Deleted
                                 @else
-                                    <nobr><button onclick="confirmation({{$customer['contract']->id}})"><i class="fas fa-check"></i></button>&nbsp;<button onclick="deletion({{$customer['contract']->id}})"><i class="fas fa-trash"></i></button></nobr>
+                                    <nobr><button onclick="
+                                                confirmation({{$customer['contract']->id}},{{$customer['contract']->letter_state}})"
+                                        ><i class="fas fa-check"></i></button>&nbsp;<button onclick="deletion({{$customer['contract']->id}})"><i class="fas fa-trash"></i></button></nobr>
                                 @endif
                             </td>
                             <td>{{$customer['customer']->given_name}} {{$customer['customer']->family_name}}</td>
@@ -54,21 +56,21 @@
     </div>
 
     <script>
-        function confirmation(id){
-            send(id,'update');
+        function confirmation(id,state){
+            send(id,state,'update');
         }
         function deletion(id){
-            send(id,'delete');
+            send(id,'state','delete');
         }
-        function send(id,action) {
+        function send(id,state,action) {
+            console.log(id,state,action);
             var token=document.getElementsByName('csrf-token')[0].getAttribute('content');
             $.ajax({
                 url: 'http://bf.loc/contracts/'+action,
                 type: 'post',
-                data: {'id':id,'_token':token},
+                data: {'id':id,'state':state,'_token':token},
                 dataType: 'json',
                 success: function (_response) {
-                    console.log(_response);
                     if(_response.confirm==1){
                         editTD('action'+_response.id,'Confirmed');
                     }
@@ -80,7 +82,7 @@
                     }
                 },
                 error: function (_response) {
-                    alert('error'+_response.error.toString());
+                    alert('error'+_response.error);
                     // Handle error
                 }
             });
