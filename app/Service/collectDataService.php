@@ -23,6 +23,7 @@ class collectDataService
         return $where;
     }
     public function collectData(){
+        exit;
         $templatesGroups=TemplateGroup::where('customer_group_tag_id','<>',0)->with('templates')->get();
         if(count($templatesGroups)==0)return false;
         $where=[];

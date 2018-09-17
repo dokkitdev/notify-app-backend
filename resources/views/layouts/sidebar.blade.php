@@ -34,14 +34,14 @@
             </a>
         </li>
     @endif
-    @if(Auth::user()->role=='admin')
-        <li class="nav-item">
-            <a class="nav-link" href="/admin/logs">
-                <i class="fas fa-fw fa-table"></i>
-                <span>Logs</span>
-            </a>
-        </li>
-    @endif
+
+    <li class="nav-item">
+        <a class="nav-link" href="/logs">
+            <i class="fas fa-fw fa-table"></i>
+            <span>Logs</span>
+        </a>
+    </li>
+
 
     {{--<li class="nav-item dropdown">
 

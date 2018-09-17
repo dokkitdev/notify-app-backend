@@ -50,6 +50,8 @@ Route::group(['middleware'=>['CheckLogin']],function (){
     Route::get('/privateContracts',['uses'=>'CustomersController@privateContracts','as'=>'CustomersController.privateContracts']);
     Route::get('/housingCustomers',['uses'=>'CustomersController@housingCustomers','as'=>'CustomersController.housingCustomers']);
 
+    Route::get('/logs',['uses'=>'LogsController@index','as'=>'LogsController.index']);
+
     Route::post('/contracts/update',['uses'=>'ContractsController@updateContract','as'=>'ContractsController.updateContract']);
     Route::post('/contracts/delete',['uses'=>'ContractsController@deleteContract','as'=>'ContractsController.deleteContract']);
 
