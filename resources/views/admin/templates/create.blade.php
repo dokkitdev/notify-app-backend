@@ -28,9 +28,13 @@
             {!! Form::label('Html body', 'html_body') !!}
             {!! Form::textarea('html_body','',['class'=>'form-control']) !!}
         </div>
-       <div class="form-group">
+       {{--<div class="form-group">
             {!! Form::label('plaintext_body', 'plaintext_body') !!}
             {!! Form::textarea('plaintext_body','',['class'=>'form-control']) !!}
+        </div>--}}
+        <div class="form-group">
+            {!! Form::label('HtmlToPDF', 'HtmlToPDF') !!}
+            {!! Form::textarea('html_pdf','',['class'=>'form-control']) !!}
         </div>
 
         {!! Form::submit('Create', ['class'=>'btn btn-primary float-right mb-3']) !!}

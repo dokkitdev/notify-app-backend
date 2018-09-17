@@ -44,6 +44,7 @@ class TemplatesGroupsController extends Controller
             $htg[]=$v->customer_id;
         }
         $jobs=SimProJobs::where('set_status_date','<>',null)->get();
+        $simpro_customers_Ids=[];
         foreach($jobs as $val){
             $simpro_customers_Ids[]=$val->simpro_customer_id;
         }

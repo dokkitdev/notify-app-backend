@@ -31,7 +31,7 @@
                             </td>
                             <td>{{$customer['customer']->given_name}} {{$customer['customer']->family_name}}</td>
                             <td>{{$customer['customer']->address}}</td>
-                            <td>
+                            <td><nobr>
                                 @if($customer['contract']->letter_state==1)
                                     1st Letter
                                 @elseif($customer['contract']->letter_state==2)
@@ -39,9 +39,10 @@
                                 @elseif($customer['contract']->letter_state==3)
                                     3rd Letter
                                 @endif
+                                </nobr>
                             </td>
                             <td>{{$customer['contract']->created_at}}</td>
-                            <td>{{$customer['contract']->contract_name}} <br><nobr>{{date("Y-m-d",$customer['contract']->start_date)}} - {{date("Y-m-d",$customer['contract']->end_date)}}</nobr></td>
+                            <td><nobr>{{$customer['contract']->contract_name}}</nobr> <br>{{date("Y-m-d",$customer['contract']->end_date)}}</td>
                             <td>
                                 @if($customer['customer']->email!='')
                                     Email
