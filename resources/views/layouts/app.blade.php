@@ -105,7 +105,7 @@
     <meta name="author" content="">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{$title}}</title>
+    <title>{{isset($title)?$title:''}}</title>
 
     <!-- Bootstrap core CSS-->
     <link href="{{asset('vendor/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
