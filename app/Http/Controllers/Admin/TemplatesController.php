@@ -54,11 +54,12 @@ class TemplatesController extends Controller
         $data=$request->all();
         $id=$data['id'];
         $STS=new sesTemplatesService();
-        $rez=$STS->createSesTemplate('Template'.$id,$data['html_body'],$data['subject'],$data['plaintext_body']);
+        $rez=$STS->createSesTemplate('Template'.$id,$data['html_body'],$data['subject']/*,$data['plaintext_body']*/);
         if($rez=='200'){
             $template=Template::find($id);
             $template->name='Template'.$id;
             $template->term=$data['term'];
+            $template->html_pdf=$data['html_pdf'];
             $template->save();
         }else{
             $ses=$this->deleteTemplate('Template'.$id);
@@ -72,10 +73,11 @@ class TemplatesController extends Controller
         $STS=new sesTemplatesService();
         $template=Template::find($id);
         if(!$template)return false;
-        $rez=$STS->updateSesTemplate('Template'.$id,$data['html_body'],$data['subject'],$data['plaintext_body']);
+        $rez=$STS->updateSesTemplate('Template'.$id,$data['html_body'],$data['subject']/*,$data['plaintext_body']*/);
         if($rez=='200'){
             $template->name='Template'.$id;
             $template->term=$data['term'];
+            $template->html_pdf=$data['html_pdf'];
             $template->save();
         }
         return redirect('/admin/templates');

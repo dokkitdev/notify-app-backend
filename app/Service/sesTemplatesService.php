@@ -55,7 +55,7 @@ class sesTemplatesService
 
         }
     }
-    public function updateSesTemplate($name,$html_body,$subject,$plaintext_body){
+    public function updateSesTemplate($name,$html_body,$subject,$plaintext_body=''){
         $SesClient=$this->CreateSesClient();
         try {
             $result = $SesClient->updateTemplate([
@@ -90,7 +90,7 @@ class sesTemplatesService
             ]);
             return $result->toArray()['Template'];
         } catch (AwsException $e) {
-            throw new \Exception($this->getErr($e));
+            return $this->getErr($e);
         }
     }
     public function sendSesTemplateEmail($name,$sender_email,$recipeint_emails,$data=[]){
