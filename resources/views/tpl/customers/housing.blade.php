@@ -1,10 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-
-    <div class="container">
-
         <h2>{{$title}}</h2>
+        <form action="/jobs/process" method="post">
+            @csrf
         <table class="table">
             <thead>
             <tr>
@@ -22,12 +21,12 @@
                 @foreach ($data as $customer)
                         <tr>
                             <td scope="row" id="action{{$customer['job']->id}}">
-                                @if($customer['job']->confirm==1&&$customer['job']->delete==0)
-                                    Confirmed
-                                @elseif($customer['job']->confirm==0&&$customer['job']->delete==1)
-                                    Deleted
+                                @if($customer['customer']->tpl==true)
+                                    <input value="{{$customer['job']->letter_template}}" name="jobs[{{$customer['job']->id}}]"
+                                           onchange="deletion(this,{{$customer['job']->id}})"
+                                           type="checkbox" @if($customer['job']->delete==1) @else checked=checked @endif>
                                 @else
-                                    <nobr><button onclick="confirmation({{$customer['job']->id}})"><i class="fas fa-check"></i></button>&nbsp;<button onclick="deletion({{$customer['job']->id}})"><i class="fas fa-trash"></i></button></nobr>
+                                    <span style="color:red">No Templates Found</span>
                                 @endif
                             </td>
                             <td>{{$customer['customer']->company_name}}</td>
@@ -50,14 +49,15 @@
 
             </tbody>
         </table>
+        <input class="btn btn-primary float-right" type="submit" value="Process All">
 
-    </div>
     <script>
-        function confirmation(id){
-            send(id,'update')
-        }
-        function deletion(id){
-            send(id,'delete')
+        function deletion(checkbox,id){
+            if(checkbox.checked==true){
+                send(id,'undelete')
+            }else{
+                send(id,'delete')
+            }
         }
         function send(id,action) {
             var token=document.getElementsByName('csrf-token')[0].getAttribute('content');
@@ -67,22 +67,12 @@
                 data: {'id':id,'_token':token},
                 dataType: 'json',
                 success: function (_response) {
-                    //console.log(_response);
-                    if(_response.confirm==1){
-                        editTD('action'+_response.id,'Confirmed');
-                    }
-                    if(_response.delete==1){
-                        editTD('action'+_response.id,'Deleted');
-                    }
                 },
                 error: function (_response) {
                     console.log(_response);
                     // Handle error
                 }
             });
-        }
-        function editTD(id,text) {
-            document.getElementById(id).innerHTML=text;
         }
     </script>
 

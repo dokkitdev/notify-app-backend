@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
         <h1>Templates</h1>
         <h2 class="pt-3">Private</h2>
         @foreach ($templatesGroups as $tg)
@@ -23,9 +22,9 @@
                 </table>
             </div>
         @endforeach
-    </div>
+
     <div class="clearfix"></div>
-    <div class="container">
+
         <h2 class="pt-5">Housing Authorities</h2>
         <div class="content">
             @foreach ($errors->all() as $error)
@@ -38,9 +37,9 @@
             </div>
             {!! Form::submit('Add new', ['class'=>'btn btn-primary float-right mb-3']) !!}
         </div>
-    </div>
+
     <div class="clearfix"></div>
-    <div class="container">
+
     @foreach ($housingTemplatesGroups as $tg)
         <div class="content">
         <h3>{{$tg->company_name}}</h3>
@@ -49,14 +48,14 @@
                     <tr>
                         <td>Letter {{$housingTemplate->state}}</td>
                         <td>
-                            @if($housingTemplate->name=='')<a class="btn btn-danger" href="/admin/housingtemplate/{{$template->id}}" title="Create template"><i class="fas fa-plus"></i></a>@endif
-                            @if($housingTemplate->name!='')<a class="btn btn-dark" href="/admin/housingtemplate/{{$template->id}}/email" title="Email to Me"><i class="far fa-envelope"></i></a>@endif
+                            @if($housingTemplate->name=='')<a class="btn btn-danger" href="/admin/housingtemplate/{{$housingTemplate->id}}" title="Create template"><i class="fas fa-plus"></i></a>@endif
+                            @if($housingTemplate->name!='')<a class="btn btn-dark" href="/admin/housingtemplate/{{$housingTemplate->id}}/email" title="Email to Me"><i class="far fa-envelope"></i></a>@endif
                         </td>
                     </tr>
                 @endforeach
             </table>
         </div>
     @endforeach
-    </div>
+
     <div class="clearfix"></div>
 @endsection

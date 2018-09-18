@@ -20,11 +20,12 @@ class HousingTemplatesController extends Controller
         $data=$request->all();
         $id=$data['id'];
         $STS=new sesTemplatesService();
-        $rez=$STS->createSesTemplate('HousingTemplate'.$id,$data['html_body'],$data['subject'],$data['plaintext_body']);
+        $rez=$STS->createSesTemplate('HousingTemplate'.$id,$data['html_body'],$data['subject']/*,$data['plaintext_body']*/);
         if($rez=='200'){
             $template=HousingTemplate::find($id);
             $template->name='HousingTemplate'.$id;
             //$template->term=$data['term'];
+            $template->html_pdf=$data['html_pdf'];
             $template->save();
         }else{
             $ses=$this->deleteTemplate('HousingTemplate'.$id);
@@ -38,10 +39,11 @@ class HousingTemplatesController extends Controller
         $STS=new sesTemplatesService();
         $template=HousingTemplate::find($id);
         if(!$template)return false;
-        $rez=$STS->updateSesTemplate('HousingTemplate'.$id,$data['html_body'],$data['subject'],$data['plaintext_body']);
+        $rez=$STS->updateSesTemplate('HousingTemplate'.$id,$data['html_body'],$data['subject']/*,$data['plaintext_body']*/);
         if($rez=='200'){
             $template->name='HousingTemplate'.$id;
             //$template->term=$data['term'];
+            $template->html_pdf=$data['html_pdf'];
             $template->save();
         }
         return redirect('/admin/templates');

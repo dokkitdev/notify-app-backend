@@ -49,6 +49,15 @@ class ContractsController extends Controller
             return response()->json(['id'=>$contract->id,'delete' => 1]);
         }else return response()->json(['error' => ['id'=>$contract->id,'delete' => 0]]);
     }
+    public function undeleteContract(Request $request){
+        $data=$request->all('id');
+        $contract=SimProContracts::find($data['id']);
+        if(isset($contract->id)) {
+            $contract->delete = 0;
+            $contract->save();
+            return response()->json(['id'=>$contract->id,'delete' => 0]);
+        }else return response()->json(['error' => ['id'=>$contract->id,'delete' => 1]]);
+    }
     public function getTemlateByState($state){
         $templates=Template::where('state',$state)->get();
         if(!$templates[0]->id)return false;

@@ -2,7 +2,6 @@
 
 @section('content')
 
-    <div class="container">
 
         <h2>{{$title}}</h2>
         <table class="table">
@@ -28,6 +27,5 @@
             </tbody>
         </table>
 
-    </div>
 
 @endsection

@@ -2,7 +2,6 @@
 
 @section('content')
 
-    <div class="container">
 
         @foreach ($errors->all() as $error)
             <li>{{ $error }}</li>
@@ -37,6 +36,5 @@
         </div>
 
         {!! Form::submit('Update', ['class'=>'btn btn-primary float-right mb-3']) !!}
-    </div>
 
 @endsection

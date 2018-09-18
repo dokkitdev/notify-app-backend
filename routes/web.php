@@ -52,12 +52,13 @@ Route::group(['middleware'=>['CheckLogin']],function (){
 
     Route::get('/logs',['uses'=>'LogsController@index','as'=>'LogsController.index']);
 
-    Route::post('/contracts/update',['uses'=>'ContractsController@updateContract','as'=>'ContractsController.updateContract']);
+    Route::post('/contracts/undelete',['uses'=>'ContractsController@undeleteContract','as'=>'ContractsController.undeleteContract']);
     Route::post('/contracts/delete',['uses'=>'ContractsController@deleteContract','as'=>'ContractsController.deleteContract']);
 
     Route::post('/contracts/process',['uses'=>'ContractsController@processContracts','as'=>'ContractsController.processContracts']);
+    Route::post('/jobs/process',['uses'=>'JobsController@processJobs','as'=>'JobsController.processJobs']);
 
-    Route::post('/jobs/update',['uses'=>'JobsController@updateJob','as'=>'JobsController.updateJob']);
+    Route::post('/jobs/undelete',['uses'=>'JobsController@undeleteJob','as'=>'JobsController.undeleteJob']);
     Route::post('/jobs/delete',['uses'=>'JobsController@deleteJob','as'=>'JobsController.deleteJob']);
 
 });
