@@ -29,17 +29,7 @@ class ContractsController extends Controller
         return redirect('/privateContracts');
     }
 
-    public function _updateContract(Request $request){
-        $data=$request->all();
-        $id=$data['id'];
-        //$state=$data['state'];
-        $contract=SimProContracts::find($id);
-        if(isset($contract->id)){
-            $contract->confirm=1;
-            $contract->save();
-            return response()->json(['id'=>$contract->id,'confirm' => 1]);
-        }else return response()->json(['error' => ['id'=>$contract->id,'confirm' => 0]]);
-    }
+
     public function deleteContract(Request $request){
         $data=$request->all('id');
         $contract=SimProContracts::find($data['id']);
@@ -62,24 +52,5 @@ class ContractsController extends Controller
         $templates=Template::where('state',$state)->get();
         if(!$templates[0]->id)return false;
         return $templates[0]->id;
-    }
-    public function updateContract(Request $request){
-        $data=$request->all();
-        $id=$data['id'];
-        $state=$data['state'];
-        $template_id=$this->getTemlateByState($state);
-        $contract=SimProContracts::find($id);
-        if(isset($contract->id)&&$template_id){
-            $contract->confirm=1;
-            $contract->save();
-
-            $PL=new PrivateLetter();
-            $PL->contract_id=$contract->id;
-            $PL->template_id=$template_id;
-            $PL->tosend=1;
-            $PL->save();
-
-            return response()->json(['id'=>$contract->id,'confirm' => 1]);
-        }else return response()->json(['error' => ['id'=>$contract->id,'confirm' => 0]]);
     }
 }

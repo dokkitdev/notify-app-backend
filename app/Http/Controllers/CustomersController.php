@@ -73,7 +73,6 @@ class CustomersController extends Controller
                 if(in_array($tmpCustomer->id,$where['customers'])){
                     $tmpCustomer->tpl=true;
                     foreach ($where['where'][$tmpCustomer->id]['templates'] as $key=>$val){
-                        #todo записать id шаблона в job по имени статуса
                         $res[$k]['job']->letter_template=$key;
                     }
                 } # проверка на существование группы шаблонов для customer

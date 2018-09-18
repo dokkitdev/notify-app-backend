@@ -66,6 +66,7 @@ class parseCustomers implements ShouldQueue
 
 
         $customer->company_name=isset($parsedCustomer->CompanyName)?$parsedCustomer->CompanyName:'';
+        $customer->company_id=$matchesC[1];
         $customer->given_name=isset($parsedCustomer->GivenName)?$parsedCustomer->GivenName:'';
         $customer->family_name=isset($parsedCustomer->FamilyName)?$parsedCustomer->FamilyName:'';
         $customer->simpro_id=$parsedCustomer->ID;
