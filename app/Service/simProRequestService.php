@@ -65,7 +65,7 @@ class simProRequestService
             ['headers'=>[
                 'Accept'     => 'application/json', #todo required
             ],
-                'form_params'=>$data
+                'json'=>$data
             ]
         );
         if((int)$res->getStatusCode()==200){

@@ -265,11 +265,116 @@ class TestController extends Controller
             $contract->save();
         }
     }
+
+    public function _getFolderId($compnayId,$customerId){
+        $folders=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/');
+        $folder=false;
+        if(count($folders)>0){
+            foreach($folders as $v){
+                if($v->Name=='NotifyApp'){
+                    $folder=true;
+                    $folderId=$v->ID;
+                }
+            }
+        }
+        if(!$folder){
+            $this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/',
+                    [
+                        'Name'=>'NotifyApp',
+                    ]
+                );
+            return $this->getFolderId($compnayId,$customerId);
+        }
+        return $folderId;
+    }
+
+    /**
+     * @param $compnayId - customers.company_id
+     * @param $customerId - customers.simpro_id
+     * @param $filename - filename with path
+     */
+    public function _sendAttachment($compnayId,$customerId,$filename){
+        $folderId=$this->getFolderId($compnayId,$customerId);
+        $this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/',
+                [
+                    'Filename'=>'filename.pdf',
+                    'Base64Data'=>base64_encode(file_get_contents(base_path().'/storage/app/files/moto.pdf')),
+                    'Public'=>true,
+                    'Folder'=>$folderId
+                ]
+        );
+
+
+        //print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/folders/'),1).'</pre>';
+        //print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/files/'),1).'</pre>';
+        print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/files/xdUefxPNnoZmY18vnO7LZAIiZvUc-tWftOSLAxThfKk'),1).'</pre>';
+        print '<pre>'.print_r($this->simProRequest->getRequest('DELETE','/api/v1.0/companies/2/customers/13109/attachments/files/xdUefxPNnoZmY18vnO7LZAIiZvUc-tWftOSLAxThfKk'),1).'</pre>';
+
+
+        exit;
+        dd($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/individuals/13109'));
+    }
+
+    public function getFolderId($compnayId,$customerId){
+
+        $folders=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/');
+        $folder=false;
+        if(count($folders)>0){
+            foreach($folders as $v){
+                if($v->Name=='NotifyApp'){
+                    $folder=true;
+                    $folderId=$v->ID;
+                }
+            }
+        }
+        if(!$folder){
+            $this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/',
+                [
+                    'Name'=>'NotifyApp',
+                ]
+            );
+            return $this->getFolderId($compnayId,$customerId);
+        }
+        return $folderId;
+    }
+
+    /**
+     * @param $compnayId - customers.company_id
+     * @param $customerId - customers.simpro_id
+     * @param $filename - filename with path
+     */
+    /**
+     * @param $compnayId - customers.company_id
+     * @param $customerId - customers.simpro_id
+     * @param $filename_source - filename with path in server
+     * @param $filename - filename in SimPRO
+     */
+    public function sendAttachment($compnayId,$customerId,$filename_source,$filename){
+        $folderId=$this->getFolderId($compnayId,$customerId);
+        if(!file_get_contents($filename_source))return false;
+        $this->simProRequest->patchRequest('POST','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/',
+            [
+                'Filename'=>$filename,
+                'Base64Data'=>base64_encode(file_get_contents($filename_source)),
+                'Public'=>true,
+                'Folder'=>$folderId
+            ]
+        );
+        $files=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/');
+        foreach($files as $v){
+            if($v->Filename==$filename)return $v->ID;
+        }
+        return false;
+    }
     public function index(){
+        print_r($this->sendAttachment(2,13109,base_path().'/storage/app/files/moto.pdf','letter.pdf'));
+        print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/files/'),1).'</pre>';
+        exit;
+
         dd(json_decode('{"ID":13107,"CompanyName":"Dokkit","PreferredTechs":[],"Phone":"","DoNotCall":false,"AltPhone":"07769283089","Address":{"Address":"11 The Old Steine","City":"Brighton","State":"East Sussex","PostalCode":"BN1 1EJ","Country":"United Kingdom"},"BillingAddress":{"Address":"","City":"","State":"","PostalCode":"","Country":"United Kingdom"},"CustomerType":"Customer","Tags":[],"Rates":{"PartTaxCode":{},"DiscountFee":0},"Profile":{"Notes":"","CustomerProfile":{},"CustomerGroup":{},"Currency":{"ID":"GBP","Name":"British Pound Sterling","Visible":true}},"Banking":{"AccountName":"","RoutingNo":"","AccountNo":"","PaymentMethod":{},"PaymentTerms":{"Days":0,"Type":"Invoice"},"CreditLimit":-1,"OnStop":false,"VendorOrderNoRequired":false},"Archived":false,"Sites":[{"ID":23966,"Name":"11 The Old Steine Brighton East Sussex BN1 1EJ"}],"EIN":"","Website":"","Email":"info@dokkit.co.uk","Fax":"","CompanyNumber":""}'));
         $this->processContractsTable();
         exit;
-        dd($this->simProRequest->getRequest('GET','/api/v1.0/companies/2'));
+
         dd($this->parseCompanies());
         $this->processJobsTable();
 exit;

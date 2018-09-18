@@ -64,10 +64,6 @@ class collectDataService
                     ->where('end_date','<=',time()+$val['term'])
                     ->where('end_date','>=',time()+$val['term']-$this->interval)
                     ->get();
-
-         //       print $val['term'].'<br>';
-          //      print date("Y-m-d",time()+$val['term']-$this->interval).'<br>';
-         //       print date("Y-m-d",time()+$val['term']).'<br>';
             }
         }
         foreach ($customers as $k=>$customer){

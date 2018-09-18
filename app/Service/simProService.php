@@ -184,4 +184,52 @@ class simProService
         }
         return $customersLinks;
     }
+    public function getFolderId($compnayId,$customerId){
+        $folders=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/');
+        $folder=false;
+        if(count($folders)>0){
+            foreach($folders as $v){
+                if($v->Name=='NotifyApp'){
+                    $folder=true;
+                    $folderId=$v->ID;
+                }
+            }
+        }
+        if(!$folder){
+            $this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/',
+                [
+                    'Name'=>'NotifyApp',
+                ]
+            );
+            return $this->getFolderId($compnayId,$customerId);
+        }
+        return $folderId;
+    }
+
+    /**
+     * @param $compnayId - customers.company_id
+     * @param $customerId - customers.simpro_id
+     * @param $filename_source - filename with path in server
+     * @param $filename - filename in SimPRO
+     *
+     * return ID file in simPRO or false
+     */
+    public function sendAttachment($compnayId,$customerId,$filename_source,$filename){
+        $folderId=$this->getFolderId($compnayId,$customerId);
+        if(!file_get_contents($filename_source))return false;
+        $this->simProRequest->patchRequest('POST','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/',
+            [
+                'Filename'=>$filename,
+                'Base64Data'=>base64_encode(file_get_contents($filename_source)),
+                'Public'=>true,
+                'Folder'=>$folderId
+            ]
+        );
+        /** @var костыль чтобы вернуть ID загруженного файла $files */
+        $files=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/');
+        foreach($files as $v){
+            if($v->Filename==$filename)return $v->ID;
+        }
+        return false;
+    }
 }
