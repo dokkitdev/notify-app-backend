@@ -1,11 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-
-    <div class="container">
-
-
-
         <h2>Users</h2>
         @if (session('error'))
             <div class="alert alert-error">
@@ -37,9 +32,6 @@
 
             </tbody>
         </table>
-
         {{ $usersArray->links() }}
-
-    </div>
 
 @endsection

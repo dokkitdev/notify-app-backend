@@ -58,27 +58,29 @@ class CustomersController extends Controller
 
         $tg=new collectDataService();
         $where=$tg->getHoisingTemplates();
+
         $jobs=SimProJobs::where([
                 ['status','!=',''],
                 ['set_status_date','>=',$time],
                 ['set_status_date','<=',$time+24*60*60]
-            ])/*->orWhere([
-                ['status','=','First Access'],
-                ['set_status_date','>=',$time+24*60*60*7],
-                ['set_status_date','<=',$time+24*60*60*7+24*60*60]
-            ])->orWhere([
-                ['status','=','Second Access'],
-                ['set_status_date','>=',$time+24*60*60*14],
-                ['set_status_date','<=',$time+24*60*60*14+24*60*60]
-            ])*/->get();
+            ])->get();
 
         $res=[];
         if(count($jobs)>0){
             foreach($jobs as $k=>$v){
                 $res[$k]['job']=$v;
                 $tmpCustomer=$this->getCustomerBySimproId($v->simpro_customer_id);
-                if(in_array($tmpCustomer->id,$where['customers']))$tmpCustomer->tpl=true;
+                if(in_array($tmpCustomer->id,$where['customers'])){
+                    $tmpCustomer->tpl=true;
+                    foreach ($where['where'][$tmpCustomer->id]['templates'] as $key=>$val){
+                        #todo записать id шаблона в job по имени статуса
+                        $res[$k]['job']->letter_template=$key;
+                    }
+                } # проверка на существование группы шаблонов для customer
                 else $tmpCustomer->tpl=false;
+
+
+
                 $res[$k]['customer']=$tmpCustomer;
             }
         }

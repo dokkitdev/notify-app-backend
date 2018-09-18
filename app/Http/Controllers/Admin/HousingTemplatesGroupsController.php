@@ -6,6 +6,7 @@ use App\Customers;
 use App\HousingTemplate;
 use App\HousingTemplateGroup;
 use App\Http\Controllers\Controller;
+use App\Service\collectDataService;
 use App\SimProJobs;
 use App\Template;
 use Illuminate\Http\Request;
@@ -21,10 +22,12 @@ class HousingTemplatesGroupsController extends Controller
         $tg->company_name = $customer->company_name;
         $tg->save();
         if (!$tg->id) return redirect('admin/templates');
-        for ($i = 1; $i <= 3; $i++) {
+        $cds=new collectDataService();
+        $tagsArr=$cds->tagsArr;
+        for ($i = 0; $i <= 2; $i++) {
             $template = new HousingTemplate();
             $template->housing_template_group_id = $tg->id;
-            $template->state = $i;
+            $template->state = $tagsArr[$i];
             $template->save();
         }
         return redirect('admin/templates');

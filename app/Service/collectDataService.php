@@ -12,6 +12,7 @@ class collectDataService
 {
     public $interval=60*60*24*7; # one week
     //public $interval=60*60*24*2; # 2 days
+    public $tagsArr=['No Access','First Access','Second Access','Final Letter'];
 
 
     public function getPrivateTemplates(){
@@ -29,11 +30,12 @@ class collectDataService
     public function getHoisingTemplates(){
         $privateTemplateGroup=HousingTemplateGroup::with('housingTemplates')->get();
         $where=[];
+        $customers=[];
         foreach($privateTemplateGroup as $k=>$v){
             if(count($v->housingTemplates)!=3)continue;
             foreach ($v->housingTemplates as $key=>$val){
                 $customers[$k]=$v->customer_id;
-                $where[$k]['state'][$val->id]=$val->state;
+                $where[$v->customer_id]['templates'][$val->id]=$val->state;
             }
         }
         return ['customers'=>$customers,'where'=>$where];
@@ -124,10 +126,7 @@ class collectDataService
      * @return bool
      */
     public function getLastTag($tags){
-        $tagsArr[]='No Access';
-        $tagsArr[]='First Access';
-        $tagsArr[]='Second Access';
-        $tagsArr[]='Final Letter';
+        $tagsArr=$this->tagsArr;
         $res=false;
         $tagsArr=array_reverse($tagsArr);
         foreach($tags as $v){
