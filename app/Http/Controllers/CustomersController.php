@@ -12,39 +12,30 @@ class CustomersController extends Controller
 {
     public function privateContracts()
     {
+        $title = 'Private Contracts';
+
         $tg=new collectDataService();
         $where=$tg->getPrivateTemplates();
+        $time=strtotime(date("Y-m-d",time()).' 00:00:00'); #today at 00:00:00 (day start)
+        $contracts=[];
         if($where) {
             foreach ($where as $k => $val) {
+
+                $dateS=($time + $val['term'])-24*60*60-$tg->interval; #get more or = than 1/4/8 weeks in future - $tg->interval
+                $dateE=$time + $val['term']-24*60*60; #not less or = than 1/4/8 weeks in future
+
                 $contracts[$k] = SimProContracts::where([
                     ['active', '=', 1],
-                    ['delete', '=', 0],
-                    ['end_date', '<=', time() + $val['term']],
-                    ['end_date', '>=', time() + $val['term'] - $tg->interval]
+                    //['delete', '=', 0],
+                    ['end_date', '>=', $dateS],
+                    ['end_date', '<=', $dateE]
                 ])->get();
+                //print date("Y-m-d",$dateS).'<br>';
+                //print date("Y-m-d",$dateE).'<br><br>';
             }
+
         }
-        //dd($contracts);
-        /*$contracts=SimProContracts::where([
-                ['active','=',1],
-                ['end_date','<=',time()+$where[1]['term']],
-                ['end_date','>=',time()+$where[1]['term']-$tg->interval]
-            ])->orWhere([
-                ['active','=',1],
-                ['end_date','<=',time()+$where[2]['term']],
-                ['end_date','>=',time()+$where[2]['term']-$tg->interval]
-            ])->orWhere([
-                ['active','=',1],
-                ['end_date','<=',time()+$where[3]['term']],
-                ['end_date','>=',time()+$where[3]['term']-$tg->interval]
-            ])->get();
-        */
-
-
-        $title = 'Private Contracts';
-        //$contracts=SimProContracts::where(['active',1])->get();
         $res=[];
-
         if(count($contracts)>0){
             foreach($contracts as $k=>$v){
                 foreach($v as $value){
@@ -63,15 +54,34 @@ class CustomersController extends Controller
     public function housingCustomers()
     {
         $title = 'Housing Customers';
-        $jobs=SimProJobs::where('set_status_date','<>',null)->get();
+        $time=strtotime(date("Y-m-d",time()).' 00:00:00'); #today at 00:00:00 (day start)
+
+        $tg=new collectDataService();
+        $where=$tg->getHoisingTemplates();
+        $jobs=SimProJobs::where([
+                ['status','!=',''],
+                ['set_status_date','>=',$time],
+                ['set_status_date','<=',$time+24*60*60]
+            ])/*->orWhere([
+                ['status','=','First Access'],
+                ['set_status_date','>=',$time+24*60*60*7],
+                ['set_status_date','<=',$time+24*60*60*7+24*60*60]
+            ])->orWhere([
+                ['status','=','Second Access'],
+                ['set_status_date','>=',$time+24*60*60*14],
+                ['set_status_date','<=',$time+24*60*60*14+24*60*60]
+            ])*/->get();
+
         $res=[];
         if(count($jobs)>0){
             foreach($jobs as $k=>$v){
                 $res[$k]['job']=$v;
-                $res[$k]['customer']=$this->getCustomerBySimproId($v->simpro_customer_id);
+                $tmpCustomer=$this->getCustomerBySimproId($v->simpro_customer_id);
+                if(in_array($tmpCustomer->id,$where['customers']))$tmpCustomer->tpl=true;
+                else $tmpCustomer->tpl=false;
+                $res[$k]['customer']=$tmpCustomer;
             }
         }
-
         return view('tpl.customers.housing',['data'=>$res,'title'=>$title])->with('title',$title);
     }
     function getCustomerBySimproId($simpro_id){

@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Customers;
+use App\HousingTemplateGroup;
 use App\SimProContracts;
 use App\SimProJobs;
 use App\TemplateGroup;
@@ -10,17 +11,32 @@ use App\TemplateGroup;
 class collectDataService
 {
     public $interval=60*60*24*7; # one week
+    //public $interval=60*60*24*2; # 2 days
 
 
     public function getPrivateTemplates(){
         $privateTemplateGroup=TemplateGroup::where('customer_group_tag','Private')->with('templates')->get();
         $tg=$privateTemplateGroup[0];
         if(count($tg->templates)!=3)return false;
+        $where=[];
         foreach($tg->templates as $template){
             $where[$template->id]['state']=$template->state;
             $where[$template->id]['term']=$template->term;
         }
         return $where;
+    }
+
+    public function getHoisingTemplates(){
+        $privateTemplateGroup=HousingTemplateGroup::with('housingTemplates')->get();
+        $where=[];
+        foreach($privateTemplateGroup as $k=>$v){
+            if(count($v->housingTemplates)!=3)continue;
+            foreach ($v->housingTemplates as $key=>$val){
+                $customers[$k]=$v->customer_id;
+                $where[$k]['state'][$val->id]=$val->state;
+            }
+        }
+        return ['customers'=>$customers,'where'=>$where];
     }
     public function collectData(){
         exit;
