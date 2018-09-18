@@ -9,6 +9,26 @@ use Illuminate\Http\Request;
 
 class ContractsController extends Controller
 {
+    public function processContracts(Request $request){
+        $contracts=$request->all()['contract'];
+        //dd($contracts);
+        foreach($contracts as $k=>$v){
+            $contract=SimProContracts::find($k);
+            $contract->confirm=1; #todo надо решить что делать при обновлении
+            $contract->save();
+
+            $template_id=$this->getTemlateByState($v);
+            if(!$template_id)continue; #todo должно собирать ошибки чтобы затем вернуть
+
+            $PL=new PrivateLetter(); #todo найти запись и если она есть то не создавать новую!!
+            $PL->contract_id=$contract->id;
+            $PL->template_id=$template_id;
+            $PL->tosend=1;
+            $PL->save();
+        }
+        return redirect('/privateContracts');
+    }
+
     public function _updateContract(Request $request){
         $data=$request->all();
         $id=$data['id'];

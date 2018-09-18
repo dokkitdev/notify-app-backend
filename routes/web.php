@@ -55,6 +55,8 @@ Route::group(['middleware'=>['CheckLogin']],function (){
     Route::post('/contracts/update',['uses'=>'ContractsController@updateContract','as'=>'ContractsController.updateContract']);
     Route::post('/contracts/delete',['uses'=>'ContractsController@deleteContract','as'=>'ContractsController.deleteContract']);
 
+    Route::post('/contracts/process',['uses'=>'ContractsController@processContracts','as'=>'ContractsController.processContracts']);
+
     Route::post('/jobs/update',['uses'=>'JobsController@updateJob','as'=>'JobsController.updateJob']);
     Route::post('/jobs/delete',['uses'=>'JobsController@deleteJob','as'=>'JobsController.deleteJob']);
 
