@@ -111,6 +111,9 @@ class sesTemplatesService
         } catch (AwsException $e) {
             throw new \Exception($this->getErr($e));
         }
+        catch (\Exception $e) {
+            throw new \Exception($e);
+        }
     }
     public function listSesTemplates(){
         $SesClient=$this->CreateSesClient();

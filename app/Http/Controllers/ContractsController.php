@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\PrivateLetter;
+use App\Jobs\CreatePrivateLetters;
+use App\Letter;
 use App\SimProContracts;
 use App\Template;
 use Illuminate\Http\Request;
@@ -20,11 +21,14 @@ class ContractsController extends Controller
             $template_id=$this->getTemlateByState($v);
             if(!$template_id)continue; #todo должно собирать ошибки чтобы затем вернуть
 
-            $PL=new PrivateLetter(); #todo найти запись и если она есть то не создавать новую!!
-            $PL->contract_id=$contract->id;
-            $PL->template_id=$template_id;
-            $PL->tosend=1;
-            $PL->save();
+            if(Letter::where('contract_id', $contract->id)->where('template_id', $template_id)->count() === 0){
+                $letter = new Letter();
+                $letter->contract_id = $contract->id;
+                $letter->template_id = $template_id;
+                $letter->tosend = 1;
+                $letter->save();
+                CreatePrivateLetters::dispatch($letter->id)->delay(now()->addSecond(5));
+            }
         }
         return redirect('/privateContracts');
     }
