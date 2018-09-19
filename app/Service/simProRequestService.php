@@ -9,11 +9,9 @@
 namespace App\Service;
 
 
-use App\Customers;
-use App\Jobs\parseCustomers;
-use App\Jobs\parseCustomersLinks;
 use App\Settings;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 class simProRequestService
 {
@@ -22,15 +20,39 @@ class simProRequestService
     {
         $this->getToken();
     }
-    public function getRequestPage($method,$url){
+
+    protected function request($method, $url, $data = [], &$attemptCount = 0)
+    {
+        $this->getToken();
         $client = new Client();
-        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.'?access_token='.$this->token,
+        try {
+            $res = $client->request($method, $url . ((strpos($url, '?') != false) ? '&' : '?') .'access_token=' . $this->token, $data);
+            if ((int)$res->getStatusCode() == 200||(int)$res->getStatusCode() == 201||(int)$res->getStatusCode() == 204){
+                return $res;
+            }
+        } catch (\Exception $e) {
+            if ($attemptCount < 3) {
+                $this->reGenToken();
+                $attemptCount++;
+                //print 'ac='.$attemptCount.'<br>';
+                return $this->request($method, $url, $data, $attemptCount);
+            }else{
+                Log::error('simPRORequestError '.$e->getMessage());
+            }
+        }
+        return false;
+    }
+
+
+
+    public function getRequestPage($method,$url){
+        $res = $this->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url,
             ['headers'=>[
                 'Accept'     => 'application/json', #todo required
             ]
             ]
         );
-        if((int)$res->getStatusCode()==200){
+        if($res){
             $headers=$res->getHeaders();
             $urls[]=$url;
             if(isset($headers['Result-Pages'][0])&&$headers['Result-Pages'][0]>1){
@@ -46,49 +68,47 @@ class simProRequestService
 
 
     public function getRequest($method,$url){
-        $client = new Client();
-        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.((strpos($url,'?')!=false)?'&':'?').'access_token='.$this->token,
-            ['headers'=>[
-                'Accept'     => 'application/json', #todo required
+        $res = $this->request($method, 'https://enterprise-sandbox-uk.simprosuite.com' . $url,
+            ['headers' => [
+                'Accept' => 'application/json', #todo required
             ]
             ]
         );
-        if((int)$res->getStatusCode()==200){
-            return json_decode($res->getBody());
-        }else{
-            return false;
-        }
+        if($res)return json_decode($res->getBody());
+        return false;
     }
     public function deleteRequest($url){
         $client = new Client();
-        $res = $client->delete( 'https://enterprise-sandbox-uk.simprosuite.com'.$url.((strpos($url,'?')!=false)?'&':'?').'access_token='.$this->token,
+        $this->getToken();
+        $res = $client->delete( 'https://enterprise-sandbox-uk.simprosuite.com'.$url.'?access_token=' . $this->token,
             ['headers'=>[
                 'Accept'     => 'application/json', #todo required
             ]
             ]
         );
-        if((int)$res->getStatusCode()==200){
-            return json_decode($res->getBody());
-        }else{
-            return false;
-        }
+        if($res)return json_decode($res->getBody());
+        return false;
     }
     public function patchRequest($method,$url,$data){
-        $client = new Client();
-        $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.'?access_token='.$this->token,
+        $res = $this->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url,
             ['headers'=>[
                 'Accept'     => 'application/json', #todo required
             ],
                 'json'=>$data
             ]
         );
-        if((int)$res->getStatusCode()==200){
-            return $res->getStatusCode();
-        }else{
-            return false;
-        }
+        if($res)return json_decode($res->getBody());
+        return false;
+
     }
 
+    private function reGenToken(){
+        $settings=new Settings();
+        $set=$settings->getParam('access_token');
+        $set->value='';
+        $set->save();
+        $this->getToken();
+    }
     private function getToken()
     {
 

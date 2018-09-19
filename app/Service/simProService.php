@@ -196,12 +196,12 @@ class simProService
             }
         }
         if(!$folder){
-            $this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/',
+            $res=$this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/',
                 [
                     'Name'=>'NotifyApp',
                 ]
             );
-            return $this->getFolderId($compnayId,$customerId);
+            $folderId=$res->ID;
         }
         return $folderId;
     }
@@ -211,13 +211,11 @@ class simProService
      * @param $customerId - customers.simpro_id
      * @param $filename_source - filename with path in server
      * @param $filename - filename in SimPRO
-     *
-     * return ID file in simPRO or false
      */
     public function sendAttachment($compnayId,$customerId,$filename_source,$filename){
         $folderId=$this->getFolderId($compnayId,$customerId);
         if(!file_get_contents($filename_source))return false;
-        $this->simProRequest->patchRequest('POST','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/',
+        $res=$this->simProRequest->patchRequest('POST','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/',
             [
                 'Filename'=>$filename,
                 'Base64Data'=>base64_encode(file_get_contents($filename_source)),
@@ -225,10 +223,8 @@ class simProService
                 'Folder'=>$folderId
             ]
         );
-        /** @var костыль чтобы вернуть ID загруженного файла $files */
-        $files=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/');
-        foreach($files as $v){
-            if($v->Filename==$filename)return $v->ID;
+        if($res->ID) {
+            return $res->ID;
         }
         return false;
     }
