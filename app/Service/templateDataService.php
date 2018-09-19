@@ -19,15 +19,19 @@ class templateDataService
         $data=[];
         $data['customer_address']=$customer->address;
         $data['date_now']=date('d M Y',time());
-        $data['name']=$customerParsedData->Title.' '.$customerParsedData->FamilyName;
+        if (property_exists($customerParsedData, 'Title') && property_exists($customerParsedData, 'FamilyName'))
+            $data['name']=$customerParsedData->Title.' '.$customerParsedData->FamilyName;
         //$data['site_address']=$siteData->Address->Address;
         $data['site_assets']='ERROR';
         $data['contract_tab']='ERROR';
         $data['from_name']='ERROR';
         $data['client_address']='ERROR';
-        $data['contract_ref']=$contractParsedData->ContractNo;
-        $data['customer_ref']=$customerParsedData->ID;
-        $data['date_expired']=date("d/m/Y",strtotime($contractParsedData->EndDate));
+        if (property_exists($customerParsedData, 'ContractNo'))
+            $data['contract_ref']=$contractParsedData->ContractNo;
+        if (property_exists($customerParsedData, 'ID'))
+            $data['customer_ref']=$customerParsedData->ID;
+        if (property_exists($customerParsedData, 'EndDate'))
+            $data['date_expired']=date("d/m/Y",strtotime($contractParsedData->EndDate));
         return $data;
     }
     public function makeTemplateDataHousing(SimProJobs $job){
