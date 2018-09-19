@@ -11,6 +11,7 @@ namespace App\Service;
 
 use App\Settings;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 class simProRequestService
 {
@@ -20,18 +21,23 @@ class simProRequestService
         $this->getToken();
     }
 
-    protected function request($method, $url, $data = [], $attemptCount = 0)
+    protected function request($method, $url, $data = [], &$attemptCount = 0)
     {
         $this->getToken();
         $client = new Client();
         try {
             $res = $client->request($method, $url . ((strpos($url, '?') != false) ? '&' : '?') .'access_token=' . $this->token, $data);
-            if ((int)$res->getStatusCode() == 200||(int)$res->getStatusCode() == 201||(int)$res->getStatusCode() == 204)
+            if ((int)$res->getStatusCode() == 200||(int)$res->getStatusCode() == 201||(int)$res->getStatusCode() == 204){
                 return $res;
+            }
         } catch (\Exception $e) {
             if ($attemptCount < 3) {
                 $this->reGenToken();
-                return $this->request($method, $url, $data, $attemptCount++);
+                $attemptCount++;
+                //print 'ac='.$attemptCount.'<br>';
+                return $this->request($method, $url, $data, $attemptCount);
+            }else{
+                Log::error('simPRORequestError '.$e->getMessage());
             }
         }
         return false;
