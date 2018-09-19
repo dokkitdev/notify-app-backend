@@ -59,6 +59,20 @@ class simProRequestService
             return false;
         }
     }
+    public function deleteRequest($url){
+        $client = new Client();
+        $res = $client->delete( 'https://enterprise-sandbox-uk.simprosuite.com'.$url.((strpos($url,'?')!=false)?'&':'?').'access_token='.$this->token,
+            ['headers'=>[
+                'Accept'     => 'application/json', #todo required
+            ]
+            ]
+        );
+        if((int)$res->getStatusCode()==200){
+            return json_decode($res->getBody());
+        }else{
+            return false;
+        }
+    }
     public function patchRequest($method,$url,$data){
         $client = new Client();
         $res = $client->request($method, 'https://enterprise-sandbox-uk.simprosuite.com'.$url.'?access_token='.$this->token,
