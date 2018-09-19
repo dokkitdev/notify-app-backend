@@ -232,4 +232,8 @@ class simProService
         }
         return false;
     }
+    public function getSiteData($companyId,$siteId){
+        return $this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$companyId.'/sites/'.$siteId);
+
+    }
 }
