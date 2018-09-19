@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Mockery\Matcher\NoArgs;
 
 class TestController extends Controller
 {
@@ -316,7 +317,6 @@ class TestController extends Controller
     }
 
     public function getFolderId($compnayId,$customerId){
-
         $folders=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/');
         $folder=false;
         if(count($folders)>0){
@@ -328,21 +328,16 @@ class TestController extends Controller
             }
         }
         if(!$folder){
-            $this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/',
+            $res=$this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/',
                 [
                     'Name'=>'NotifyApp',
                 ]
             );
-            return $this->getFolderId($compnayId,$customerId);
+            $folderId=$res->ID;
         }
         return $folderId;
     }
 
-    /**
-     * @param $compnayId - customers.company_id
-     * @param $customerId - customers.simpro_id
-     * @param $filename - filename with path
-     */
     /**
      * @param $compnayId - customers.company_id
      * @param $customerId - customers.simpro_id
@@ -352,7 +347,7 @@ class TestController extends Controller
     public function sendAttachment($compnayId,$customerId,$filename_source,$filename){
         $folderId=$this->getFolderId($compnayId,$customerId);
         if(!file_get_contents($filename_source))return false;
-        $this->simProRequest->patchRequest('POST','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/',
+        $res=$this->simProRequest->patchRequest('POST','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/',
             [
                 'Filename'=>$filename,
                 'Base64Data'=>base64_encode(file_get_contents($filename_source)),
@@ -360,13 +355,109 @@ class TestController extends Controller
                 'Folder'=>$folderId
             ]
         );
-        $files=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/');
-        foreach($files as $v){
-            if($v->Filename==$filename)return $v->ID;
+        if($res->ID) {
+            return $res->ID;
         }
         return false;
     }
+    public function addTagToJob($tagname,$jobID){
+        $simPROTags=(array)json_decode(getenv('SIMPRO_TAGS'));
+        $tagID=false;
+        foreach($simPROTags as $k=>$v){
+            if($tagname==$v){
+                $tagID=$k;
+                break;
+            }
+        }
+        if(!$tagID)return false;
+
+    }
+    public function getSiteData($companyId,$siteId){
+        return $this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$companyId.'/sites/'.$siteId);
+
+    }
+    public function makeTemplateDataPrivate(SimProContracts $contract){
+        $data=[];
+        $customer=Customers::find($contract->customers_id);
+        $customerParsedData=json_decode($customer->parsedData);
+        $contractParsedData=json_decode($contract->parsedData);
+        dd($customerParsedData);
+        $siteData=$this->getSiteData($customer->company_id,23967); #todo надо забрать из списка сайтов
+dd($contractParsedData);
+        $data['customer_address']=$customer->address;
+        $data['date_now']=date('d M Y',time());
+        $data['name']=$customerParsedData->Title.' '.$customerParsedData->FamilyName;
+        $data['site_address']=$siteData->Address->Address;
+        $data['site_assets']='ERROR';
+        $data['contract_tab']='ERROR';
+        $data['from_name']='ERROR';
+        $data['client_address']='ERROR';
+        $data['contract_ref']=$contractParsedData->ContractNo;
+        $data['customer_ref']=$customerParsedData->ID;
+        $data['date_expired']=date("d/m/Y",strtotime($contractParsedData->EndDate));
+
+        return $data;
+    }
+    public function makeTemplateDataHousing(SimProJobs $job){
+        $customer=Customers::where('simpro_id','=',$job->simpro_customer_id)->first();
+        $customerParsedData=json_decode($customer->parsedData);
+        $jobParsedData=json_decode($job->parsedData);
+        $siteData=$this->getSiteData($customer->company_id,$jobParsedData->Site->ID); #todo надо забрать из списка сайтов
+        $data=[];
+        $data['customer_address']=$customer->address;
+        $data['site_address']=$siteData->Address->Address;
+        $data['site_primary_contact']=$siteData->PrimaryContact->Title.' '.$siteData->PrimaryContact->FamilyName;
+        $data['job_number']=$jobParsedData->ID;
+        $data['site_name']=$siteData->Name;
+        $data['date_now']=date('d M Y',time());
+        return $data;
+    }
+
     public function index(){
+
+        $arr=$this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/files/');
+        dd($arr);
+        foreach($arr as $v){
+            //$this->simProRequest->deleteRequest('/api/v1.0/companies/2/customers/13109/attachments/files/'.$v->ID);
+        }
+        dd($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/files/'));
+        dd($this->sendAttachment(2,13109,base_path().'/storage/app/files/moto.pdf','letter.pdf'));
+        dd($files=$this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13107/attachments/files/6fIjPITFL-eajE0VgFkG0VQdV1zMsrcfV9NFEjg4AZw'));
+        //$this->makeTemplateDataPrivate(SimProContracts::find(6));
+        //$this->makeTemplateDataHousing(SimProJobs::find(3));
+        exit;
+
+        /*$arr=[
+            14=>'Final Letter',
+            11=>'First Access',
+            13=>'No Access',
+            12=>'Second Access',
+        ];
+        print json_encode($arr);
+        print_r((array)json_decode(getenv('SIMPRO_TAGS')));
+        */
+        print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/0/setup/tags/projects/'),1).'</pre>';
+        exit;
+        //print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/34/jobs/3890'),1).'</pre>';
+        //exit;/api/v1.0/companies/{companyID}/setup/tags/projects/
+
+        dd($this->simProRequest->deleteRequest('/api/v1.0/companies/0/setup/tags/projects/16'));
+
+        /*dd($this->simProRequest->patchRequest('POST','/api/v1.0/companies/0/setup/tags/projects/',
+            [
+                'Name'=>'No Access',
+                'Archived'=>false
+            ]
+            ));
+*/
+        dd($this->simProRequest->patchRequest('PATCH','/api/v1.0/companies/34/jobs/3890',
+            [
+                'Tags'=>[16],
+            ]
+            ));
+        print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/34/setup/tags/projects/'),1).'</pre>';
+        print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/3/setup/tags/projects/'),1).'</pre>';
+exit;
         print_r($this->sendAttachment(2,13109,base_path().'/storage/app/files/moto.pdf','letter.pdf'));
         print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/files/'),1).'</pre>';
         exit;
@@ -377,7 +468,7 @@ class TestController extends Controller
 
         dd($this->parseCompanies());
         $this->processJobsTable();
-exit;
+        exit;
         /**
          * за 3 дня
          */
