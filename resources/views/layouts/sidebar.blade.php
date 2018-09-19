@@ -1,33 +1,47 @@
 <!-- Sidebar -->
 <ul class="sidebar navbar-nav">
-    <li class="nav-item active">
+    <li class="nav-item">
         <a class="nav-link" href="/">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
         </a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item
+                    @if(Request::path() === 'privateContracts')
+                        active
+                    @endif
+                    ">
         <a class="nav-link" href="/privateContracts">
             <i class="fas fa-fw fa-folder"></i>
             <span>Private Contracts</span>
         </a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item
+                    @if(Request::path() === 'housingCustomers')
+                                active
+                    @endif
+                    ">
         <a class="nav-link" href="/housingCustomers">
             <i class="fas fa-fw fa-folder"></i>
             <span>Housing Customers</span>
         </a>
     </li>
     @if(Auth::user()->role=='admin')
-        <li class="nav-item">
+        <li class="nav-item
+                        @if(Request::is('admin/template*')||Request::is('admin/housing*'))
+                                        active
+                        @endif
+                        ">
             <a class="nav-link" href="/admin/templates">
                 <i class="fas fa-fw fa-envelope"></i>
                 <span>Templates</span>
             </a>
         </li>
-    @endif
-    @if(Auth::user()->role=='admin')
-        <li class="nav-item">
+        <li class="nav-item
+                        @if(Request::is('admin/users*'))
+                                        active
+                        @endif
+                        ">
             <a class="nav-link" href="/admin/users">
                 <i class="fas fa-fw fa-users-cog"></i>
                 <span>Users</span>
@@ -35,7 +49,11 @@
         </li>
     @endif
 
-    <li class="nav-item">
+    <li class="nav-item
+                    @if(Request::path() === 'logs')
+                                active
+                    @endif
+                    ">
         <a class="nav-link" href="/logs">
             <i class="fas fa-fw fa-table"></i>
             <span>Logs</span>
