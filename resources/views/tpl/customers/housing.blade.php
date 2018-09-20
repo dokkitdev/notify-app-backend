@@ -1,10 +1,14 @@
 @extends('layouts.app')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
+@endsection
+
 @section('content')
         <h2>{{$title}}</h2>
         <form action="/jobs/process" method="post">
             @csrf
-            <table class="table">
+            <table id="items-table" class="tablesorter" style="width: 100%">
                 <thead>
                 <tr>
                     <th scope="col">Include</th>
@@ -76,4 +80,13 @@
         }
     </script>
 
+@endsection
+
+@section('js')
+    <script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
+    <script>
+        $(document).ready(function(){
+            $("#items-table").tablesorter({sortList:[[1,0]], widgets: ['zebra'], headers: {0:{sorter: false}}});
+        });
+    </script>
 @endsection
