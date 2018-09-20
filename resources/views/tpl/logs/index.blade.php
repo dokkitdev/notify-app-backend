@@ -1,10 +1,14 @@
 @extends('layouts.app')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
+@endsection
+
 @section('content')
 
 
         <h2>{{$title}}</h2>
-        <table class="table">
+        <table id="items-table" class="tablesorter" style="width: 100%">
             <thead>
             <tr>
                 <th scope="col">Date</th>
@@ -15,12 +19,12 @@
             </thead>
             <tbody>
 
-                @foreach ($logs as $log)
+                @foreach ($data as $item)
                         <tr>
-                            <td scope="row">{{$customer->simpro_id}}</td>
-                            <td scope="row"><input type="checkbox" name="customerActive[{{$customer->id}}]"></td>
-                            <td>{{$customer->given_name}} {{$customer->family_name}}</td>
-                            <td>{{$customer->address}}</td>
+                            <td>{{$item['date']}}</td>
+                            <td>{{$item['customer_type']}}</td>
+                            <td>{{$item['letters_generated']}}</td>
+                            <td>{{$item['emails_generated']}}</td>
                         </tr>
                 @endforeach
 
@@ -28,4 +32,13 @@
         </table>
 
 
+@endsection
+
+@section('js')
+    <script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
+    <script>
+        $(document).ready(function(){
+            $("#items-table").tablesorter({sortList:[[0,1]], widgets: ['zebra'], headers: {}});
+        });
+    </script>
 @endsection

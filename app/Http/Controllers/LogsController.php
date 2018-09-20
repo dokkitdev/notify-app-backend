@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Service\LogService;
 
 class LogsController extends Controller
 {
     public function index()
     {
         $title = 'System Logs';
-        //$contracts=SimProContracts::where(['active',1])->get();
-        $res=[];
+        $srv = new LogService();
+        $data = $srv->getStandardReport();
 
-        return view('tpl.logs.index',['logs'=>$res,'title'=>$title])->with('title',$title);
+        return view('tpl.logs.index', ['data' => $data, 'title' => $title])->with('title', $title);
     }
 }
