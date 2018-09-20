@@ -18,8 +18,10 @@ class ContractsController extends Controller
             $contract->confirm=1; #todo надо решить что делать при обновлении
             $contract->save();
 
-            $template_id=$this->getTemlateByState($v);
-            if(!$template_id)continue; #todo должно собирать ошибки чтобы затем вернуть
+            $template_id=$v;
+            //$template_id=$this->getTemlateByState($v);
+            //if(!$template_id)continue; #todo должно собирать ошибки чтобы затем вернуть
+
 
             if(Letter::where('contract_id', $contract->id)->where('template_id', $template_id)->count() === 0){
                 $letter = new Letter();
