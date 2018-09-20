@@ -2,6 +2,11 @@
 
 @section('content')
         <h2>{{$title}}</h2>
+        @if (session('error'))
+            <div class="alert alert-error">
+                {{ session('error') }}
+            </div>
+        @endif
         <form action="/jobs/process" method="post">
             @csrf
         <table class="table">

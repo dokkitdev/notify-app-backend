@@ -60,6 +60,13 @@
         </a>
     </li>
 
+    <li class="nav-item">
+        <a href="#!" data-toggle="modal" data-target="#support" class="nav-link">
+            <i class="fas fa-headset"></i>
+            <span>Support</span>
+        </a>
+    </li>
+
 
     {{--<li class="nav-item dropdown">
 

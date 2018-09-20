@@ -61,6 +61,8 @@ Route::group(['middleware'=>['CheckLogin']],function (){
     Route::post('/jobs/undelete',['uses'=>'JobsController@undeleteJob','as'=>'JobsController.undeleteJob']);
     Route::post('/jobs/delete',['uses'=>'JobsController@deleteJob','as'=>'JobsController.deleteJob']);
 
+    Route::post('/support',['uses'=>'SupportController@getSupport','as'=>'SupportController.getSupport']);
+
 });
 
 
