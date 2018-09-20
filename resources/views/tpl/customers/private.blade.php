@@ -1,10 +1,14 @@
 @extends('layouts.app')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
+@endsection
+
 @section('content')
         <h2>Private Contracts</h2>
         <form action="/contracts/process" method="post">
             @csrf
-            <table class="table">
+            <table id="contracts-table" class="tablesorter" style="width: 100%">
                 <thead>
                 <tr>
                     <th scope="col">Include</th>
@@ -19,7 +23,7 @@
                 <tbody>
                     @foreach ($data as $customer)
                             <tr>
-                                <td scope="row" id="action{{$customer['contract']->id}}">
+                                <td scope="row" id="action{{$customer['contract']->id}}" class="text-center">
                                     <input value="{{$customer['contract']->letter_state}}" name="contract[{{$customer['contract']->id}}]"
                                            onchange="deletion(this,{{$customer['contract']->id}})"
                                            type="checkbox" @if($customer['contract']->delete==1) @else checked=checked @endif>
@@ -77,4 +81,13 @@
             });
         }
     </script>
+@endsection
+
+@section('js')
+<script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
+<script>
+    $(document).ready(function(){
+        $("#contracts-table").tablesorter({sortList:[[1,0]], widgets: ['zebra'], headers: {0:{sorter: false}}});
+    });
+</script>
 @endsection
