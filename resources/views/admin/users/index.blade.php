@@ -2,11 +2,6 @@
 
 @section('content')
         <h2>Users</h2>
-        @if (session('error'))
-            <div class="alert alert-error">
-                {{ session('error') }}
-            </div>
-        @endif
         <div class="float-right mb-3">
         <a class="btn btn-primary" href="{{route('users.create')}}">Create user</a>
 </div>
