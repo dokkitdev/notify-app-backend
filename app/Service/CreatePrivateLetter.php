@@ -39,12 +39,13 @@ class CreatePrivateLetter
                     if(is_int($companyId)){
                         $pdfGenerator = new PDFGenerator();
                         $pdf = $pdfGenerator->generatePDF($template->html_pdf, $wrappedData);
-                        $letter->generated_at = date('Y-m-d H:i:s', time());;
+                        $letter->generated_at = date('Y-m-d H:i:s', time());
+                        $letter->letter = 1;
                         $letter->save();
                         $pi = pathinfo($pdf);
                         $srv = new simProService();
                         $letter->simpro_attachment_id = $srv->sendAttachment($companyId, $customer->simpro_id, $pdf, $pi['basename']);
-                        $letter->sended_at = date('Y-m-d H:i:s', time());;
+                        $letter->sended_at = date('Y-m-d H:i:s', time());
                         $letter->save();
                         unlink($pdf);
                         rmdir($pi['dirname']);
@@ -54,10 +55,11 @@ class CreatePrivateLetter
                     // email
                     $srv = new sesTemplatesService();
                     $sender = env('MAIL_FROM_ADDRESS', 'example@example.com');
-                    $letter->generated_at = date('Y-m-d H:i:s', time());;
+                    $letter->generated_at = date('Y-m-d H:i:s', time());
+                    $letter->email = 1;
                     $letter->save();
                     $srv->sendSesTemplateEmail($template->name, $sender, $email, $wrappedData);
-                    $letter->sended_at = date('Y-m-d H:i:s', time());;
+                    $letter->sended_at = date('Y-m-d H:i:s', time());
                     $letter->save();
                 }
             }
