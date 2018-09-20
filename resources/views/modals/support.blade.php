@@ -9,7 +9,7 @@
                 <div class="form-group">
                     <p>We'll get back to you as soon as we can!</p>
                 </div>
-                {!! Form::open(['url' => '/support', 'method' => 'POST','enctype'=>'multipart/form-data']) !!}
+                {!! Form::open(['url' => '/support', 'method' => 'POST']) !!}
                 <div class="form-group">
                     {!! Form::label('Name', 'Your name:') !!}
                     {!! Form::text('name',Auth::user()->name,['class'=>'form-control','disabled'=>'disabled']) !!}
@@ -23,6 +23,7 @@
                     {!! Form::textarea('message','',['class'=>'form-control']) !!}
                 </div>
                 {!! Form::submit('Send', ['class'=>'btn btn-primary float-right']) !!}
+                {{ Form::close() }}
             </div>
         </div>
     </div>

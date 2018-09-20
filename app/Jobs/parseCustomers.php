@@ -52,7 +52,7 @@ class parseCustomers implements ShouldQueue
          * согласно ТЗ оринтируемся на наличие тега Housing у кастомера
          */
         $housing=false;
-        if(count($parsedCustomer->Tags)>0){
+        if(isset($parsedCustomer->Tags)&&count($parsedCustomer->Tags)>0){
             foreach($parsedCustomer->Tags as $v){
                 if($v->Name=='Housing'){
                     $housing=true;

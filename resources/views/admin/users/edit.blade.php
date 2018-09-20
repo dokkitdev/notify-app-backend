@@ -31,5 +31,5 @@
             </select>
         </div>
         {!! Form::submit('Update', ['class'=>'btn btn-primary float-right']) !!}
-
+        {{ Form::close() }}
 @endsection

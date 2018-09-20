@@ -4,53 +4,53 @@
         <h2>{{$title}}</h2>
         <form action="/jobs/process" method="post">
             @csrf
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col">Include</th>
-                <th scope="col">Authority</th>
-                <th scope="col">Name</th>
-                <th scope="col">Address</th>
-                <th scope="col">State</th>
-                <th scope="col">Import Date</th>
-                <th scope="col">Letter Type</th>
-            </tr>
-            </thead>
-            <tbody>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Include</th>
+                    <th scope="col">Authority</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">State</th>
+                    <th scope="col">Import Date</th>
+                    <th scope="col">Letter Type</th>
+                </tr>
+                </thead>
+                <tbody>
 
-                @foreach ($data as $customer)
-                        <tr>
-                            <td scope="row" id="action{{$customer['job']->id}}">
-                                @if($customer['customer']->tpl==true)
-                                    <input value="{{$customer['job']->letter_template}}" name="jobs[{{$customer['job']->id}}]"
-                                           onchange="deletion(this,{{$customer['job']->id}})"
-                                           type="checkbox" @if($customer['job']->delete==1) @else checked=checked @endif>
-                                @else
-                                    <span style="color:red">No Templates Found</span>
-                                @endif
-                            </td>
-                            <td>{{$customer['customer']->company_name}}</td>
-                            <td>{{$customer['customer']->given_name}} {{$customer['customer']->family_name}}</td>
-                            <td>{{$customer['customer']->address}}</td>
-                            <td>
-                                {{$customer['job']->status}}
-                            </td>
-                            <td>{{$customer['job']->created_at}}</td>
-                            <td>
-                                @if($customer['customer']->email!='')
-                                    Email
-                                @else
-                                    Letter
-                                @endif
-                            </td>
+                    @foreach ($data as $customer)
+                            <tr>
+                                <td scope="row" id="action{{$customer['job']->id}}">
+                                    @if($customer['customer']->tpl==true)
+                                        <input value="{{$customer['job']->letter_template}}" name="jobs[{{$customer['job']->id}}]"
+                                               onchange="deletion(this,{{$customer['job']->id}})"
+                                               type="checkbox" @if($customer['job']->delete==1) @else checked=checked @endif>
+                                    @else
+                                        <span style="color:red">No Templates Found</span>
+                                    @endif
+                                </td>
+                                <td>{{$customer['customer']->company_name}}</td>
+                                <td>{{$customer['customer']->given_name}} {{$customer['customer']->family_name}}</td>
+                                <td>{{$customer['customer']->address}}</td>
+                                <td>
+                                    {{$customer['job']->status}}
+                                </td>
+                                <td>{{$customer['job']->created_at}}</td>
+                                <td>
+                                    @if($customer['customer']->email!='')
+                                        Email
+                                    @else
+                                        Letter
+                                    @endif
+                                </td>
 
-                        </tr>
-                @endforeach
+                            </tr>
+                    @endforeach
 
-            </tbody>
-        </table>
-        <input class="btn btn-primary float-right" type="submit" value="Process All">
-
+                </tbody>
+            </table>
+            <input class="btn btn-primary float-right" type="submit" value="Process All">
+        </form>
     <script>
         function deletion(checkbox,id){
             if(checkbox.checked==true){

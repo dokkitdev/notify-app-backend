@@ -10,13 +10,14 @@ use App\TemplateGroup;
 
 class collectDataService
 {
-    public $interval=60*60*24*7; # one week
+    public $interval=60*60*24*2; # one week
     //public $interval=60*60*24*2; # 2 days
     public $tagsArr=['No Access','First Access','Second Access','Final Letter'];
 
 
     public function getPrivateTemplates(){
         $privateTemplateGroup=TemplateGroup::where('customer_group_tag','Private')->with('templates')->get();
+        if(count($privateTemplateGroup)==0)return false;
         $tg=$privateTemplateGroup[0];
         if(count($tg->templates)!=3)return false;
         $where=[];
