@@ -24,23 +24,25 @@ class CustomersController extends Controller
                 $dateS=($time + $val['term'])-24*60*60-$tg->interval; #get more or = than 1/4/8 weeks in future - $tg->interval
                 $dateE=$time + $val['term']-24*60*60; #not less or = than 1/4/8 weeks in future
 
-                $contracts[$k] = SimProContracts::where([
+                $contracts['contracts'][$k] = SimProContracts::where([
                     ['active', '=', 1],
                     //['delete', '=', 0],
                     ['end_date', '>=', $dateS],
                     ['end_date', '<=', $dateE]
                 ])->get();
+                $contracts['templates'][$k]=$val;
                 //print date("Y-m-d",$dateS).'<br>';
                 //print date("Y-m-d",$dateE).'<br><br>';
             }
 
         }
         $res=[];
-        if(count($contracts)>0){
-            foreach($contracts as $k=>$v){
+        if(count($contracts['contracts'])>0){
+            foreach($contracts['contracts'] as $k=>$v){
                 foreach($v as $value){
                     $customer=$this->getCustomerByIdTag($value->customers_id,'Private');
                     if(!$customer)continue;
+                    $value->state=$contracts['templates'][$k]['state'];
                     $value->letter_state=$k;
                     $tmpArr['contract']=$value;
                     $tmpArr['customer']=$customer;

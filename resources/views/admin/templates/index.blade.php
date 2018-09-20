@@ -36,6 +36,7 @@
                 {!! Form::select('customer',$customers,'',['class'=>'form-control']) !!}
             </div>
             {!! Form::submit('Add new', ['class'=>'btn btn-primary float-right mb-3']) !!}
+            {{ Form::close() }}
         </div>
 
     <div class="clearfix"></div>

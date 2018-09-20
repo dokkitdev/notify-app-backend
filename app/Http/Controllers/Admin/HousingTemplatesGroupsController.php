@@ -28,6 +28,7 @@ class HousingTemplatesGroupsController extends Controller
             $template = new HousingTemplate();
             $template->housing_template_group_id = $tg->id;
             $template->state = $tagsArr[$i];
+            $template->html_pdf = '';
             $template->save();
         }
         return redirect('admin/templates');

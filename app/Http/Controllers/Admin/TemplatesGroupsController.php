@@ -71,6 +71,7 @@ class TemplatesGroupsController extends Controller
                 $template = new Template();
                 $template->template_group_id = $tg->id;
                 $template->state = $i;
+                $template->html_pdf = '';
                 $template->save();
             }
         }

@@ -36,5 +36,5 @@
         </div>
 
         {!! Form::submit('Update', ['class'=>'btn btn-primary float-right mb-3']) !!}
-
+        {{ Form::close() }}
 @endsection

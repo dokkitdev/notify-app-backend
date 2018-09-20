@@ -27,11 +27,11 @@
                                 <td>{{$customer['customer']->given_name}} {{$customer['customer']->family_name}}</td>
                                 <td>{{$customer['customer']->address}}</td>
                                 <td><nobr>
-                                    @if($customer['contract']->letter_state==1)
+                                    @if($customer['contract']->state==1)
                                         1st Letter
-                                    @elseif($customer['contract']->letter_state==2)
+                                    @elseif($customer['contract']->state==2)
                                         2nd Letter
-                                    @elseif($customer['contract']->letter_state==3)
+                                    @elseif($customer['contract']->state==3)
                                         3rd Letter
                                     @endif
                                     </nobr>
