@@ -2,11 +2,6 @@
 
 @section('content')
         <h2>Private Contracts</h2>
-        @if (session('error'))
-            <div class="alert alert-error">
-                {{ session('error') }}
-            </div>
-        @endif
         <form action="/contracts/process" method="post">
             @csrf
             <table class="table">

@@ -13,7 +13,8 @@ class SupportController extends Controller
     {
         $data=$request->all();
 
-        if(!$data['message']||trim($data['message'])=='')return false;
+        if(!$data['message']||trim($data['message'])=='')return redirect()->back()->with('error','Empty message!');
+        $error=false;
         $message=false;
         try {
             Mail::to(getenv('MAIL_FROM_ADDRESS'))->send(new GetSupport(
@@ -22,11 +23,10 @@ class SupportController extends Controller
                     'email' => Auth::user()->email,
                     'message' => $data['message']
                 ]));
+            $message='Sended';
         }catch (\Exception $e){
-            $message=$e->getMessage();
+            $error=$e->getMessage();
         }
-
-
-        return redirect()->back()->with('error',$message);
+        return redirect()->back()->with('error',$error)->with('ok',$message);
     }
 }

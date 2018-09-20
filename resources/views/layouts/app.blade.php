@@ -198,6 +198,15 @@
     <div id="content-wrapper">
 
         <div class="container-fluid">
+            @if (session('error'))
+                <div class="alert-danger alert">
+                    {{ session('error') }}
+                </div>
+            @elseif(session('ok'))
+                <div class="alert-info alert">
+                    {{ session('ok') }}
+                </div>
+            @endif
             @yield('content')
         </div>
         <!-- /.container-fluid -->

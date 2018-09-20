@@ -4,11 +4,6 @@
 
 
         <h2>{{$title}}</h2>
-        @if (session('error'))
-            <div class="alert alert-error">
-                {{ session('error') }}
-            </div>
-        @endif
         <table class="table">
             <thead>
             <tr>
