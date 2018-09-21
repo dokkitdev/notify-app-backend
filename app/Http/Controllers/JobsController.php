@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Customers;
 use App\HousingTemplateGroup;
+use App\Jobs\CreateLetters;
 use App\Letter;
 use App\Service\collectDataService;
 use App\SimProJobs;
@@ -26,12 +27,17 @@ class JobsController extends Controller
             //$template_id = $this->getHoisingTemlateByStateCustomer($v);
             //if (!$template_id) continue; #todo должно собирать ошибки чтобы затем вернуть
 
-            $PL = new Letter(); #todo найти запись и если она есть то не создавать новую!!
-            $PL->job_id = $job->id;
-            $PL->housing_template_id = $template_id;
-            $PL->tosend = 1;
-            $PL->save();
-            return redirect('/housingCustomers');
+            if(Letter::where('contract_id', $job->id)->where('template_id', $template_id)->count() === 0){
+                $letter = new Letter();
+                $letter->job_id = $job->id;
+                $letter->housing_template_id = $template_id;
+                $letter->tosend = 1;
+                $letter->save();
+                CreateLetters::dispatch($letter->id)->delay(now()->addSecond(5));
+            }
+            return redirect('/housingCustomers')->with('ok','Sended');
+
+
         }
     }
     public function getTemplateByStateJob($tagName,$job){

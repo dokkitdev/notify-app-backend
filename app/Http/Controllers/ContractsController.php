@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\CreatePrivateLetters;
+use App\Jobs\CreateLetters;
 use App\Letter;
 use App\SimProContracts;
 use App\Template;
@@ -29,10 +29,10 @@ class ContractsController extends Controller
                 $letter->template_id = $template_id;
                 $letter->tosend = 1;
                 $letter->save();
-                CreatePrivateLetters::dispatch($letter->id)->delay(now()->addSecond(5));
+                CreateLetters::dispatch($letter->id)->delay(now()->addSecond(5));
             }
         }
-        return redirect('/privateContracts');
+        return redirect('/privateContracts')->with('ok','Sended');
     }
 
 

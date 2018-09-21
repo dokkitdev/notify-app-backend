@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Customers;
 use App\Helpers\PDFGenerator;
+use App\HousingTemplate;
 use App\Letter;
 use App\SimProContracts;
 use App\SimProJobs;
@@ -19,12 +20,6 @@ class CreateLetter
         if($letter == NULL)
             return false;
         try{
-            $template = Template::where('id', $letter->template_id)->first();
-            if($template == NULL){
-                $this->log('Create letter warning: template not found', 'warning', $id);
-                return false;
-            }
-
             $tdsSrv = new templateDataService();
             if($letter->contract_id > 0){
                 // private letter
@@ -39,6 +34,11 @@ class CreateLetter
                     return false;
                 }
                 $data = $tdsSrv->makeTemplateDataPrivate($contract);
+                $template = Template::where('id', $letter->template_id)->first();
+                if($template == NULL){
+                    $this->log('Create letter warning: private template not found', 'warning', $id);
+                    return false;
+                }
                 return $this->createMessage($data, $customer, $template, $letter);
             }
             if($letter->job_id > 0){
@@ -48,12 +48,17 @@ class CreateLetter
                     $this->log('Create private letter warning: contract not found', 'warning', $id);
                     return false;
                 }
-                $customer = Customers::find($job->simpro_customers_id);
+                $customer = Customers::where('simpro_id','=',$job->simpro_customer_id)->first();
                 if($customer == NULL){
                     $this->log('Create housing letter warning: customer not found', 'warning', $id);
                     return false;
                 }
-                $data = $tdsSrv->makeTemplateDataPrivate($job);
+                $data = $tdsSrv->makeTemplateDataHousing($job);
+                $template = HousingTemplate::where('id', $letter->housing_template_id)->first();
+                if($template == NULL){
+                    $this->log('Create letter warning: housing template not found', 'warning', $id);
+                    return false;
+                }
                 return $this->createMessage($data, $customer, $template, $letter);
             }
             Log::warning('Create letter warning: letter type not defined');
