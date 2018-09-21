@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Customers;
+use App\HousingTemplate;
 use App\HousingTemplateGroup;
 use App\SimProContracts;
 use App\SimProJobs;
@@ -10,8 +11,9 @@ use App\TemplateGroup;
 
 class collectDataService
 {
-    public $interval=60*60*24*2; # one week
-    //public $interval=60*60*24*2; # 2 days
+    //public $interval=60*60*24*2; # one week
+    public $interval=60*60*24*2; # 2 days
+
     public $tagsArr=['No Access','First Access','Second Access','Final Letter'];
 
 
@@ -136,6 +138,26 @@ class collectDataService
             }
         }
         return $res;
+
+    }
+    /**
+     * Функция возвращает слудующий тег из нужных либо false если ни один тег не найден
+     * @param $tags - массив объектов тегов который хранится в Jobs
+     * @return bool
+     */
+    public function getNextTag($template_id){
+        $template=HousingTemplate::find($template_id);
+        if(!$template->id)return false;
+        $tagsArr=$this->tagsArr;
+        $nextTag=false;
+        $tagsArr=array_reverse($tagsArr);
+        foreach($tagsArr as $k=>$val){
+            if($val==$template->state){
+                break;
+            }
+            $nextTag=$val;
+        }
+        return $nextTag;
 
     }
     public function processJobsTable(){
