@@ -18,6 +18,7 @@ class CustomersController extends Controller
         $where=$tg->getPrivateTemplates();
         $time=strtotime(date("Y-m-d",time()).' 00:00:00'); #today at 00:00:00 (day start)
         $contracts=[];
+        $contracts['contracts']=[];
         if($where) {
             foreach ($where as $k => $val) {
 
@@ -63,7 +64,7 @@ class CustomersController extends Controller
 
         $jobs=SimProJobs::where([
                 ['status','!=',''],
-                ['set_status_date','>=',$time],
+                ['set_status_date','>=',$time-24*60*60],
                 ['set_status_date','<=',$time+24*60*60]
             ])->get();
 
@@ -74,8 +75,9 @@ class CustomersController extends Controller
                 $tmpCustomer=$this->getCustomerBySimproId($v->simpro_customer_id);
                 if(in_array($tmpCustomer->id,$where['customers'])){
                     $tmpCustomer->tpl=true;
+                    //dd($where['where'][$tmpCustomer->id]['templates']);
                     foreach ($where['where'][$tmpCustomer->id]['templates'] as $key=>$val){
-                        $res[$k]['job']->letter_template=$key;
+                        if($res[$k]['job']->status==$val)$res[$k]['job']->letter_template=$key;
                     }
                 } # проверка на существование группы шаблонов для customer
                 else $tmpCustomer->tpl=false;

@@ -187,7 +187,7 @@ class simProService
     public function getFolderId($compnayId,$customerId){
         $folders=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/');
         $folder=false;
-        if(count($folders)>0){
+        if(is_array($folders)&&count($folders)>0){
             foreach($folders as $v){
                 if($v->Name=='NotifyApp'){
                     $folder=true;
