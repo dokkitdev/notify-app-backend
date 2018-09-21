@@ -8,6 +8,7 @@ use App\Helpers\PDFGenerator;
 use App\Letter;
 use App\SimProContracts;
 use App\Template;
+use Illuminate\Support\Facades\Log;
 
 class CreatePrivateLetter
 {
@@ -25,11 +26,15 @@ class CreatePrivateLetter
             if($letter->contract_id > 0){
                 // private letter
                 $contract = SimProContracts::where('id', $letter->contract_id)->first();
-                if($contract == NULL)
+                if($contract == NULL){
+                    Log::warning('Create private letter warning: contract not found');
                     return false;
+                }
                 $customer = Customers::where('id', $contract->customers_id)->first();
-                if($customer == NULL)
+                if($customer == NULL){
+                    Log::warning('Create private letter warning: customer not found');
                     return false;
+                }
                 $data = $tdsSrv->makeTemplateDataPrivate($contract);
                 $wrappedData = $this->wrapKeys($data);
                 $email = $customer->email;
@@ -63,8 +68,12 @@ class CreatePrivateLetter
                     $letter->save();
                 }
             }
+            else {
+                Log::warning('Create private letter warning: contract not found');
+            }
         }
         catch(\Exception $e){
+            Log::error('Create private letter exception: ' . $e->getMessage());
             throw new \Exception($e);
         }
     }
