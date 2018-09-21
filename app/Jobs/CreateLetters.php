@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Service\CreatePrivateLetter;
+use App\Service\CreateLetter;
 use App\Service\simProService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -10,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class CreatePrivateLetters implements ShouldQueue
+class CreateLetters implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -36,7 +36,7 @@ class CreatePrivateLetters implements ShouldQueue
             $this->delete();
         }
 
-        $srv = new CreatePrivateLetter();
-        $srv->createPrivateLetter($this->id);
+        $srv = new CreateLetter();
+        $srv->createLetter($this->id);
     }
 }
