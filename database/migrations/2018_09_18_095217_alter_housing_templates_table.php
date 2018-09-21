@@ -15,6 +15,7 @@ class AlterHousingTemplatesTable extends Migration
     {
         Schema::table('housing_templates',function (Blueprint $table){
             $table->string('state')->default('No Access')->description('state of send No Access,First Access,Second Access')->change();
+            $table->text('html_pdf');
         });
     }
 
@@ -27,6 +28,7 @@ class AlterHousingTemplatesTable extends Migration
     {
         Schema::table('housing_templates',function (Blueprint $table){
             $table->integer('state')->default(1)->description('state of send 1,2,3')->change();
+            $table->dropColumn('html_pdf');
         });
     }
 }
