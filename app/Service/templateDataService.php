@@ -13,14 +13,17 @@ class templateDataService
         $customer=Customers::find($contract->customers_id);
         $customerParsedData=json_decode($customer->parsedData);
         $contractParsedData=json_decode($contract->parsedData);
-        //dd($customerParsedData);
-        $siteData=$sps->getSiteData($customer->company_id,23967); #todo надо забрать из списка сайтов
+        dd($contractParsedData);
+        $siteData=$sps->getSiteData($customer->company_id,23967);
+        #todo надо забрать из списка сайтов
+        #TODO вероятно там более сложная логика, нужно будет смотреть на кастом поля в сайте и искать там контракт
 
         $data=[];
         $data['customer_address']=$customer->address;
         $data['date_now']=date('d M Y',time());
-        if (property_exists($customerParsedData, 'Title') && property_exists($customerParsedData, 'FamilyName'))
-            $data['name']=$customerParsedData->Title.' '.$customerParsedData->FamilyName;
+        if (property_exists($customerParsedData, 'Title') && property_exists($customerParsedData, 'FamilyName')) {
+            $data['name'] = $customerParsedData->Title . ' ' . $customerParsedData->FamilyName;
+        }
         //$data['site_address']=$siteData->Address->Address;
         $data['site_assets']='ERROR';
         $data['contract_tab']='ERROR';
@@ -49,4 +52,40 @@ class templateDataService
         $data['date_now']=date('d M Y',time());
         return $data;
     }
+    /*
+
+    COMPANY CUSTOMERS
+/api/v1.0/companies/{companyID}/customers/companies/{customerID}
+{{CompanyName}} “CompanyName”
+{{CompanyAddress1}} “Address”
+{{CompanyAddress2}}
+{{CompanyCity}} “City”
+{{CompanyCounty}} “State”
+{{CompanyPostCode}} “PostalCode”
+{{CustomerID}} “ID”
+INDIVIDUAL CUSTOMERS
+/api/v1.0/companies/{companyID}/customers/individuals/{customerID}
+{{FirstName}} “GivenName”
+{{LastName}} “FamilyName”
+{{Address}} “Address”
+{{Address2}}
+{{AddressCity}} “City”
+{{AddressCounty}} “State”
+{{CompanyPostCode}} “PostalCode”
+{{CustomerID}} “ID”
+CONTRACTS
+/api/v1.0/companies/{companyID}/customers/{customerID}/contracts/{contractID}
+{{TotalDue}} “Value”
+{{ExpiryDate}} “EndDate”
+SITES
+/api/v1.0/companies/{companyID}/sites/{siteID}
+{{PropertyAddress}} “Address”
+{{PropertyAddress2}}
+{{PropertyCity}} “City”
+{{PropertyCounty}} “State”
+{{PropertyPostCode}} “PostalCode”
+{{AssetName}} “Name”
+{{PlanType}}
+
+     */
 }

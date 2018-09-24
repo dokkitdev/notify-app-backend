@@ -43,6 +43,8 @@ class parseJobs implements ShouldQueue
         $job=$this->getJob($this->jobId);
         $simProservice=new simProService();
         $parsedJob=$simProservice->parseJobByUrl($this->url);
+        if(!$parsedJob)return false;
+
         $job->parsedData=json_encode($parsedJob);
         $job->simpro_customer_id=$parsedJob->Customer->ID;
         $job->simpro_id=$this->jobId;

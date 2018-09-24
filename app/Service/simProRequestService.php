@@ -18,7 +18,7 @@ class simProRequestService
     private $token;
     public function __construct()
     {
-        $this->getToken();
+        //$this->getToken();
     }
 
     protected function request($method, $url, $data = [], &$attemptCount = 0)
@@ -32,8 +32,10 @@ class simProRequestService
             }
         } catch (\Exception $e) {
             if ($attemptCount < 3) {
+                sleep(2);
                 $this->reGenToken();
                 $attemptCount++;
+
                 //print 'ac='.$attemptCount.'<br>';
                 return $this->request($method, $url, $data, $attemptCount);
             }else{
@@ -105,23 +107,40 @@ class simProRequestService
     private function reGenToken(){
         $settings=new Settings();
         $set=$settings->getParam('access_token');
-        $set->value='';
-        $set->save();
+        if($set->wait==0){
+            $set->value='';
+            $set->wait=1;
+            $set->save();
+            $this->getToken(true);
+            return;
+        }
         $this->getToken();
     }
-    private function getToken()
+    private function getToken($reGet=false,&$count=0)
     {
-
         $settings=new Settings();
         $set=$settings->getParam('access_token');
 
-        if(isset($set['value'])&&$set['value']!=''){
-            $dateS=(strtotime($set['updated_at'])+$set['expires_in']);
-            if(time()<$dateS) {
+        if(isset($set->wait)&&$set->wait==1&&($reGet==false)){ # отправка задач в ожидание если происходит перегенерация токена
+            if($count<=3) {
+                sleep(10);
+                $count++;
+                return $this->getToken(false, $count);
+            }else{
+                Log::error('simPRO can`t get token');
+                return false;
+            }
+        }
+
+        if (isset($set['value']) && $set['value'] != '') { # возврат токена если он есть в базе
+            $dateS = (strtotime($set['updated_at']) + $set['expires_in']);
+            if (time() < $dateS) {
                 $this->token = $set['value'];
                 return true;
             }
         }
+
+        # запрос нового токена
         $errors=array(
             301=>'Moved permanently',
             400=>'Bad request',
@@ -146,11 +165,12 @@ class simProRequestService
             die('Ошибка: '.$E->getMessage().PHP_EOL.'Код ошибки: '.$E->getCode());
         }
         $data=json_decode($res->getBody());
-        $this->token=$data->access_token;
 
+        $this->token=$data->access_token;
         $set->name='access_token';
         $set->value=$this->token;
         $set->expires_in=$data->expires_in;
+        $set->wait=0;
         $set->save();
         return true;
     }

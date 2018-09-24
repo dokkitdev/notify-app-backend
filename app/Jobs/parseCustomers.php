@@ -42,7 +42,10 @@ class parseCustomers implements ShouldQueue
         $customer=$this->getCustomer(isset($matches[2])?$matches[2]:false);
         $simProservice=new simProService();
         $parsedCustomer=$simProservice->parseCustomerByUrl($this->url);
-        if(!$parsedCustomer)$this->delete();
+        if(!$parsedCustomer){
+            //$this->delete();
+            return false;
+        }
 
         $customer->parsedData=json_encode($parsedCustomer);
 
@@ -89,6 +92,9 @@ class parseCustomers implements ShouldQueue
 
         #todo надо забирать ВСЕ контракты и инсертить(апдэйтить) их в таблицу контрактов в связке с текущим кастомером
         $parsedCustomerContracts=$simProservice->parseCustomerContractByUrl('/api/v1.0/companies/'.$matchesC[1].'/customers/'.$matches[2].'/contracts/');
+        if(!$parsedCustomerContracts){
+            return false;
+        }
         if($parsedCustomerContracts) { #сохраняем контракты Customer-а
             foreach ($parsedCustomerContracts as $parsedCustomerContract) {
                 $customerContract=$this->getContract($parsedCustomerContract->ID);
