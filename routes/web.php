@@ -21,6 +21,7 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
     Route::get('/admin/template/{id}/edit',['uses'=>'Admin\TemplatesController@getTemplate','as'=>'template.show']);
     Route::get('/admin/template/{id}',['uses'=>'Admin\TemplatesController@create','as'=>'template.create']);
     Route::get('/admin/template/{id}/email',['uses'=>'Admin\TemplatesController@emailTemplate','as'=>'template.email']);
+    Route::get('/admin/template/{id}/download-pdf', ['uses' => 'Admin\TemplatesController@downloadPDF', 'as' => 'template.pdf.download']);
 
 
     Route::post('/admin/housingtemplategroup',['uses'=>'Admin\HousingTemplatesGroupsController@createTemplateGroup','as'=>'template.createTemplate']);

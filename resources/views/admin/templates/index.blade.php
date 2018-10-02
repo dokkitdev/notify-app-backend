@@ -16,6 +16,7 @@
                             @if($template->name=='')<a class="btn btn-danger" href="/admin/template/{{$template->id}}" title="Create template"><i class="fas fa-plus"></i></a>@endif
                             @if($template->name!='')<a class="btn btn-primary" href="/admin/template/{{$template->id}}/edit" title="Edit template"><i class="fas fa-pen"></i></a>@endif
                             @if($template->name!='')<a class="btn btn-dark" href="/admin/template/{{$template->id}}/email" title="Email to Me"><i class="far fa-envelope"></i></a>@endif
+                            @if($template->html_pdf != '')<a class="btn btn-dark" href="/admin/template/{{$template->id}}/download-pdf" title="Download PDF template">PDF</a>@endif
                         </td>
                     </tr>
                     @endforeach
