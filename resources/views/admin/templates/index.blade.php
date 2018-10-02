@@ -53,6 +53,7 @@
                             @if($housingTemplate->name=='')<a class="btn btn-danger" href="/admin/housingtemplate/{{$housingTemplate->id}}" title="Create template"><i class="fas fa-plus"></i></a>@endif
                             @if($housingTemplate->name!='')<a class="btn btn-primary" href="/admin/housingtemplate/{{$housingTemplate->id}}/edit" title="Edit template"><i class="fas fa-pen"></i></a>@endif
                             @if($housingTemplate->name!='')<a class="btn btn-dark" href="/admin/housingtemplate/{{$housingTemplate->id}}/email" title="Email to Me"><i class="far fa-envelope"></i></a>@endif
+                            @if($housingTemplate->html_pdf != '')<a class="btn btn-dark" href="/admin/housingtemplate/{{$housingTemplate->id}}/download-pdf" title="Download PDF template">PDF</a>@endif
                         </td>
                     </tr>
                 @endforeach

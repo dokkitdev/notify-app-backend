@@ -116,6 +116,6 @@ class TemplatesController extends Controller
         if($result === false)
             return response()->view('errors.main', [], 500);
         else
-            return response()->download($result, $template->name . '.pdf')->deleteFileAfterSend(false);
+            return response()->download($result, $template->name . '.pdf')->deleteFileAfterSend(true);
     }
 }
