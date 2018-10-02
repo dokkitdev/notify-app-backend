@@ -16,6 +16,7 @@
                             @if($template->name=='')<a class="btn btn-danger" href="/admin/template/{{$template->id}}" title="Create template"><i class="fas fa-plus"></i></a>@endif
                             @if($template->name!='')<a class="btn btn-primary" href="/admin/template/{{$template->id}}/edit" title="Edit template"><i class="fas fa-pen"></i></a>@endif
                             @if($template->name!='')<a class="btn btn-dark" href="/admin/template/{{$template->id}}/email" title="Email to Me"><i class="far fa-envelope"></i></a>@endif
+                            @if($template->html_pdf != '')<a class="btn btn-dark" href="/admin/template/{{$template->id}}/download-pdf" title="Download PDF template">PDF</a>@endif
                         </td>
                     </tr>
                     @endforeach
@@ -35,7 +36,7 @@
                 {!! Form::label('Customer', 'Customer') !!}
                 {!! Form::select('customer',$customers,'',['class'=>'form-control']) !!}
             </div>
-            {!! Form::submit('Add new', ['class'=>'btn btn-primary float-right mb-3']) !!}
+            {!! Form::submit('Add new', (count($customers) > 0 ? ['class'=>'btn btn-primary float-right mb-3'] : ['class'=>'btn btn-primary float-right mb-3', 'disabled' => 'disabled', 'title' => 'No customers available'])) !!}
             {{ Form::close() }}
         </div>
 
@@ -52,6 +53,7 @@
                             @if($housingTemplate->name=='')<a class="btn btn-danger" href="/admin/housingtemplate/{{$housingTemplate->id}}" title="Create template"><i class="fas fa-plus"></i></a>@endif
                             @if($housingTemplate->name!='')<a class="btn btn-primary" href="/admin/housingtemplate/{{$housingTemplate->id}}/edit" title="Edit template"><i class="fas fa-pen"></i></a>@endif
                             @if($housingTemplate->name!='')<a class="btn btn-dark" href="/admin/housingtemplate/{{$housingTemplate->id}}/email" title="Email to Me"><i class="far fa-envelope"></i></a>@endif
+                            @if($housingTemplate->html_pdf != '')<a class="btn btn-dark" href="/admin/housingtemplate/{{$housingTemplate->id}}/download-pdf" title="Download PDF template">PDF</a>@endif
                         </td>
                     </tr>
                 @endforeach

@@ -21,6 +21,7 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
     Route::get('/admin/template/{id}/edit',['uses'=>'Admin\TemplatesController@getTemplate','as'=>'template.show']);
     Route::get('/admin/template/{id}',['uses'=>'Admin\TemplatesController@create','as'=>'template.create']);
     Route::get('/admin/template/{id}/email',['uses'=>'Admin\TemplatesController@emailTemplate','as'=>'template.email']);
+    Route::get('/admin/template/{id}/download-pdf', ['uses' => 'Admin\TemplatesController@downloadPDF', 'as' => 'template.pdf.download']);
 
 
     Route::post('/admin/housingtemplategroup',['uses'=>'Admin\HousingTemplatesGroupsController@createTemplateGroup','as'=>'template.createTemplate']);
@@ -30,7 +31,7 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
     Route::get('/admin/housingtemplate/{id}/edit',['uses'=>'Admin\HousingTemplatesController@getTemplate','as'=>'template.show']);
     Route::get('/admin/housingtemplate/{id}',['uses'=>'Admin\HousingTemplatesController@create','as'=>'template.create']);
     Route::get('/admin/housingtemplate/{id}/email',['uses'=>'Admin\HousingTemplatesController@emailTemplate','as'=>'template.email']);
-
+    Route::get('/admin/housingtemplate/{id}/download-pdf', ['uses' => 'Admin\HousingTemplatesController@downloadPDF', 'as' => 'housing-template.pdf.download']);
 
     Route::get('/admin/users',['uses'=>'Admin\UsersController@index','as'=>'users.index']);
     Route::resource('admin/users','Admin\UsersController',[

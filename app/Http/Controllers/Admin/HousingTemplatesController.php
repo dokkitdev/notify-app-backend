@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\PDFGenerator;
 use App\HousingTemplate;
 use App\Http\Controllers\Controller;
 use App\Service\sesTemplatesService;
@@ -70,5 +71,17 @@ class HousingTemplatesController extends Controller
         if(!$template||$template->name=='')return false;
         $STS->sendSesTemplateEmail($template->name,Auth::user()->email,Auth::user()->email,['name'=>Auth::user()->name]);
         return redirect('/admin/templates');
+    }
+
+    public function downloadPDF(PDFGenerator $pdfGenerator, $id)
+    {
+        $template = HousingTemplate::find($id);
+        if(!$template || $template->html_pdf == '')
+            return false;
+        $result = $pdfGenerator->generatePDF($template->html_pdf, [], md5(rand(0, 99999) . time()) . '.pdf', false);
+        if($result === false)
+            return response()->view('errors.main', [], 500);
+        else
+            return response()->download($result, (trim($template->name) == '' ? 'template' : $template->name) . '.pdf')->deleteFileAfterSend(true);
     }
 }
