@@ -40,7 +40,12 @@ class HousingTemplatesController extends Controller
         $STS=new sesTemplatesService();
         $template=HousingTemplate::find($id);
         if(!$template)return false;
-        $rez=$STS->updateSesTemplate('HousingTemplate'.$id,$data['html_body'],$data['subject']/*,$data['plaintext_body']*/);
+
+        if(!$this->getTemplate($id,true)){
+            $rez=$STS->createSesTemplate('HousingTemplate'.$id,$data['html_body'],$data['subject']/*,$data['plaintext_body']*/);
+        }else {
+            $rez = $STS->updateSesTemplate('HousingTemplate' . $id, $data['html_body'], $data['subject']/*,$data['plaintext_body']*/);
+        }
         if($rez=='200'){
             $template->name='HousingTemplate'.$id;
             //$template->term=$data['term'];
@@ -50,13 +55,20 @@ class HousingTemplatesController extends Controller
         return redirect('/admin/templates');
 
     }
-    function getTemplate($id){
+    function getTemplate($id,$check=false){
         $title = 'Update template';
         $STS=new sesTemplatesService();
         $template=HousingTemplate::find($id);
         if(!$template||$template->name=='')return false;
         $ses=$STS->getSesTemplate($template->name);
-        if(!is_array($ses))return redirect('/admin/templates');
+
+        if(!is_array($ses)){
+            if($check) return false;
+            $ses=[];
+            $ses['SubjectPart']='';
+            $ses['HtmlPart']='';
+            //return redirect('/admin/templates');
+        }
         return view('admin.templates.housing.edit',['template'=>$template,'ses'=>$ses])->with('title',$title);
     }
     function deleteTemplate($name){
