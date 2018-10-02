@@ -232,4 +232,8 @@ class simProService
         return $this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$companyId.'/sites/'.$siteId);
 
     }
+    public function getContactData($companyId,$customerID){
+        return $this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$companyId.'/customers/'.$customerID.'/contacts/');
+
+    }
 }
