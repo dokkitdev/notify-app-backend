@@ -15,6 +15,8 @@ class HousingTemplatesGroupsController extends Controller
 {
     public function createTemplateGroup(Request $request){
         $data=$request->all();
+        if(!isset($data['customer']))
+            return redirect(route('templates.index'));
         $customer=Customers::find($data['customer']);
         if(!$customer->id)return redirect('admin/templates');
         $tg = new HousingTemplateGroup();

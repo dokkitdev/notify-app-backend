@@ -36,7 +36,7 @@
                 {!! Form::label('Customer', 'Customer') !!}
                 {!! Form::select('customer',$customers,'',['class'=>'form-control']) !!}
             </div>
-            {!! Form::submit('Add new', ['class'=>'btn btn-primary float-right mb-3']) !!}
+            {!! Form::submit('Add new', (count($customers) > 0 ? ['class'=>'btn btn-primary float-right mb-3'] : ['class'=>'btn btn-primary float-right mb-3', 'disabled' => 'disabled', 'title' => 'No customers available'])) !!}
             {{ Form::close() }}
         </div>
 
