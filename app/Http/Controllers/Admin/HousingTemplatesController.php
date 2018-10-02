@@ -82,6 +82,6 @@ class HousingTemplatesController extends Controller
         if($result === false)
             return response()->view('errors.main', [], 500);
         else
-            return response()->download($result, (trim($template->name) == '' ? 'letter' : $template->name) . '.pdf')->deleteFileAfterSend(true);
+            return response()->download($result, (trim($template->name) == '' ? 'template' : $template->name) . '.pdf')->deleteFileAfterSend(true);
     }
 }
