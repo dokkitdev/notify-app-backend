@@ -35,3 +35,8 @@ sudo supervisorctl update - response laravel-worker: added process group<br/>
 sudo supervisorctl start laravel-worker:* - start daemon<br/><br/>
 
 ps aux | grep queue:work - to see started processes<br/>
+
+
+queues
+install: sudo apt-get install beanstalkd
+run: beanstalkd

@@ -8,6 +8,8 @@ use App\Jobs\parseCustomersLinks;
 use App\Jobs\parseJobs;
 use App\Jobs\parseJobsLinks;
 use App\Service\simProRequestService;
+use App\Service\simProService;
+use App\Service\templateDataService;
 use App\Settings;
 use App\SimProContracts;
 use App\SimProJobs;
@@ -267,59 +269,85 @@ class TestController extends Controller
         }
     }
 
-    public function _getFolderId($compnayId,$customerId){
-        $folders=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/');
-        $folder=false;
-        if(count($folders)>0){
-            foreach($folders as $v){
-                if($v->Name=='NotifyApp'){
-                    $folder=true;
-                    $folderId=$v->ID;
-                }
-            }
-        }
-        if(!$folder){
-            $this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/',
-                    [
-                        'Name'=>'NotifyApp',
-                    ]
-                );
-            return $this->getFolderId($compnayId,$customerId);
-        }
-        return $folderId;
+
+    /**
+     * Обновление Job
+     */
+
+    /**
+     * @param $companyID
+     * @return bool|mixed tags array by company
+     */
+    public function getProjectTagsList($companyID){
+        $res=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$companyID.'/setup/tags/projects/');
+        if(is_array($res))return $res;
+        return false;
     }
 
     /**
-     * @param $compnayId - customers.company_id
-     * @param $customerId - customers.simpro_id
-     * @param $filename - filename with path
+     * create new project tag
+     * @param $companyID
+     * @param $tagName
+     * @return bool created tag ID
      */
-    public function _sendAttachment($compnayId,$customerId,$filename){
-        $folderId=$this->getFolderId($compnayId,$customerId);
-        $this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/',
-                [
-                    'Filename'=>'filename.pdf',
-                    'Base64Data'=>base64_encode(file_get_contents(base_path().'/storage/app/files/moto.pdf')),
-                    'Public'=>true,
-                    'Folder'=>$folderId
-                ]
-        );
-
-
-        //print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/folders/'),1).'</pre>';
-        //print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/files/'),1).'</pre>';
-        print '<pre>'.print_r($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/files/xdUefxPNnoZmY18vnO7LZAIiZvUc-tWftOSLAxThfKk'),1).'</pre>';
-        print '<pre>'.print_r($this->simProRequest->getRequest('DELETE','/api/v1.0/companies/2/customers/13109/attachments/files/xdUefxPNnoZmY18vnO7LZAIiZvUc-tWftOSLAxThfKk'),1).'</pre>';
-
-
-        exit;
-        dd($this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/individuals/13109'));
+    public function createProjectTag($companyID,$tagName){
+        $res=$this->simProRequest->patchRequest('POST','/api/v1.0/companies/'.$companyID.'/setup/tags/projects/',
+            [
+                'Name'=>$tagName,
+                'Archived'=>false
+            ]
+            );
+        if($res)return $res->ID;
+        return false;
     }
+
+    /**
+     * Update the Job entity
+     * @param $tagName
+     * @param $companyID
+     * @param $jobId
+     * @return bool null - ok||false - not ok
+     */
+    function updateJob($tagName,$companyID,$jobId){
+        $tags=$this->getProjectTagsList($companyID);
+        if(!$tags)return false;
+        $tagId=false;
+        foreach($tags as $k=>$v){
+            if($v->Name==$tagName){
+                $tagId=$v->ID;
+            }
+        }
+        if(!$tagId) $tagId=$this->createProjectTag($companyID,$tagName);
+        if(!$tagId) return false;
+
+        $job=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$companyID.'/jobs/'.$jobId);
+        if(!$job) return false;
+        $jobTags=$job->Tags;
+        $jobTagsIds=[];
+        foreach ($jobTags as $v){
+            $jobTagsIds[]=$v->ID;
+        }
+        if(!in_array($tagId,$jobTagsIds))$jobTagsIds[]=$tagId;
+
+
+        $res=$this->simProRequest->patchRequest('PATCH','/api/v1.0/companies/'.$companyID.'/jobs/'.$jobId,
+            [
+                'Tags'=>$jobTagsIds,
+                #todo добавить обновленное время из Job-a
+            ]
+        );
+        return $res;
+
+    }
+
+    /**
+     * ОБновление Job
+     */
 
     public function getFolderId($compnayId,$customerId){
         $folders=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/');
         $folder=false;
-        if(count($folders)>0){
+        if(is_array($folders)&&count($folders)>0){
             foreach($folders as $v){
                 if($v->Name=='NotifyApp'){
                     $folder=true;
@@ -360,61 +388,70 @@ class TestController extends Controller
         }
         return false;
     }
-    public function addTagToJob($tagname,$jobID){
-        $simPROTags=(array)json_decode(getenv('SIMPRO_TAGS'));
-        $tagID=false;
-        foreach($simPROTags as $k=>$v){
-            if($tagname==$v){
-                $tagID=$k;
-                break;
-            }
+
+
+
+    public function requrs(&$count=0){
+        $rez='first return';
+
+        if($count<=3) {
+            print 1;
+            $count++;
+            $rez='second return';
+            return $this->requrs($count);
+        }else{
+            print 2;
         }
-        if(!$tagID)return false;
 
+        return $rez;
     }
-    public function getSiteData($companyId,$siteId){
-        return $this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$companyId.'/sites/'.$siteId);
-
-    }
-    public function makeTemplateDataPrivate(SimProContracts $contract){
-        $data=[];
-        $customer=Customers::find($contract->customers_id);
-        $customerParsedData=json_decode($customer->parsedData);
-        $contractParsedData=json_decode($contract->parsedData);
-        dd($customerParsedData);
-        $siteData=$this->getSiteData($customer->company_id,23967); #todo надо забрать из списка сайтов
-dd($contractParsedData);
-        $data['customer_address']=$customer->address;
-        $data['date_now']=date('d M Y',time());
-        $data['name']=$customerParsedData->Title.' '.$customerParsedData->FamilyName;
-        $data['site_address']=$siteData->Address->Address;
-        $data['site_assets']='ERROR';
-        $data['contract_tab']='ERROR';
-        $data['from_name']='ERROR';
-        $data['client_address']='ERROR';
-        $data['contract_ref']=$contractParsedData->ContractNo;
-        $data['customer_ref']=$customerParsedData->ID;
-        $data['date_expired']=date("d/m/Y",strtotime($contractParsedData->EndDate));
-
-        return $data;
-    }
-    public function makeTemplateDataHousing(SimProJobs $job){
-        $customer=Customers::where('simpro_id','=',$job->simpro_customer_id)->first();
-        $customerParsedData=json_decode($customer->parsedData);
-        $jobParsedData=json_decode($job->parsedData);
-        $siteData=$this->getSiteData($customer->company_id,$jobParsedData->Site->ID); #todo надо забрать из списка сайтов
-        $data=[];
-        $data['customer_address']=$customer->address;
-        $data['site_address']=$siteData->Address->Address;
-        $data['site_primary_contact']=$siteData->PrimaryContact->Title.' '.$siteData->PrimaryContact->FamilyName;
-        $data['job_number']=$jobParsedData->ID;
-        $data['site_name']=$siteData->Name;
-        $data['date_now']=date('d M Y',time());
-        return $data;
-    }
-
     public function index(){
+        $sps=new simProService();
+        $arr=$sps->parseCompanies();
+        dd($arr);
 
+        dd(strpos('HousLetter','L1etter'));
+        exit;
+
+$arr=[
+        '/api/v1.0/companies/2/customers/13110/contacts/',
+        '/api/v1.0/companies/2/customers/13109/contacts/',
+        '/api/v1.0/companies/2/customers/13108/contacts/',
+        '/api/v1.0/companies/2/customers/13107/contacts/',
+        '/api/v1.0/companies/2/customers/13106/contacts/',
+        '/api/v1.0/companies/2/customers/13105/contacts/',
+        '/api/v1.0/companies/2/customers/13104/contacts/',
+        '/api/v1.0/companies/2/customers/13103/contacts/',
+        '/api/v1.0/companies/2/customers/13102/contacts/',
+        '/api/v1.0/companies/2/customers/13101/contacts/',
+
+];
+foreach($arr as $v){
+    print '<pre>'.print_r($this->simProRequest->getRequest('GET',$v),1).'</pre>';
+}
+exit;
+        //$this->sendAttachment(2,13107,123,123);
+       // exit;
+        $t=new templateDataService();
+
+        $t->makeTemplateDataHousing(SimProJobs::find(3));
+        exit;
+
+        $t->makeTemplateDataPrivate(SimProContracts::find(3));
+        exit;
+
+
+
+        dd($this->simProRequest->getRequest('GET','/api/v1.0/customers/companies/'));
+
+        $companyID=2;
+        $jobId=4222;
+        $this->updateJob('First Acces',$companyID,$jobId);
+
+        dd($this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$companyID.'/jobs/'.$jobId));
+        //dd($res);
+
+        dd($this->getProjectTagsList(2));
         $arr=$this->simProRequest->getRequest('GET','/api/v1.0/companies/2/customers/13109/attachments/files/');
         dd($arr);
         foreach($arr as $v){

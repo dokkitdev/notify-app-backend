@@ -27,7 +27,8 @@ class simProService
     }
 
     public function importCustomers(){
-        $companies=$this->parseCompanies();
+        //$companies=$this->parseCompanies();
+        $companies[]=(object)['ID'=>2];
         if(!$companies) {
             print 'err_companies';
             return false;
@@ -36,7 +37,8 @@ class simProService
         //exit;
     }
     public function importJobs(){
-        $companies=$this->parseCompanies();
+        //$companies=$this->parseCompanies();
+        $companies[]=(object)['ID'=>2];
         if(!$companies) {
             print 'err_companies';
             return false;
@@ -163,8 +165,9 @@ class simProService
         }
         */
     }
-    private function parseCompanies(){
+    public function parseCompanies(){
         $companies=$this->simProRequest->getRequest('GET','/api/v1.0/companies/');
+        dd($companies);
         if(!$companies) {
             print 'err_companies';
             return false;
