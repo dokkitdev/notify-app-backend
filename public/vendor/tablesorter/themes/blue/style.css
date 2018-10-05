@@ -1,6 +1,6 @@
 /* tables */
 table.tablesorter {
-	border-spacing: 1px;
+	border-spacing: 0;
     border-collapse: inherit;
 	font-family:arial;
 	background-color: #CDCDCD;
@@ -10,8 +10,7 @@ table.tablesorter {
 	text-align: left;
 }
 table.tablesorter thead tr th, table.tablesorter tfoot tr th {
-	background-color: #e6EEEE;
-	border: 1px solid #FFF;
+	background-color: #f4f3f8;
 	font-size: 10pt;
 	padding: 6px;
 }
@@ -23,12 +22,12 @@ table.tablesorter thead tr .header {
 }
 table.tablesorter tbody td {
 	color: #3D3D3D;
-	padding: 4px;
+	padding: 10px 4px 10px 4px;
 	background-color: #FFF;
 	vertical-align: top;
 }
 table.tablesorter tbody tr.odd td {
-	background-color:#F0F0F6;
+	background-color:#f7f8fa;
 }
 table.tablesorter thead tr .headerSortUp {
 	background-image: url(asc.gif);

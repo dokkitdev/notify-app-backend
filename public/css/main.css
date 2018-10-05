@@ -1,3 +1,25 @@
 .invalid-feedback {
     display: block;
 }
+
+.custom-navbar{
+    background-color: #2b2d83!important;
+}
+
+.custom-sidebar{
+    background-color: #1d1d36!important;
+}
+
+#content-wrapper{
+    background-color: #f4f5fa!important;
+}
+
+.btn-primary{
+    background-color: #f5a622!important;
+    border-color: #f5a622!important;
+}
+
+.bounded-box{
+    border: 1px solid #ced4da;
+    padding: 20px;
+}
