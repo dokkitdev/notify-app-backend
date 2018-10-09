@@ -11,6 +11,7 @@ use App\SimProContracts;
 use App\SimProJobs;
 use App\Template;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class CreateLetter
 {
@@ -114,6 +115,14 @@ class CreateLetter
         $letter->simpro_attachment_id = $srv->sendAttachment($companyId, $customer->simpro_id, $pdf, $pi['basename']);
         $letter->sended_at = date('Y-m-d H:i:s', time());
         $letter->save();
+        $letterType = ($letter->template_id > 0 ? 'private' : 'housing');
+        $fileName = date('Y', time()) . '.' . date('m', time()) . '.' . date('d', time()) . '-' . $letterType . '-' . $customer->simpro_id . '.pdf';
+        $path = 'letters/' . date('Y', time()) . '/' . date('m', time()) . '/' . date('d', time()) . '/' . $letterType  . '/' . $fileName;
+        $res = Storage::disk('s3')->put($path, file_get_contents($pdf));
+        if($res === true){
+            $letter->letter_s3_link = $path;
+            $letter->save();
+        }
         unlink($pdf);
         rmdir($pi['dirname']);
         return true;

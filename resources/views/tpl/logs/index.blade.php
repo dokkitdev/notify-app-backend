@@ -15,6 +15,7 @@
                 <th scope="col">Customer Type</th>
                 <th scope="col">Letters Generated</th>
                 <th scope="col">Email Generated</th>
+                <th scope="col"></th>
             </tr>
             </thead>
             <tbody>
@@ -25,6 +26,7 @@
                             <td>{{$item['customer_type']}}</td>
                             <td>{{$item['letters_generated']}}</td>
                             <td>{{$item['emails_generated']}}</td>
+                            <td>@if($item['letters_generated'] > 0)<a href="{{ route('daily-letters-log', [$item['customer_type'], $item['date']]) }}">Download letters</a>@endif</td>
                         </tr>
                 @endforeach
 
@@ -38,7 +40,7 @@
     <script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
     <script>
         $(document).ready(function(){
-            $("#items-table").tablesorter({sortList:[[0,1]], widgets: ['zebra'], headers: {}});
+            $("#items-table").tablesorter({sortList:[[0,1]], widgets: ['zebra'], headers: {4: {sorter: false}}});
         });
     </script>
 @endsection

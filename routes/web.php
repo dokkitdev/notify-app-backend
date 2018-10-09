@@ -52,6 +52,8 @@ Route::group(['middleware'=>['CheckLogin']],function (){
     Route::get('/housingCustomers',['uses'=>'CustomersController@housingCustomers','as'=>'CustomersController.housingCustomers']);
 
     Route::get('/logs',['uses'=>'LogsController@index','as'=>'LogsController.index']);
+    Route::get('/logs/{type}/{date}', 'LogsController@dailyLettersLog')->name('daily-letters-log');
+    Route::get('/logs/download-pdf-letter-from-s3', 'LogsController@downloadPdfLetterFromS3')->name('download-pdf-letter-from-s3');
 
     Route::post('/contracts/undelete',['uses'=>'ContractsController@undeleteContract','as'=>'ContractsController.undeleteContract']);
     Route::post('/contracts/delete',['uses'=>'ContractsController@deleteContract','as'=>'ContractsController.deleteContract']);
