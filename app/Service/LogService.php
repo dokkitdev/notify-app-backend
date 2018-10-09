@@ -42,8 +42,8 @@ class LogService
         else{
             $letters = $letters
                 ->where('template_id', '>', 0)
-                ->join('sim_pro_contracts', 'letters.contracts_id', '=', 'sim_pro_contracts.id')
-                ->join('customers', 'sim_pro_contracts.customer_id', '=', 'customers.id');
+                ->join('sim_pro_contracts', 'letters.contract_id', '=', 'sim_pro_contracts.id')
+                ->join('customers', 'sim_pro_contracts.customers_id', '=', 'customers.id');
         }
         $result['letters'] = $letters->get();
         return $result;
