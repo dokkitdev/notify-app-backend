@@ -28,4 +28,24 @@ class LogService
         }
         return $result;
     }
+
+    public function getDailyLog($type, $date)
+    {
+        $result = [];
+        $letters = Letter::whereBetween('generated_at', [$date . ' 00:00:00', $date . ' 23:59:59'])->where('letter', '>', 0);
+        if(strtolower($type) == 'housing'){
+            $letters = $letters
+                ->where('housing_template_id', '>', 0)
+                ->join('sim_pro_jobs', 'letters.job_id', '=', 'sim_pro_jobs.id')
+                ->join('customers', 'sim_pro_jobs.simpro_customer_id', '=', 'customers.simpro_id');
+        }
+        else{
+            $letters = $letters
+                ->where('template_id', '>', 0)
+                ->join('sim_pro_contracts', 'letters.contracts_id', '=', 'sim_pro_contracts.id')
+                ->join('customers', 'sim_pro_contracts.customer_id', '=', 'customers.id');
+        }
+        $result['letters'] = $letters->get();
+        return $result;
+    }
 }
