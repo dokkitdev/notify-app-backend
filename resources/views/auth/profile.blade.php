@@ -8,7 +8,7 @@
             <li>{{ $error }}</li>
         @endforeach
 
-        <div class="bounded-box">
+        <div class="bounded-box col-lg-6">
             <h2>My profile</h2>
             {!! Form::open(['url' => '/profile', 'method' => 'PUT','enctype'=>'multipart/form-data']) !!}
 
