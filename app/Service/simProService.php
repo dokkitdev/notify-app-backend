@@ -18,47 +18,55 @@ use App\Jobs\parseJobsLinks;
 class simProService
 {
     private $simProRequest;
+
     public function __construct()
     {
-        $this->simProRequest=new simProRequestService();
-    }
-    public function updateSimProCustomer($data,Customers $customer){
-        $res=$this->simProRequest->patchRequest('PATCH',$customer->apiurl,$data);
+        $this->simProRequest = new simProRequestService();
     }
 
-    public function importCustomers(){
+    public function updateSimProCustomer($data, Customers $customer)
+    {
+        $res = $this->simProRequest->patchRequest('PATCH', $customer->apiurl, $data);
+    }
+
+    public function importCustomers()
+    {
         //$companies=$this->parseCompanies();
-        $companies[]=(object)['ID'=>2];
-        if(!$companies) {
+        $companies[] = (object)['ID' => 0];
+        if (!$companies) {
             print 'err_companies';
             return false;
         }
         $this->parseCustomersCompaniesPg($companies);
         //exit;
     }
-    public function importJobs(){
+
+    public function importJobs()
+    {
         //$companies=$this->parseCompanies();
-        $companies[]=(object)['ID'=>2];
-        if(!$companies) {
+        $companies[] = (object)['ID' => 2];
+        if (!$companies) {
             print 'err_companies';
             return false;
         }
         $this->parseJobsCompaniesPg($companies);
         //exit;
     }
+
     /**
      * собирает ссылки на постраничку для запроса списка job определенныйх компаний
      *
      */
-    function parseJobsCompaniesPg($companies){
-        $jobsLinks=[];
-        foreach ($companies as $v){
-            if($v->ID==0)continue;#todo оставить (у 0 компании выдает 500 ошибку)
-            $jobs=$this->simProRequest->getRequestPage('GET','/api/v1.0/companies/'.$v->ID.'/jobs/');
-            if(count($jobs)>0){
-                foreach ($jobs as $val){
-                    $jobsLinks[]=['url'=>$val,'companyId'=>$v->ID];
-                    parseJobsLinks::dispatch($val,$v->ID)->delay(now()->addSecond(5));
+    function parseJobsCompaniesPg($companies)
+    {
+        $jobsLinks = [];
+        foreach ($companies as $v) {
+            if ($v->ID == 0) continue;#todo оставить (у 0 компании выдает 500 ошибку)
+            $jobs = $this->simProRequest->getRequestPage('GET', '/api/v1.0/companies/' . $v->ID . '/jobs/');
+            if (count($jobs) > 0) {
+                foreach ($jobs as $val) {
+                    $jobsLinks[] = ['url' => $val, 'companyId' => $v->ID];
+                    parseJobsLinks::dispatch($val, $v->ID)->delay(now()->addSecond(5));
                 }
             }
         }
@@ -71,25 +79,27 @@ class simProService
      * @param $companyId - id компании нужно для создания сылки
      * @return array
      */
-    public function parseJobsLinks($link,$companyId){
-        $jobs=$this->simProRequest->getRequest('GET',$link);
-        $JobsLinks=[];
-        if(count($jobs)>0){
-            foreach ($jobs as $val){
-                $JobsLinks[]='/api/v1.0/companies/'.$companyId.'/jobs/'.$val->ID;
-                parseJobs::dispatch('/api/v1.0/companies/'.$companyId.'/jobs/'.$val->ID,$companyId,$val->ID)->delay(now()->addSecond(5));
+    public function parseJobsLinks($link, $companyId)
+    {
+        $jobs = $this->simProRequest->getRequest('GET', $link);
+        $JobsLinks = [];
+        if (count($jobs) > 0) {
+            foreach ($jobs as $val) {
+                $JobsLinks[] = '/api/v1.0/companies/' . $companyId . '/jobs/' . $val->ID;
+                parseJobs::dispatch('/api/v1.0/companies/' . $companyId . '/jobs/' . $val->ID, $companyId, $val->ID)->delay(now()->addSecond(5));
             }
         }
         return $JobsLinks;
     }
 
 
-    function parseCustomersCompaniesPg($companies){
-        $customersLinks=[];
-        foreach ($companies as $v){
-            $customers=$this->simProRequest->getRequestPage('GET','/api/v1.0/companies/'.$v->ID.'/customers/');
-            if(count($customers)>0){
-                foreach ($customers as $val){
+    function parseCustomersCompaniesPg($companies)
+    {
+        $customersLinks = [];
+        foreach ($companies as $v) {
+            $customers = $this->simProRequest->getRequestPage('GET', '/api/v1.0/companies/' . $v->ID . '/customers/');
+            if ($customers && count($customers) > 0) {
+                foreach ($customers as $val) {
                     //$customersLinks[]=$val;
                     parseCustomersLinks::dispatch($val)->delay(now()->addSecond(5));
                 }
@@ -99,11 +109,11 @@ class simProService
     }
 
 
-
-    public function parseCustomerLinks($link){
-        $customers=$this->simProRequest->getRequest('GET',$link);
-        if(count($customers)>0){
-            foreach ($customers as $val){
+    public function parseCustomerLinks($link)
+    {
+        $customers = $this->simProRequest->getRequest('GET', $link);
+        if (count($customers) > 0) {
+            foreach ($customers as $val) {
 //                $customersLinks[]=$val->_href;
                 parseCustomers::dispatch($val->_href)->delay(now()->addSecond(5));
             }
@@ -113,29 +123,33 @@ class simProService
     }
 
 
-
-
-
-    function parseCustomers($customers=[]){
-        foreach($customers as $v) {
+    function parseCustomers($customers = [])
+    {
+        foreach ($customers as $v) {
             parseCustomers::dispatch($v)->delay(now()->addSecond(5));
         }
         return true;
     }
-    function parseCustomerByUrl($url){
-        $customer=$this->simProRequest->getRequest('GET',$url);
+
+    function parseCustomerByUrl($url)
+    {
+        $customer = $this->simProRequest->getRequest('GET', $url);
         return $customer;
     }
-    function parseJobByUrl($url){
-        $job=$this->simProRequest->getRequest('GET',$url);
+
+    function parseJobByUrl($url)
+    {
+        $job = $this->simProRequest->getRequest('GET', $url);
         return $job;
     }
-    function parseCustomerContractByUrl($url){
-        $parsedContracts=false;
-        $contracts=$this->simProRequest->getRequest('GET',$url); # забираем краткую информацию по контрактам
-        if(count($contracts)>0){
+
+    function parseCustomerContractByUrl($url)
+    {
+        $parsedContracts = false;
+        $contracts = $this->simProRequest->getRequest('GET', $url); # забираем краткую информацию по контрактам
+        if (count($contracts) > 0) {
             foreach ($contracts as $contract) { # забираем подробную информацию по контрактам
-                $parsedContracts[]=$this->simProRequest->getRequest('GET',$url.$contract->ID);
+                $parsedContracts[] = $this->simProRequest->getRequest('GET', $url . $contract->ID);
             }
 
         }
@@ -165,46 +179,51 @@ class simProService
         }
         */
     }
-    public function parseCompanies(){
-        $companies=$this->simProRequest->getRequest('GET','/api/v1.0/companies/');
+
+    public function parseCompanies()
+    {
+        $companies = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/');
         dd($companies);
-        if(!$companies) {
+        if (!$companies) {
             print 'err_companies';
             return false;
         }
         return $companies;
     }
 
-    private function parseCustomersLinks($companies){
-        $customersLinks=[];
-        foreach ($companies as $v){
-            $customers=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$v->ID.'/customers/');
-            if(count($customers)>0){
-                foreach ($customers as $val){
-                    $customersLinks[]=$val->_href;
+    private function parseCustomersLinks($companies)
+    {
+        $customersLinks = [];
+        foreach ($companies as $v) {
+            $customers = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/' . $v->ID . '/customers/');
+            if (count($customers) > 0) {
+                foreach ($customers as $val) {
+                    $customersLinks[] = $val->_href;
                 }
             }
         }
         return $customersLinks;
     }
-    public function getFolderId($compnayId,$customerId){
-        $folders=$this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/');
-        $folder=false;
-        if(is_array($folders)&&count($folders)>0){
-            foreach($folders as $v){
-                if($v->Name=='NotifyApp'){
-                    $folder=true;
-                    $folderId=$v->ID;
+
+    public function getFolderId($compnayId, $customerId)
+    {
+        $folders = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/' . $compnayId . '/customers/' . $customerId . '/attachments/folders/');
+        $folder = false;
+        if (is_array($folders) && count($folders) > 0) {
+            foreach ($folders as $v) {
+                if ($v->Name == 'NotifyApp') {
+                    $folder = true;
+                    $folderId = $v->ID;
                 }
             }
         }
-        if(!$folder){
-            $res=$this->simProRequest->patchRequest('post','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/folders/',
+        if (!$folder) {
+            $res = $this->simProRequest->patchRequest('post', '/api/v1.0/companies/' . $compnayId . '/customers/' . $customerId . '/attachments/folders/',
                 [
-                    'Name'=>'NotifyApp',
+                    'Name' => 'NotifyApp',
                 ]
             );
-            $folderId=$res->ID;
+            $folderId = $res->ID;
         }
         return $folderId;
     }
@@ -215,28 +234,52 @@ class simProService
      * @param $filename_source - filename with path in server
      * @param $filename - filename in SimPRO
      */
-    public function sendAttachment($compnayId,$customerId,$filename_source,$filename){
-        $folderId=$this->getFolderId($compnayId,$customerId);
-        if(!file_get_contents($filename_source))return false;
-        $res=$this->simProRequest->patchRequest('POST','/api/v1.0/companies/'.$compnayId.'/customers/'.$customerId.'/attachments/files/',
+    public function sendAttachment($compnayId, $customerId, $filename_source, $filename)
+    {
+        $folderId = $this->getFolderId($compnayId, $customerId);
+        if (!file_get_contents($filename_source)) return false;
+        $res = $this->simProRequest->patchRequest('POST', '/api/v1.0/companies/' . $compnayId . '/customers/' . $customerId . '/attachments/files/',
             [
-                'Filename'=>$filename,
-                'Base64Data'=>base64_encode(file_get_contents($filename_source)),
-                'Public'=>true,
-                'Folder'=>$folderId
+                'Filename' => $filename,
+                'Base64Data' => base64_encode(file_get_contents($filename_source)),
+                'Public' => true,
+                'Folder' => $folderId
             ]
         );
-        if($res->ID) {
+        if ($res->ID) {
             return $res->ID;
         }
         return false;
     }
-    public function getSiteData($companyId,$siteId){
-        return $this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$companyId.'/sites/'.$siteId);
+
+    public function getSiteData($companyId, $siteId)
+    {
+        return $this->simProRequest->getRequest('GET', '/api/v1.0/companies/' . $companyId . '/sites/' . $siteId);
 
     }
-    public function getContactData($companyId,$customerID){
-        return $this->simProRequest->getRequest('GET','/api/v1.0/companies/'.$companyId.'/customers/'.$customerID.'/contacts/');
 
+    public function getContactData($companyId, $customerID)
+    {
+        return $this->simProRequest->getRequest('GET', '/api/v1.0/companies/' . $companyId . '/customers/' . $customerID . '/contacts/');
     }
+
+    const url = 'https://blueflamecornwallltd.simprosuite.com';
+    const accessToken = 'e929be7849b90e553082e592552739082c7614ab';
+
+    /**  */
+    public function getPrivateDate()
+    {
+//        Получение company ID и CompanyName
+//        https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/customers/companies/
+//        https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/customers/individuals/
+//        Получение подробной информации о компании
+//        https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/customers/companies/11325
+//        https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/customers/individuals/11325
+//        Получение контрактов
+//        https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/customers/12235/contracts/
+//        Проверка конечной даты
+//        https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/customers/12235/contracts/22422
+    }
+
+
 }
