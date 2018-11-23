@@ -26,6 +26,13 @@
             <span>Housing Customers</span>
         </a>
     </li>
+
+    <li class="nav-item {!! Route::current()->getName() == 'appointments.all' ? 'active' : '' !!}">
+        <a class="nav-link" href="{{ route('appointments.all') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Appointment Letters</span>
+        </a>
+    </li>
     @if(Auth::user()->role=='admin')
         <li class="nav-item
                         @if(Request::is('admin/template*')||Request::is('admin/housing*'))

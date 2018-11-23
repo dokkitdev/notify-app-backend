@@ -33,6 +33,22 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
     Route::get('/admin/housingtemplate/{id}/email',['uses'=>'Admin\HousingTemplatesController@emailTemplate','as'=>'template.email']);
     Route::get('/admin/housingtemplate/{id}/download-pdf', ['uses' => 'Admin\HousingTemplatesController@downloadPDF', 'as' => 'housing-template.pdf.download']);
 
+
+    Route::group(['prefix' => '/admin/templates'], function () {
+        Route::get('/', 'Template\\TemplateController@all')->name('templates.all');
+        Route::get('/{id}/edit', 'Template\\TemplateController@getTemplate')->name('templates.edit');
+        Route::put('/{id}/edit', 'Template\\TemplateController@putTemplate')->name('templates.edit');
+        Route::get('/test', 'Template\\TemplateController@test');
+        Route::get('/test2', 'Template\\TemplateController@test2');
+    });
+    Route::group(['prefix' => '/appointments'], function () {
+        Route::get('/', 'Admin\\AppointmentsController@index')->name('appointments.all');
+        Route::post('/generate', 'Admin\\AppointmentsController@generate')->name('appointments.generate');
+    });
+
+
+
+
     Route::get('/admin/users',['uses'=>'Admin\UsersController@index','as'=>'users.index']);
     Route::resource('admin/users','Admin\UsersController',[
         'except'=>[
