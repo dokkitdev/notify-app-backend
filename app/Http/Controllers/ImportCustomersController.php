@@ -8,13 +8,14 @@ use Illuminate\Http\Request;
 
 class ImportCustomersController extends Controller
 {
-    public function index($id){
-        if($id!='n34u9bf')return false;
-        $ps=new simProService();
-        $settings=new Settings();
-        $settings->setParam('customers_import_start',time());
+    public function index($id)
+    {
+        if ($id != 'n34u9bf') return false;
+        $ps = new simProService();
+        $settings = new Settings();
+        $settings->setParam('customers_import_start', time());
         $ps->importCustomers();
-        $settings->setParam('customers_import_end',time());
+        $settings->setParam('customers_import_end', time());
         exit;
     }
 }
