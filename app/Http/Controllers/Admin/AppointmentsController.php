@@ -19,9 +19,10 @@ class AppointmentsController extends Controller
 {
     public function index()
     {
-        $today = new \DateTime();
-        $today->setTime(23, 59, 59);
+        $today = new \DateTime('');
+        $today->setTime(0, 0, 0);
         $fourDay = new \DateTime('+4 day');
+        $fourDay->setTime(23, 59, 59);
 
         $appointments = Appointment::where('send_date', '>=', $today)
             ->where('send_date', '<=', $fourDay)
