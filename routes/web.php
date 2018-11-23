@@ -44,6 +44,7 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
     Route::group(['prefix' => '/appointments'], function () {
         Route::get('/', 'Admin\\AppointmentsController@index')->name('appointments.all');
         Route::post('/generate', 'Admin\\AppointmentsController@generate')->name('appointments.generate');
+        Route::get('/{id}/clear', 'Admin\\AppointmentsController@clear')->name('appointments.clear');
     });
 
 

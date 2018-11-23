@@ -55,14 +55,24 @@
                     <td>{!! $a->getFormatedScheduleTime() !!}</td>
                     <td>{!! $a->work_type !!}</td>
                     <td>{!! $a->job_id !!}</td>
-                    <td>
-                        @if ($a->pdf)
-                            <a target="_blank" class="btn btn-dark" href="/storage/pdf/{!! $a->pdf !!}"
-                               title="Download PDF template">PDF</a>
-                        @endif
-                        @if ($a->docx)
-                            <a target="_blank" class="btn btn-dark" href="/storage/docx/{!! $a->docx !!}"
-                               title="Download PDF template">DOC</a>
+                    <td class="text-center">
+                        @if ($a->pdf || $a->docx)
+                            <div class="dropdown" style="display: inline-block;">
+                                <a href="#" data-toggle="dropdown" aria-haspopup="true"
+                                   aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                <div class="dropdown-menu actions-menu" aria-labelledby="dropdownMenuButton">
+                                    @if ($a->pdf)
+                                        <a target="_blank" class="dropdown-item" href="/storage/pdf/{!! $a->pdf !!}">Download
+                                            PDF</a>
+                                    @endif
+                                    @if ($a->docx)
+                                        <a target="_blank" class="dropdown-item"
+                                           href="/storage/docx/{!! $a->docx !!}">Download DOC</a>
+                                    @endif
+                                    <a target="_blank" class="dropdown-item"
+                                       href="{{ route('appointments.clear', ['id' => $a->id]) }}">Clear PDF and DOC</a>
+                                </div>
+                            </div>
                         @endif
                     </td>
                 </tr>

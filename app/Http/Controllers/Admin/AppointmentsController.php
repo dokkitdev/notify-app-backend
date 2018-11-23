@@ -66,8 +66,24 @@ class AppointmentsController extends Controller
             }
         }
         $alert = $filled > 0
-            ? ['ok' => 'Appointment Letters has been successfull generated']
+            ? ['ok' => 'Appointment Letter(s) has been successfull generated']
             : ['error' => 'Please select at least one appointment letter'];
         return redirect()->route('appointments.all')->with($alert);
+    }
+
+    public function clear($id)
+    {
+        $appointment = Appointment::find($id);
+        if (!$appointment) {
+            return redirect()->route('appointments.all')->with([
+                'error' => 'Appointment Letter is not found',
+            ]);
+        }
+        $appointment->docx = null;
+        $appointment->pdf = null;
+        $appointment->save();
+        return redirect()->route('appointments.all')->with([
+            'ok' => 'Appointment Letter has been successfull cleared',
+        ]);
     }
 }
