@@ -120,7 +120,5 @@ class DatabaseSeeder extends Seeder
                 $pt->templates()->save($t);
             }
         }
-
-
     }
 }
