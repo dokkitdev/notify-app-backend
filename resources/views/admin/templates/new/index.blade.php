@@ -24,7 +24,7 @@
                                    title="Download PDF template">PDF</a>
                             @endif
                             @if ($t->docx)
-                                <a target="_blank" class="btn btn-dark" href="/storage/{!! $t->docx !!}"
+                                <a target="_blank" class="btn btn-dark" href="/storage/docx/{!! $t->docx !!}"
                                    title="Download PDF template">DOC</a>
                             @endif
                         </td>
