@@ -25,7 +25,7 @@ class AppointmentsController extends Controller
         $fourDay->setTime(23, 59, 59);
 
         $appointments = Appointment::where('send_date', '>=', $today)
-            ->where('send_date', '<=', $fourDay)
+//            ->where('send_date', '<=', $fourDay)
             ->get();
 
         return view('admin.appointments.index', [

@@ -56,7 +56,7 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Housing Authorities',
                 'templates' => [
                     [
-                        'term' => 1,
+                        'term' => null,
                         'title' => 'Letter',
                         'tag' => 'No Access',
                         'alias' => 'HOUSING_NO_ACCESS',
@@ -68,7 +68,7 @@ class DatabaseSeeder extends Seeder
                         'is_html' => 1,
                     ],
                     [
-                        'term' => 1,
+                        'term' => null,
                         'title' => 'Letter',
                         'tag' => 'First Access',
                         'alias' => 'HOUSING_1_ACCESS',
@@ -80,7 +80,7 @@ class DatabaseSeeder extends Seeder
                         'is_html' => 1,
                     ],
                     [
-                        'term' => 1,
+                        'term' => null,
                         'title' => 'Letter',
                         'tag' => 'Second Access',
                         'alias' => 'HOUSING_2_ACCESS',
@@ -98,7 +98,7 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Appointment letter',
                 'templates' => [
                     [
-                        'term' => 1,
+                        'term' => null,
                         'title' => 'Letter',
                         'tag' => null,
                         'alias' => 'APPOINTMENT_LETTER',
