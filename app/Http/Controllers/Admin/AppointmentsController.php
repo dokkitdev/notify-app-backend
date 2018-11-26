@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use PDFMerger\PDFMerger;
 
 class AppointmentsController extends Controller
 {
@@ -45,30 +46,39 @@ class AppointmentsController extends Controller
 
         $data = $request->all();
         $appointments = $data['appointments'] ?? null;
-        $filled = 0;
+        $filled = [];
+        $generator = new TemplateGenerator();
         if ($appointments && is_array($appointments)) {
-            $generator = new TemplateGenerator();
             foreach ($appointments as $a) {
                 $appointment = Appointment::find($a);
                 /** Проверка на существование или сгенерированость */
-                if (!$appointment ||
-                    ($appointment && $appointment->pdf !== null && $appointment->docx !== null)
-                ) {
+                if (!$appointment) {
                     unset($appointment);
                     continue;
                 }
-                $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
-                $pdf = $generator->generatePdfFromDocx($docx);
-                $appointment->docx = $docx;
-                $appointment->pdf = $pdf;
-                $appointment->save();
-                ++$filled;
+                if ($appointment->pdf === null || $appointment->docx === null) {
+                    $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
+                    $pdf = $generator->generatePdfFromDocx($docx);
+                    $appointment->docx = $docx;
+                    $appointment->pdf = $pdf;
+                    $appointment->save();
+                }
+
+                $filled[] = $appointment->pdf;
             }
         }
-        $alert = $filled > 0
-            ? ['ok' => 'Appointment Letter(s) has been successfull generated']
-            : ['error' => 'Please select at least one appointment letter'];
-        return redirect()->route('appointments.all')->with($alert);
+        if (count($filled) > 0) {
+            $merged = $generator->mergePdfs($filled);
+
+            return redirect()->route('appointments.all')->with([
+                'ok' => 'Appointment Letters has been successfull generated.',
+                'merged' => $merged,
+            ]);
+        }
+
+        return redirect()->route('appointments.all')->with([
+            'error' => 'Please select at least one appointment letter.',
+        ]);
     }
 
     public function clear($id)
