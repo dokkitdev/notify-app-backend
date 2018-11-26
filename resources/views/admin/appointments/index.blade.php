@@ -61,7 +61,7 @@
                                         <a target="_blank" class="dropdown-item"
                                            href="/storage/docx/{!! $a->docx !!}">Download DOC</a>
                                     @endif
-                                    <a target="_blank" class="dropdown-item"
+                                    <a class="dropdown-item"
                                        href="{{ route('appointments.clear', ['id' => $a->id]) }}">Clear PDF and DOC</a>
                                 </div>
                             </div>
