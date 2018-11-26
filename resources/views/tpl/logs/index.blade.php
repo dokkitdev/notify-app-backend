@@ -21,10 +21,10 @@
         <tbody>
         @foreach ($logs as $log)
             <tr>
-                <td>{{$log->created_at}}</td>
+                <td>{{$log->getCreatedAt()}}</td>
                 <td>{{$log->customer_type}}</td>
-                <td>{{$log->letters_generated}}</td>
-                <td>{{$log->emails_generated}}</td>
+                <td>{{$log->letters_generated ?: 0}}</td>
+                <td>{{$log->emails_generated ?: 0}}</td>
                 <td>
                     @if ($log->pdf)
                         <a target="_blank" class="btn btn-dark"
