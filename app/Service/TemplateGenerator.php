@@ -25,17 +25,17 @@ class TemplateGenerator
         }
         $template = new \PhpOffice\PhpWord\TemplateProcessor($file);
         $today = new \DateTime();
-        $template->setValue('ContactName', $appointment->getContact());
-        $template->setValue('Address', $appointment->address);
+        $template->setValue('ContactName', ucwords(strtolower($appointment->getContact())));
+        $template->setValue('Address', ucwords(strtolower($appointment->address)));
         $template->setValue('Address2', $appointment->state);
-        $template->setValue('City', $appointment->city);
+        $template->setValue('City', ucwords(strtolower($appointment->city)));
         $template->setValue('County', $appointment->country);
-        $template->setValue('Postcode', $appointment->postcode);
+        $template->setValue('Postcode', strtoupper($appointment->postcode));
         $template->setValue('TodayDate', $today->format('d/m/Y'));
         $template->setValue('JobID', $appointment->job_id);
         $template->setValue('ScheduleDate', $appointment->getFormatedScheduleDate());
         $template->setValue('ScheduleTime', $appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime());
-        $template->setValue('WorkType', $appointment->work_type);
+        $template->setValue('WorkType', ucwords(strtolower($appointment->work_type)));
         $new_file = md5(uniqid('generated_docx', true)) . '.docx';
         $template->saveAs($docx_folder . '/' . $new_file);
         return $new_file;

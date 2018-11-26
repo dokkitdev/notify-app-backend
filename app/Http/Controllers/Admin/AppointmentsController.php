@@ -28,7 +28,10 @@ class AppointmentsController extends Controller
         $fourDay->setTime(23, 59, 59);
 
         $appointments = Appointment::where('send_date', '>=', $today)
-            ->where('is_proccessed', '=', null)
+            ->where(function ($query) {
+                $query->where('is_proccessed', '<>', 1)
+                    ->orWhere('is_proccessed', '=', null);
+            })
 //            ->where('send_date', '<=', $fourDay)
             ->get();
 
@@ -45,6 +48,8 @@ class AppointmentsController extends Controller
         if (!$appointment) {
             return redirect()->route('appointments.all');
         }
+        $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
+
         if (!$appointment->pdf) {
             $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
             $generator = new TemplateGenerator();

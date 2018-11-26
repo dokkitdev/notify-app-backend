@@ -126,7 +126,7 @@ class TemplateController extends Controller
 
             $conn = DB::connection();
             Appointment::create([
-                'title' => $title,
+                'title' => strlen(trim($title)) > 0 ? $title : 'The Occupier',
                 'family_name' => $familyName,
                 'given_name' => $givenName,
                 'address' => $address,
