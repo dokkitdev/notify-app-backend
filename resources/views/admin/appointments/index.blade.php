@@ -11,17 +11,31 @@
             width: 15px;
             height: 15px;
         }
+
+        .fa-info {
+            position: absolute;
+            right: 0px;
+            box-shadow: 0 0 1px;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            border-radius: 50px;
+            top: 7px;
+            cursor: pointer;
+        }
     </style>
 @endsection
 
 @section('content')
-    <h2>Appointment Letters</h2>
     <form action="{{ route('appointments.generate') }}" method="post">
+        <h2>Appointment Letters <input class="btn btn-primary float-right" type="submit" value="Process"></h2>
         @csrf
         <table id="appointment-table" class="tablesorter" style="width: 100%">
             <thead>
             <tr>
-                <th class="col checkbox-th"><input type="checkbox"></th>
+                <th class="col checkbox-th"><input type="checkbox"> <i title="Select entries that shouldn't be processed"
+                                                                       class="fas fa-info"></i></th>
                 <th style="width: 5%;">Job ID</th>
                 <th>Contact Name</th>
                 <th>Address</th>
@@ -48,31 +62,33 @@
                     <td>{!! $a->getFormatedScheduleTime() !!}</td>
                     <td>{!! $a->work_type !!}</td>
                     <td class="text-center">
-                        @if ($a->pdf || $a->docx)
-                            <div class="dropdown" style="display: inline-block;">
-                                <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                                   aria-expanded="false"><i class="fa fa-bars"></i></a>
-                                <div class="dropdown-menu actions-menu" aria-labelledby="dropdownMenuButton">
-                                    @if ($a->pdf)
-                                        <a target="_blank" class="dropdown-item" href="/storage/pdf/{!! $a->pdf !!}">Download
-                                            PDF</a>
-                                    @endif
-                                    @if ($a->docx)
-                                        <a target="_blank" class="dropdown-item"
-                                           href="/storage/docx/{!! $a->docx !!}">Download DOC</a>
-                                    @endif
-                                    <a class="dropdown-item"
-                                       href="{{ route('appointments.clear', ['id' => $a->id]) }}">Clear PDF and DOC</a>
-                                </div>
-                            </div>
-                        @endif
+                        <a target="_blank" class="btn btn-dark"
+                           href="{{ route('appointments.view', ['id' => $a->id]) }}">View</a>
+                        {{--@if ($a->pdf || $a->docx)--}}
+                        {{--<div class="dropdown" style="display: inline-block;">--}}
+                        {{--<a href="#" data-toggle="dropdown" aria-haspopup="true"--}}
+                        {{--aria-expanded="false"><i class="fa fa-bars"></i></a>--}}
+                        {{--<div class="dropdown-menu actions-menu" aria-labelledby="dropdownMenuButton">--}}
+                        {{--@if ($a->pdf)--}}
+                        {{--<a target="_blank" class="dropdown-item" href="/storage/pdf/{!! $a->pdf !!}">Download--}}
+                        {{--PDF</a>--}}
+                        {{--@endif--}}
+                        {{--@if ($a->docx)--}}
+                        {{--<a target="_blank" class="dropdown-item"--}}
+                        {{--href="/storage/docx/{!! $a->docx !!}">Download DOC</a>--}}
+                        {{--@endif--}}
+                        {{--<a class="dropdown-item"--}}
+                        {{--href="{{ route('appointments.clear', ['id' => $a->id]) }}">Clear PDF and DOC</a>--}}
+                        {{--</div>--}}
+                        {{--</div>--}}
+                        {{--@endif--}}
                     </td>
                 </tr>
             @endforeach
             </tbody>
         </table>
         <div class="form-group text-right">
-            <input class="btn btn-primary" type="submit" value="Process All">
+            <input class="btn btn-primary" type="submit" value="Process">
         </div>
     </form>
 

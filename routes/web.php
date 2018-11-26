@@ -40,12 +40,13 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
         Route::put('/{id}/edit', 'Template\\TemplateController@putTemplate')->name('templates.edit');
         Route::get('/test', 'Template\\TemplateController@test');
         Route::get('/test2', 'Template\\TemplateController@test2');
-        Route::get('/test3', 'Template\\TemplateController@test3');
+        Route::get('/test3', 'ImportCustomersController@test');
     });
     Route::group(['prefix' => '/appointments'], function () {
         Route::get('/', 'Admin\\AppointmentsController@index')->name('appointments.all');
         Route::post('/generate', 'Admin\\AppointmentsController@generate')->name('appointments.generate');
         Route::get('/{id}/clear', 'Admin\\AppointmentsController@clear')->name('appointments.clear');
+        Route::get('/{id}/view', 'Admin\\AppointmentsController@viewPdf')->name('appointments.view');
     });
 
 
