@@ -40,6 +40,7 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
         Route::put('/{id}/edit', 'Template\\TemplateController@putTemplate')->name('templates.edit');
         Route::get('/test', 'Template\\TemplateController@test');
         Route::get('/test2', 'Template\\TemplateController@test2');
+        Route::get('/test3', 'Template\\TemplateController@test3');
     });
     Route::group(['prefix' => '/appointments'], function () {
         Route::get('/', 'Admin\\AppointmentsController@index')->name('appointments.all');
