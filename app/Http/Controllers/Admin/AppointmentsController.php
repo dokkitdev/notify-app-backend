@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Appointment;
 use App\Http\Requests\UserRequest;
+use App\Logs;
 use App\Mail\AdminRegister;
 use App\Service\TemplateGenerator;
 use App\Template;
 use App\Templates;
 use App\User;
+use Composer\Config;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +28,8 @@ class AppointmentsController extends Controller
         $fourDay->setTime(23, 59, 59);
 
         $appointments = Appointment::where('send_date', '>=', $today)
+            ->where('docx', '=', null)
+            ->where('pdf', '=', null)
 //            ->where('send_date', '<=', $fourDay)
             ->get();
 
@@ -33,6 +37,28 @@ class AppointmentsController extends Controller
             'appointments' => $appointments,
             'today' => $today,
         ]);
+    }
+
+
+    public function viewPdf($id)
+    {
+        $appointment = Appointment::find($id);
+        if (!$appointment) {
+            return redirect()->route('appointments.all');
+        }
+        if (!$appointment->pdf) {
+            $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
+            $generator = new TemplateGenerator();
+            $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
+            $pdf = $generator->generatePdfFromDocx($docx);
+            $appointment->docx = $docx;
+            $appointment->pdf = $pdf;
+            $appointment->save();
+        }
+        $pdf_folder = \Illuminate\Support\Facades\Config::get('constants.storage_pdf');
+
+
+        return response()->file($pdf_folder . '/' . $appointment->pdf);
     }
 
     public function generate(Request $request)
@@ -69,6 +95,12 @@ class AppointmentsController extends Controller
         }
         if (count($filled) > 0) {
             $merged = $generator->mergePdfs($filled);
+            Logs::create([
+                'customer_type' => 'Appointment',
+                'letters_generated' => count($filled),
+                'email_generated' => 0,
+                'pdf' => $merged
+            ]);
 
             return redirect()->route('appointments.all')->with([
                 'ok' => 'Appointment Letters has been successfull generated.',

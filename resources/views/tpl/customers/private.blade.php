@@ -53,7 +53,7 @@
                     @endforeach
                 </tbody>
             </table>
-            <input class="btn btn-primary float-right" type="submit" value="Process All">
+            <input class="btn btn-primary float-right" type="submit" value="Process">
         </form>
 
     <script>

@@ -23,6 +23,7 @@ class simProRequestService
         //$this->getToken();
     }
 
+
     protected function request($method, $url, $data = [], &$attemptCount = 0)
     {
         $this->getToken();
@@ -166,18 +167,18 @@ class simProRequestService
         $client = new Client();
         /**
          * Пока что не нужно
-        try {
-            $res = $client->request('POST', self::API_URL . '/oauth2/token', ['form_params' => ['client_id' => '3f9f54e78b4adea956c14f6582b5cd', 'client_secret' => 'e6acde1064', 'grant_type' => 'client_credentials']]);
-            $code = (int)$res->getStatusCode();
-            if ($code != 200 && $code != 204) {
-                throw new \Exception(isset($errors[$code]) ? $errors[$code] : 'Undescribed error', $code);
-            }
-        } catch (\Exception $E) {
-            die('Ошибка: ' . $E->getMessage() . PHP_EOL . 'Код ошибки: ' . $E->getCode());
-        }
-        $data = json_decode($res->getBody());
-
-        $this->token=$data->access_token;
+         * try {
+         * $res = $client->request('POST', self::API_URL . '/oauth2/token', ['form_params' => ['client_id' => '3f9f54e78b4adea956c14f6582b5cd', 'client_secret' => 'e6acde1064', 'grant_type' => 'client_credentials']]);
+         * $code = (int)$res->getStatusCode();
+         * if ($code != 200 && $code != 204) {
+         * throw new \Exception(isset($errors[$code]) ? $errors[$code] : 'Undescribed error', $code);
+         * }
+         * } catch (\Exception $E) {
+         * die('Ошибка: ' . $E->getMessage() . PHP_EOL . 'Код ошибки: ' . $E->getCode());
+         * }
+         * $data = json_decode($res->getBody());
+         *
+         * $this->token=$data->access_token;
          * */
         $set->name = 'access_token';
         $set->value = $this->token;
@@ -192,5 +193,10 @@ class simProRequestService
         $settings = Settings::where(['name' => $name])->get()->toArray();
         if (count($settings) == 0) return new Settings();
         else return Settings::find($settings[0]['id']);
+    }
+
+    public function getAccessToken()
+    {
+        return $this->token;
     }
 }

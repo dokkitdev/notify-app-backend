@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Logs;
 use App\Service\LogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +15,13 @@ class LogsController extends Controller
         $srv = new LogService();
         $data = $srv->getStandardReport();
 
-        return view('tpl.logs.index', ['data' => $data, 'title' => $title])->with('title', $title);
+        $logs = Logs::all();
+
+        return view('tpl.logs.index', [
+            'data' => $data,
+            'title' => $title,
+            'logs' => $logs,
+        ])->with('title', $title);
     }
 
     public function dailyLettersLog($type, $date)
@@ -28,7 +35,7 @@ class LogsController extends Controller
     public function downloadPdfLetterFromS3(Request $request)
     {
         $link = $request->get('link');
-        if(Storage::disk('s3')->exists($link)){
+        if (Storage::disk('s3')->exists($link)) {
             $file = Storage::disk('s3')->download($link);
             return $file;
         }

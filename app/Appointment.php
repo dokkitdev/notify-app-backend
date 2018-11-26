@@ -29,6 +29,7 @@ class Appointment extends Model
 
     public function getContact()
     {
+
         if ($this->title && strlen($this->title) > 0) {
             return $this->title . ' ' . substr($this->given_name, 0, 1) . '. ' . $this->family_name;
         }
