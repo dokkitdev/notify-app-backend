@@ -32,7 +32,7 @@ class Appointment extends Model
     {
 
         if ($this->title && strlen($this->title) > 0) {
-            return $this->title . ' ' . substr($this->given_name, 0, 1) . '. ' . $this->family_name;
+            return $this->title . ' ' . substr($this->given_name, 0, 1) . (strlen($this->given_name) > 0 ? '. ' : '') . $this->family_name;
         }
         return $this->given_name . ' ' . $this->family_name;
     }
