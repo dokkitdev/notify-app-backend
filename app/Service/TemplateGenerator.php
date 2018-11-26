@@ -27,9 +27,9 @@ class TemplateGenerator
         $today = new \DateTime();
         $template->setValue('ContactName', ucwords(strtolower($appointment->getContact())));
         $template->setValue('Address', ucwords(strtolower($appointment->address)));
-        $template->setValue('Address2', $appointment->state);
+        $template->setValue('Address2', ucwords(strtolower($appointment->state)));
         $template->setValue('City', ucwords(strtolower($appointment->city)));
-        $template->setValue('County', $appointment->country);
+        $template->setValue('County', strtoupper($appointment->country));
         $template->setValue('Postcode', strtoupper($appointment->postcode));
         $template->setValue('TodayDate', $today->format('d/m/Y'));
         $template->setValue('JobID', $appointment->job_id);
