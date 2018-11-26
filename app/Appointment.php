@@ -44,6 +44,13 @@ class Appointment extends Model
         return $date ? $date->format('l d/m/Y') : '';
     }
 
+    public function getFormatedScheduleDateWithoutDay()
+    {
+        $date = $this->send_date;
+        $date = $date ? \DateTime::createFromFormat('Y-m-d H:i:s', $date) : null;
+        return $date ? $date->format('d/m/Y') : '';
+    }
+
     public function getFormattedWithWeekday()
     {
         $date = $this->send_date;
@@ -71,6 +78,8 @@ class Appointment extends Model
         }
         return $time;
     }
+
+
 
     public function getDaysToScheduleDate($today = null)
     {

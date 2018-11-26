@@ -27,7 +27,7 @@
                 <td>{{$log->emails_generated ?: 0}}</td>
                 <td>
                     @if ($log->pdf)
-                        <a target="_blank" class="btn btn-dark"
+                        <a target="_blank"
                            href="/storage/pdf/{!! $log->pdf !!}"
                            title="Download PDF template">View</a>
                     @endif

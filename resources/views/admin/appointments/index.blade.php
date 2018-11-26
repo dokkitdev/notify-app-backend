@@ -14,16 +14,17 @@
 
         .fa-info {
             position: absolute;
-            right: 0px;
+            right: 2px;
             box-shadow: 0 0 1px;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             text-align: center;
-            line-height: 20px;
+            line-height: 16px;
             border-radius: 50px;
-            top: 7px;
+            top: 10px;
             cursor: pointer;
             background: #f5a622;
+            font-size: 10px;
         }
     </style>
 @endsection
@@ -60,11 +61,11 @@
                     <td>{!! $a->address !!}</td>
                     <td>{!! $a->city !!}</td>
                     <td>{!! $a->postcode !!}</td>
-                    <td>{!! $a->getFormatedScheduleDate() !!}</td>
+                    <td>{!! $a->getFormatedScheduleDateWithoutDay() !!}</td>
                     <td>{!! $a->getFormatedScheduleTime() !!}</td>
                     <td>{!! $a->work_type !!}</td>
                     <td class="text-center">
-                        <a target="_blank" class="btn btn-dark"
+                        <a target="_blank"
                            href="{{ route('appointments.view', ['id' => $a->id]) }}">View</a>
                         {{--@if ($a->pdf || $a->docx)--}}
                         {{--<div class="dropdown" style="display: inline-block;">--}}

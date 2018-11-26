@@ -13,6 +13,6 @@ class Logs extends Model
     {
         $date = $this->created_at;
         $date = $date ? \DateTime::createFromFormat('Y-m-d H:i:s', $date) : null;
-        return $date ? $date->format('Y-m-d') : '';
+        return $date ? $date->format('Y-m-d H:i') : '';
     }
 }
