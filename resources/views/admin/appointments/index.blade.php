@@ -36,7 +36,7 @@
             <thead>
             <tr>
                 <th class="col checkbox-th"><input type="checkbox"> <i
-                            title="Select entries that shouldn't be processed"
+                            title="Select entries that should be processed"
                             class="fas fa-info"></i></th>
                 <th style="width: 5%;">Job ID</th>
                 <th>Contact Name</th>
