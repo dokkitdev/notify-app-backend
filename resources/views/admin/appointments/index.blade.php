@@ -3,9 +3,9 @@
 @section('css')
     <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
     <style>
-        #appointment-table {
-            table-layout: fixed;
-        }
+        /*#appointment-table {*/
+        /*table-layout: fixed;*/
+        /*}*/
 
         input[type="checkbox"] {
             width: 15px;
@@ -22,17 +22,14 @@
             <thead>
             <tr>
                 <th class="col checkbox-th"><input type="checkbox"></th>
-                <th class="col" style="width: 9%;">Contact name</th>
-                <th class="col" style="width: 9%;">Address</th>
-                <th class="col" style="width: 9%;">Address2</th>
-                <th class="col" style="width: 9%;">City</th>
-                <th class="col" style="width: 9%;">County</th>
-                <th class="col" style="width: 9%;">Postcode</th>
-                <th class="col" style="width: 9%;">Day to schedule</th>
-                <th class="col" style="width: 9%;">Schedule date</th>
-                <th class="col" style="width: 9%;">Schedule time</th>
-                <th class="col" style="width: 9%;">Work type</th>
-                <th class="col" style="width: 9%;">Job ID</th>
+                <th style="width: 5%;">Job ID</th>
+                <th>Contact Name</th>
+                <th>Address</th>
+                <th>City</th>
+                <th style="width: 5%;">Postcode</th>
+                <th style="width: 10%;">Schedule Date</th>
+                <th style="width: 10%;">Schedule time</th>
+                <th>Work type</th>
                 <th class="col" style="width: 9%;"></th>
             </tr>
             </thead>
@@ -40,26 +37,21 @@
             @foreach ($appointments as $a)
                 <tr>
                     <td>
-                        @if ($a->pdf === null || $a->docx === null)
-                            <input type="checkbox" name="appointments[]" value="{!! $a->id !!}">
-                        @endif
+                        <input type="checkbox" name="appointments[]" value="{!! $a->id !!}">
                     </td>
+                    <td>{!! $a->job_id !!}</td>
                     <td>{!! $a->getContact() !!}</td>
                     <td>{!! $a->address !!}</td>
-                    <td>{!! $a->state !!}</td>
                     <td>{!! $a->city !!}</td>
-                    <td>{!! $a->country !!}</td>
                     <td>{!! $a->postcode !!}</td>
-                    <td>{!! $a->getDaysToScheduleDate() !!}</td>
                     <td>{!! $a->getFormatedScheduleDate() !!}</td>
                     <td>{!! $a->getFormatedScheduleTime() !!}</td>
                     <td>{!! $a->work_type !!}</td>
-                    <td>{!! $a->job_id !!}</td>
                     <td class="text-center">
                         @if ($a->pdf || $a->docx)
                             <div class="dropdown" style="display: inline-block;">
                                 <a href="#" data-toggle="dropdown" aria-haspopup="true"
-                                   aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                   aria-expanded="false"><i class="fa fa-bars"></i></a>
                                 <div class="dropdown-menu actions-menu" aria-labelledby="dropdownMenuButton">
                                     @if ($a->pdf)
                                         <a target="_blank" class="dropdown-item" href="/storage/pdf/{!! $a->pdf !!}">Download
@@ -98,7 +90,7 @@
                 widgets: ['zebra'],
                 headers: {
                     0: {sorter: false},
-                    12: {sorter: false}
+                    9: {sorter: false}
                 }
             });
         });

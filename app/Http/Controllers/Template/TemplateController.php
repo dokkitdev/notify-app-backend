@@ -47,35 +47,21 @@ class TemplateController extends Controller
             $template->html_body = $data['html_body'] ?? $template->html_body;
 
             if (isset($data['file']) && $data['file']) {
-                $pdf = md5(uniqid('template_pdf', true)) . '.pdf';
-                $html = md5(uniqid('template_html', true)) . '.html';
-                $docx = md5(uniqid('template_docx', true)) . '.docx';
+                $html = md5(uniqid('template', true)) . '.html';
+                $docx = md5(uniqid('template', true)) . '.docx';
 
-                $html_folder = Config::get('constants.storage_html') . '/';
+                $html_folder = Config::get('constants.storage_html');
                 $docx_folder = Config::get('constants.storage_docx') . '/';
-                $pdf_folder = Config::get('constants.storage_pdf') . '/';
+                $pdf_folder = Config::get('constants.storage_pdf');
 
                 $data['file']->move($docx_folder, $docx);
                 $template->docx = $docx;
-                $converter = new Api(Config::get('constants.cloud_converter_key'));
-                $converter->convert([
-                    'inputformat' => 'docx',
-                    'outputformat' => 'pdf',
-                    'input' => 'upload',
-                    'file' => fopen($docx_folder . $template->docx, 'r'),
-                ])
-                    ->wait()
-                    ->download($pdf_folder . $pdf);
-                $converter->convert([
-                    'inputformat' => 'docx',
-                    'outputformat' => 'html',
-                    'input' => 'upload',
-                    'file' => fopen($docx_folder . $template->docx, 'r'),
-                ])
-                    ->wait()
-                    ->download($html_folder . $html);
+
+                $docx_file_path = $docx_folder . $docx;
+
+                exec('libreoffice --headless --writer --convert-to pdf ' . $docx_file_path . ' --outdir ' . $pdf_folder);
+                $pdf = substr($docx, 0, -4) . 'pdf';
                 $template->pdf = $pdf;
-                $template->html = $html;
             }
             $template->save();
         }

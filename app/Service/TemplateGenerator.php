@@ -11,6 +11,7 @@ namespace App\Service;
 use CloudConvert\Api;
 use Illuminate\Support\Facades\Config;
 use App\Appointment;
+use LynX39\LaraPdfMerger\PdfManage;
 
 class TemplateGenerator
 {
@@ -33,7 +34,7 @@ class TemplateGenerator
         $template->setValue('TodayDate', $today->format('d/m/Y'));
         $template->setValue('JobID', $appointment->job_id);
         $template->setValue('ScheduleDate', $appointment->getFormatedScheduleDate());
-        $template->setValue('ScheduleTime', $appointment->getFormatedScheduleTime());
+        $template->setValue('ScheduleTime', $appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime());
         $template->setValue('WorkType', $appointment->work_type);
         $new_file = md5(uniqid('generated_docx', true)) . '.docx';
         $template->saveAs($docx_folder . '/' . $new_file);
@@ -48,16 +49,27 @@ class TemplateGenerator
         if (!is_file($file)) {
             return false;
         }
-        $new_file = md5(uniqid('generated_pdf', true)) . '.pdf';
-        $converter = new Api(Config::get('constants.cloud_converter_key'));
-        $converter->convert([
-            'inputformat' => 'docx',
-            'outputformat' => 'pdf',
-            'input' => 'upload',
-            'file' => fopen($file, 'r'),
-        ])
-            ->wait()
-            ->download($pdf_folder . '/' . $new_file);
+
+        exec('libreoffice --headless --writer --convert-to pdf ' . $file . ' --outdir ' . $pdf_folder);
+        $new_file = substr($docx, 0, -4) . 'pdf';
+        return $new_file;
+    }
+
+    public function mergePdfs($pdf_names = [])
+    {
+        if (count($pdf_names) == 0) {
+            return false;
+        }
+        $pdf_folder = Config::get('constants.storage_pdf') . '/';
+        $pdf_merger = new PdfManage();
+        foreach ($pdf_names as $pdf) {
+            $file = $pdf_folder . $pdf;
+            if (file_exists($file)) {
+                $pdf_merger->addPDF($file, '1');
+            }
+        }
+        $new_file = md5(uniqid('result_pdf', true)) . '.pdf';
+        $pdf_merger->merge('file', $pdf_folder . $new_file);
         return $new_file;
     }
 
