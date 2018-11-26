@@ -28,8 +28,7 @@ class AppointmentsController extends Controller
         $fourDay->setTime(23, 59, 59);
 
         $appointments = Appointment::where('send_date', '>=', $today)
-            ->where('docx', '=', null)
-            ->where('pdf', '=', null)
+            ->where('is_proccessed', '=', null)
 //            ->where('send_date', '<=', $fourDay)
             ->get();
 
@@ -87,8 +86,9 @@ class AppointmentsController extends Controller
                     $pdf = $generator->generatePdfFromDocx($docx);
                     $appointment->docx = $docx;
                     $appointment->pdf = $pdf;
-                    $appointment->save();
                 }
+                $appointment->is_proccessed = true;
+                $appointment->save();
 
                 $filled[] = $appointment->pdf;
             }

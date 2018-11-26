@@ -25,6 +25,7 @@ class Appointment extends Model
         'time',
         'pdf',
         'docx',
+        'is_proccessed'
     ];
 
     public function getContact()

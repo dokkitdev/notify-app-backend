@@ -23,6 +23,7 @@
             border-radius: 50px;
             top: 7px;
             cursor: pointer;
+            background: #f5a622;
         }
     </style>
 @endsection
@@ -34,13 +35,14 @@
         <table id="appointment-table" class="tablesorter" style="width: 100%">
             <thead>
             <tr>
-                <th class="col checkbox-th"><input type="checkbox"> <i title="Select entries that shouldn't be processed"
-                                                                       class="fas fa-info"></i></th>
+                <th class="col checkbox-th"><input type="checkbox"> <i
+                            title="Select entries that shouldn't be processed"
+                            class="fas fa-info"></i></th>
                 <th style="width: 5%;">Job ID</th>
                 <th>Contact Name</th>
                 <th>Address</th>
                 <th>City</th>
-                <th style="width: 5%;">Postcode</th>
+                <th style="width: 7%;">Postcode</th>
                 <th style="width: 10%;">Schedule Date</th>
                 <th style="width: 10%;">Schedule time</th>
                 <th>Work type</th>

@@ -15,7 +15,7 @@ class LogsController extends Controller
         $srv = new LogService();
         $data = $srv->getStandardReport();
 
-        $logs = Logs::all();
+        $logs = Logs::orderBy('created_at', 'desc')->get();
 
         return view('tpl.logs.index', [
             'data' => $data,
