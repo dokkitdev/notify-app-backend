@@ -30,12 +30,19 @@ class Appointment extends Model
     public function getContact()
     {
         if ($this->title && strlen($this->title) > 0) {
-            return $this->title . ' ' . substr($this->given_name, 1) . '. ' . $this->family_name;
+            return $this->title . ' ' . substr($this->given_name, 0, 1) . '. ' . $this->family_name;
         }
         return $this->given_name . ' ' . $this->family_name;
     }
 
     public function getFormatedScheduleDate()
+    {
+        $date = $this->send_date;
+        $date = $date ? \DateTime::createFromFormat('Y-m-d H:i:s', $date) : null;
+        return $date ? $date->format('l d/m/Y') : '';
+    }
+
+    public function getFormattedWithWeekday()
     {
         $date = $this->send_date;
         $date = $date ? \DateTime::createFromFormat('Y-m-d H:i:s', $date) : null;
