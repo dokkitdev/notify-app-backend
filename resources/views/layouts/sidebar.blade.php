@@ -11,17 +11,19 @@
                         active
                     @endif
                     ">
-        <a class="nav-link" href="/privateContracts">
+        <a class="nav-link" href="#">
             <i class="fas fa-fw fa-folder"></i>
             <span>Private Contracts</span>
         </a>
+        {{--/privateContracts--}}
     </li>
     <li class="nav-item
                     @if(Request::path() === 'housingCustomers')
                                 active
                     @endif
                     ">
-        <a class="nav-link" href="/housingCustomers">
+        <a class="nav-link" href="#">
+            {{--/housingCustomers--}}
             <i class="fas fa-fw fa-folder"></i>
             <span>Housing Customers</span>
         </a>
