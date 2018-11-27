@@ -28,6 +28,16 @@ class Appointment extends Model
         'is_proccessed'
     ];
 
+    public function getAddress()
+    {
+        $str = $this->address;
+        $str = str_replace("\r", '', $str);
+        $str = str_replace("\n", ', ', $str);
+        $str = preg_replace('/\s*,\s*/', ', ', $str);
+        return $str;
+    }
+
+
     public function getContact()
     {
 

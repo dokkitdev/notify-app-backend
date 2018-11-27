@@ -27,17 +27,17 @@ class TemplateGenerator
         $today = new \DateTime();
 
 
-        $ContactName = str_replace("\n", ' ', ucwords(strtolower($appointment->getContact())));
-        $Address = str_replace("\n", ' ', ucwords(strtolower($appointment->address)));
-        $Address2 = str_replace("\n", ' ', ucwords(strtolower($appointment->state)));
-        $City = str_replace("\n", ' ', ucwords(strtolower($appointment->city)));
-        $County = str_replace("\n", ' ', strtoupper($appointment->country));
-        $Postcode = str_replace("\n", ' ', strtoupper($appointment->postcode));
+        $ContactName = str_replace("\n", ', ', ucwords(strtolower($appointment->getContact())));
+        $Address = str_replace("\n", ', ', ucwords(strtolower($appointment->getAddress())));
+        $Address2 = str_replace("\n", ', ', ucwords(strtolower($appointment->state)));
+        $City = str_replace("\n", ', ', ucwords(strtolower($appointment->city)));
+        $County = str_replace("\n", ', ', strtoupper($appointment->country));
+        $Postcode = str_replace("\n", ', ', strtoupper($appointment->postcode));
         $TodayDate = $today->format('d/m/Y');
         $JobID = $appointment->job_id;
         $ScheduleDate = $appointment->getFormatedScheduleDate();
         $ScheduleTime = $appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime();
-        $WorkType = str_replace("\n", ' ', ucwords(strtolower($appointment->work_type)));
+        $WorkType = str_replace("\n", ', ', ucwords(strtolower($appointment->work_type)));
 
         $template->setValue('ContactName', $ContactName);
         $template->setValue('Address', $Address);

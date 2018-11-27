@@ -58,6 +58,8 @@ class AppointmentsController extends Controller
             $appointment->pdf = $pdf;
             $appointment->save();
         }
+//        dump($appointment);
+
         $pdf_folder = \Illuminate\Support\Facades\Config::get('constants.storage_pdf');
 
 
