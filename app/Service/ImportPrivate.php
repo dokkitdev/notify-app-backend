@@ -28,28 +28,63 @@ class ImportPrivate
             }
             $company = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/customers/companies/' . $c->ID);
             foreach ($company->Sites as $sId) {
-                $sites = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/sites/' . $sId->ID . '/assets/?CustomerContract ne()');
-                if (count($sites) < 1) {
+                $sites_contracts = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/sites/' . $sId->ID . '/assets/?CustomerContract ne()');
+                if (count($sites_contracts) < 1) {
                     continue;
                 }
                 /** находим если у сайта есть соответствующие контракты */
-                foreach ($sites as $site) {
-                    if (!isset($site->CustomerContract->ID)) {
+                foreach ($sites_contracts as $site_contract) {
+                    if (!isset($site_contract->CustomerContract->ID)) {
                         continue;
                     }
-                    dump($site);
+                    dump($site_contract);
                     foreach ($contracts as $contId) {
-                        if ($site->CustomerContract->ID == $contId->ID) {
-                            dump('совпало', $site, $contId);
+                        if ($site_contract->CustomerContract->ID == $contId->ID) {
+                            dump('совпало', $site_contract, $contId);
                             $contractNeeded = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/customers/' . $c->ID . '/contracts/' . $contId->ID);
                             dump($contractNeeded);
                             //https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/sites/37304
                             $siteDetails = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/sites/' . $sId->ID);
-                            dump("/api/v1.0/companies/0/sites/" . $site->ID);
+                            dump("/api/v1.0/companies/0/sites/" . $site_contract->ID);
                             dump($siteDetails);
-                            $siteAssetsDetails = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/sites/' . $sId->ID . '/assets/' . $site->ID);
+                            $siteAssetsDetails = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/sites/' . $sId->ID . '/assets/' . $site_contract->ID);
                             dump($siteAssetsDetails);
-                            //1043 harcoded
+                            $value = "DEFAULT TEXT";
+                            if (isset($siteAssetsDetails->CustomFields) && is_array($siteAssetsDetails->CustomFields)) {
+                                foreach ($siteAssetsDetails->CustomFields as $cf) {
+                                    if ($cf->CustomField->ID == 1043) {
+                                        $value = $cf->CustomField->Value;
+                                    }
+                                }
+                            }
+
+                            $company_information = [
+                                'id' => $company->ID,
+                                'company_name' => $company->CompanyName,
+                                'Address' => $company->Address->Address,
+                                'City' => $company->Address->City,
+                                'State' => $company->Address->State,
+                                'PostalCode' => $company->Address->PostalCode,
+                                'Country' => $company->Address->Country,
+                                'contract' => [
+                                    'id' => $contractNeeded->ID,
+                                    'name' => $contractNeeded->Name,
+                                    'endDate' => $contractNeeded->EndDate,
+                                    'value' => $contractNeeded->Value
+                                ],
+                                'sites' => [
+                                    'id' => $siteDetails->ID,
+                                    'Address' => $siteDetails->Address->Address,
+                                    'City' => $siteDetails->Address->City,
+                                    'State' => $siteDetails->Address->State,
+                                    'PostalCode' => $siteDetails->Address->PostalCode,
+                                ],
+                                'asset' => [
+                                    'id' => $site_contract->ID,
+                                    'value' => $value,
+                                ]
+                            ];
+                            dump($company_information);
                             die;
                             //$site->ID
                         }
