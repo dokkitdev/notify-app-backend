@@ -132,56 +132,59 @@ class TemplateController extends Controller
     public function test2()
     {
         $sim = new simProRequestService();
-        $jobs = $sim->getRequest('GET', '/api/v1.0/companies/0/schedules/?Type=job&pageSize=1000');
-        foreach ($jobs as $jobSchedule) {
-            $date = $jobSchedule->Date;
-            $blocks = $jobSchedule->Blocks;
-            $time = $blocks[0]->EndTime;
-            $jobParse = explode('-', $jobSchedule->Reference);
-            $jobId = array_shift($jobParse);
+        for ($i = 1; $i < 100; $i++) {
+            $jobs = $sim->getRequest('GET', '/api/v1.0/companies/0/schedules/?Type=job&page=' . $i);
+            foreach ($jobs as $jobSchedule) {
+                $date = $jobSchedule->Date;
+                $blocks = $jobSchedule->Blocks;
+                $time = $blocks[0]->EndTime;
+                $jobParse = explode('-', $jobSchedule->Reference);
+                $jobId = array_shift($jobParse);
 
-            $job = $sim->getRequest('GET', '/api/v1.0/companies/0/jobs/' . $jobId . '?display=all');
-            $siteId = $job->Site->ID ?? null;
-            if (!$siteId) {
-                continue;
+                $job = $sim->getRequest('GET', '/api/v1.0/companies/0/jobs/' . $jobId . '?display=all');
+                $siteId = $job->Site->ID ?? null;
+                if (!$siteId) {
+                    continue;
+                }
+                $site = $sim->getRequest('GET', '/api/v1.0/companies/0/sites/' . $siteId);
+
+                $workType = $job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null;
+                $sendDate = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time) ?? null;
+                $address = $site->Address->Address ?? null;
+                $city = $site->Address->City ?? null;
+                $state = $site->Address->State ?? null;
+                $postalCode = $site->Address->PostalCode ?? null;
+                $country = $site->Address->Country ?? null;
+                $title = $site->PrimaryContact->Title ?? '';
+                $givenName = $site->PrimaryContact->GivenName ?? '';
+                $familyName = $site->PrimaryContact->FamilyName ?? '';
+
+                if (strlen($title) == 0
+                    && strlen($givenName) == 0
+                    && strlen($familyName) == 0) {
+                    $title = 'The Occupier';
+                }
+
+                Appointment::create([
+                    'title' => $title,
+                    'family_name' => $familyName,
+                    'given_name' => $givenName,
+                    'address' => $address,
+                    'state' => $state,
+                    'city' => $city,
+                    'country' => $country,
+                    'postcode' => $postalCode,
+                    'job_id' => $jobId,
+                    'send_date' => $sendDate,
+                    'work_type' => $workType,
+                    'appointment_id' => $jobSchedule->ID ?? null,
+                    'site_id' => $siteId,
+                    'time' => $time
+                ]);
             }
-            $site = $sim->getRequest('GET', '/api/v1.0/companies/0/sites/' . $siteId);
-
-            $workType = $job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null;
-            $sendDate = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time) ?? null;
-            $address = $site->Address->Address ?? null;
-            $city = $site->Address->City ?? null;
-            $state = $site->Address->State ?? null;
-            $postalCode = $site->Address->PostalCode ?? null;
-            $country = $site->Address->Country ?? null;
-            $title = $site->PrimaryContact->Title ?? '';
-            $givenName = $site->PrimaryContact->GivenName ?? '';
-            $familyName = $site->PrimaryContact->FamilyName ?? '';
-
-            if (strlen($title) == 0
-                && strlen($givenName) == 0
-                && strlen($familyName) == 0) {
-                $title = 'The Occupier';
-            }
-
-            Appointment::create([
-                'title' => $title,
-                'family_name' => $familyName,
-                'given_name' => $givenName,
-                'address' => $address,
-                'state' => $state,
-                'city' => $city,
-                'country' => $country,
-                'postcode' => $postalCode,
-                'job_id' => $jobId,
-                'send_date' => $sendDate,
-                'work_type' => $workType,
-                'appointment_id' => $jobSchedule->ID ?? null,
-                'site_id' => $siteId,
-                'time' => $time
-            ]);
+            $this->clearDublicates();
         }
-        $this->clearDublicates();
+
     }
 
     public function clearDublicates()
