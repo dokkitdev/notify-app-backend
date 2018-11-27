@@ -132,7 +132,7 @@ class TemplateController extends Controller
     public function test2()
     {
         $sim = new simProRequestService();
-        $jobs = $sim->getRequest('GET', '/api/v1.0/companies/0/schedules/?Type=job');
+        $jobs = $sim->getRequest('GET', '/api/v1.0/companies/0/schedules/?Type=job&pageSize=1000');
         foreach ($jobs as $jobSchedule) {
             $date = $jobSchedule->Date;
             $blocks = $jobSchedule->Blocks;
@@ -200,3 +200,5 @@ class TemplateController extends Controller
     }
 
 }
+
+
