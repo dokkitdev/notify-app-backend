@@ -28,9 +28,9 @@
                                 <a href="#" style="margin: 0 20px;" class="upload-file"><i class="fas fa-upload"></i>
                                     Upload</a>
                                 <a download @if ($t->docx)
-                                href="/storage/docx/{!! $t->docx !!}"
+                                href="/storage/docx/{!! $t->docx !!}" class='download'
                                    @else
-                                   href="#" class='disabled'
+                                   href="#" class='download disabled'
                                         @endif
                                 ><i class="fas fa-download"></i> Download</a>
                             </form>
@@ -72,14 +72,14 @@
                 contentType: false,
                 success: data => {
                     if (data) {
-                        const a = form.find('a');
+                        const a = form.find('a.download');
                         a.removeClass('disabled');
                         a.attr('href', storage_path + data);
-                        $.toaster({ priority : 'success', title : 'Upload', message : 'File uploaded successfully'});
+                        $.toaster({priority: 'success', title: 'Upload', message: 'File uploaded successfully'});
                     }
                 },
                 fail: data => {
-                    $.toaster({ priority : 'danger', title : 'Upload', message : 'Error via upload file'});
+                    $.toaster({priority: 'danger', title: 'Upload', message: 'Error via upload file'});
                 }
             });
         });
