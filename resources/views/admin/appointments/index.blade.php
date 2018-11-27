@@ -58,7 +58,7 @@
                     </td>
                     <td>{!! $a->job_id !!}</td>
                     <td>{!! $a->getContact() !!}</td>
-                    <td>{!! $a->address !!}</td>
+                    <td>{!! $a->getAddress() !!}</td>
                     <td>{!! $a->city !!}</td>
                     <td>{!! $a->postcode !!}</td>
                     <td>{!! $a->getYmd() !!}</td>

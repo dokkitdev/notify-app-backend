@@ -49,15 +49,13 @@ class AppointmentsController extends Controller
             return redirect()->route('appointments.all');
         }
         $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
-        if (!$appointment->pdf) {
-            $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
-            $generator = new TemplateGenerator();
-            $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
-            $pdf = $generator->generatePdfFromDocx($docx);
-            $appointment->docx = $docx;
-            $appointment->pdf = $pdf;
-            $appointment->save();
-        }
+        $generator = new TemplateGenerator();
+        $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
+        $pdf = $generator->generatePdfFromDocx($docx);
+        $appointment->docx = $docx;
+        $appointment->pdf = $pdf;
+        $appointment->save();
+
         $pdf_folder = \Illuminate\Support\Facades\Config::get('constants.storage_pdf');
 
 
