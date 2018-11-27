@@ -37,13 +37,17 @@ class ImportPrivate
                     if (!isset($site->CustomerContract->ID)) {
                         continue;
                     }
+                    dump($site);
                     foreach ($contracts as $contId) {
                         if ($site->CustomerContract->ID == $contId->ID) {
                             dump('совпало', $site, $contId);
+                            $contractNeeded = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/customers/' . $c->ID . '/contracts/' . $contId->ID);
+                            dump($contractNeeded);
                             //https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/sites/37304
-                            $siteDetails = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/sites/' . $site->ID);
+                            $siteDetails = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/sites/' . $sId->ID);
+                            dump("/api/v1.0/companies/0/sites/" . $site->ID);
                             dump($siteDetails);
-                            $siteAssetsDetails = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/sites/' . $site->ID . '/assets/' . $site->ID);
+                            $siteAssetsDetails = $this->simProRequest->getRequest('GET', '/api/v1.0/companies/0/sites/' . $sId->ID . '/assets/' . $site->ID);
                             dump($siteAssetsDetails);
                             //1043 harcoded
                             die;

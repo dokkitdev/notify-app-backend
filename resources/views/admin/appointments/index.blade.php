@@ -61,7 +61,7 @@
                     <td>{!! $a->address !!}</td>
                     <td>{!! $a->city !!}</td>
                     <td>{!! $a->postcode !!}</td>
-                    <td>{!! $a->getFormatedScheduleDateWithoutDay() !!}</td>
+                    <td>{!! $a->getYmd() !!}</td>
                     <td>{!! $a->getFormatedScheduleTime() !!}</td>
                     <td>{!! $a->work_type !!}</td>
                     <td class="text-center">
