@@ -86,9 +86,9 @@ class Appointment extends Model
         $t1200 = strtotime('12:00');
         $t1201 = strtotime('12:01');
         $t1700 = strtotime('17:00');
-        if ($scheduleTime < $t1200) {
+        if ($scheduleTime <= $t1200) {
             $time = 'between 8AM and 12PM';
-        } else if (true) {
+        } else if ($t1201 < $scheduleTime && $scheduleTime < $t1700) {
             $time = 'between 12PM and 5PM';
         } else {
             $time = 'between 5PM and 8PM';
