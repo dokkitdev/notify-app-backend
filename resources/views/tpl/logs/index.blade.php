@@ -34,17 +34,17 @@
                 </td>
             </tr>
         @endforeach
-        @foreach ($data as $item)
-            <tr>
-                <td>{{$item['date']}}</td>
-                <td>{{$item['customer_type']}}</td>
-                <td>{{$item['letters_generated']}}</td>
-                <td>{{$item['emails_generated']}}</td>
-                <td>@if($item['letters_generated'] > 0)<a
-                            href="{{ route('daily-letters-log', [$item['customer_type'], $item['date']]) }}">Download
-                        letters</a>@endif</td>
-            </tr>
-        @endforeach
+        {{--@foreach ($data as $item)--}}
+            {{--<tr>--}}
+                {{--<td>{{$item['date']}}</td>--}}
+                {{--<td>{{$item['customer_type']}}</td>--}}
+                {{--<td>{{$item['letters_generated']}}</td>--}}
+                {{--<td>{{$item['emails_generated']}}</td>--}}
+                {{--<td>@if($item['letters_generated'] > 0)<a--}}
+                            {{--href="{{ route('daily-letters-log', [$item['customer_type'], $item['date']]) }}">Download--}}
+                        {{--letters</a>@endif</td>--}}
+            {{--</tr>--}}
+        {{--@endforeach--}}
 
         </tbody>
     </table>

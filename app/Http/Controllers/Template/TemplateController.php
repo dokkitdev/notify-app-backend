@@ -158,6 +158,12 @@ class TemplateController extends Controller
             $givenName = $site->PrimaryContact->GivenName ?? '';
             $familyName = $site->PrimaryContact->FamilyName ?? '';
 
+            if (strlen($title) == 0
+                && strlen($givenName) == 0
+                && strlen($familyName) == 0) {
+                $title = 'The Occupier';
+            }
+
             $conn = DB::connection();
             Appointment::create([
                 'title' => strlen(trim($title)) > 0 ? $title : 'The Occupier',
