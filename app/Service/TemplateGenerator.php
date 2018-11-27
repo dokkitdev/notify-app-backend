@@ -25,18 +25,34 @@ class TemplateGenerator
         }
         $template = new \PhpOffice\PhpWord\TemplateProcessor($file);
         $today = new \DateTime();
-        $template->setValue('ContactName', ucwords(strtolower($appointment->getContact())));
-        $template->setValue('Address', ucwords(strtolower($appointment->address)));
-        $template->setValue('Address2', ucwords(strtolower($appointment->state)));
-        $template->setValue('City', ucwords(strtolower($appointment->city)));
-        $template->setValue('County', strtoupper($appointment->country));
-        $template->setValue('Postcode', strtoupper($appointment->postcode));
-        $template->setValue('TodayDate', $today->format('d/m/Y'));
-        $template->setValue('JobID', $appointment->job_id);
-        $template->setValue('ScheduleDate', $appointment->getFormatedScheduleDate());
-        $template->setValue('ScheduleTime', $appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime());
-        $template->setValue('WorkType', ucwords(strtolower($appointment->work_type)));
+
+
+        $ContactName = str_replace("\n", ' ', ucwords(strtolower($appointment->getContact())));
+        $Address = str_replace("\n", ' ', ucwords(strtolower($appointment->address)));
+        $Address2 = str_replace("\n", ' ', ucwords(strtolower($appointment->state)));
+        $City = str_replace("\n", ' ', ucwords(strtolower($appointment->city)));
+        $County = str_replace("\n", ' ', strtoupper($appointment->country));
+        $Postcode = str_replace("\n", ' ', strtoupper($appointment->postcode));
+        $TodayDate = $today->format('d/m/Y');
+        $JobID = $appointment->job_id;
+        $ScheduleDate = $appointment->getFormatedScheduleDate();
+        $ScheduleTime = $appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime();
+        $WorkType = str_replace("\n", ' ', ucwords(strtolower($appointment->work_type)));
+
+        $template->setValue('ContactName', $ContactName);
+        $template->setValue('Address', $Address);
+        $template->setValue('Address2', $Address2);
+        $template->setValue('City', $City);
+        $template->setValue('County', $County);
+        $template->setValue('Postcode', $Postcode);
+        $template->setValue('TodayDate', $TodayDate);
+        $template->setValue('JobID', $JobID);
+        $template->setValue('ScheduleDate', $ScheduleDate);
+        $template->setValue('ScheduleTime', $ScheduleTime);
+        $template->setValue('WorkType', $WorkType);
         $new_file = md5(uniqid('generated_docx', true)) . '.docx';
+
+
         $template->saveAs($docx_folder . '/' . $new_file);
         return $new_file;
     }

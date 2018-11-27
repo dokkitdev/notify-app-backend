@@ -49,7 +49,6 @@ class AppointmentsController extends Controller
             return redirect()->route('appointments.all');
         }
         $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
-
         if (!$appointment->pdf) {
             $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
             $generator = new TemplateGenerator();
