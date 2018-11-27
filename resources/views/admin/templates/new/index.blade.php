@@ -43,6 +43,7 @@
     @endforeach
 @endsection
 @section('js')
+    <script src="{{ asset('js/jquery.toaster.js') }}"></script>
     <script>
         const storage_path = '/storage/docx/';
 
@@ -74,7 +75,11 @@
                         const a = form.find('a');
                         a.removeClass('disabled');
                         a.attr('href', storage_path + data);
+                        $.toaster({ priority : 'success', title : 'Upload', message : 'File uploaded successfully'});
                     }
+                },
+                fail: data => {
+                    $.toaster({ priority : 'danger', title : 'Upload', message : 'Error via upload file'});
                 }
             });
         });
