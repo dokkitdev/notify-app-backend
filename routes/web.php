@@ -2,7 +2,7 @@
 /* test routes start*/
 Route::get('/1','TestController@index');
 /* test routes end*/
-
+ 
 /* CRON routes start*/
 Route::get('/importCustomers/{id}','ImportCustomersController@index');
 Route::get('/importJobs/{id}','ImportJobsController@index');
