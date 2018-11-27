@@ -41,6 +41,7 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
         Route::get('/test', 'Template\\TemplateController@test');
         Route::get('/test2', 'Template\\TemplateController@test2');
         Route::get('/test3', 'ImportCustomersController@test');
+        Route::post('/upload_docx', 'Template\\TemplateController@uploadDocx')->name('templates.upload_docx');
     });
     Route::group(['prefix' => '/appointments'], function () {
         Route::get('/', 'Admin\\AppointmentsController@index')->name('appointments.all');

@@ -68,6 +68,40 @@ class TemplateController extends Controller
         return redirect()->route('templates.all');
     }
 
+    /** AJAX обновление docx */
+    public function uploadDocx(Request $request)
+    {
+        $req = $request->all();
+        if (!array_key_exists('file', $req) ||
+            !array_key_exists('alias', $req)
+        ) {
+            return false;
+        }
+
+        $template = Templates::where('alias', '=', $req['alias'])->first();
+
+        if (!$template) {
+            return false;
+        }
+
+        /** Получение папок */
+        $pdf_folder = Config::get('constants.storage_pdf');
+        $docx_folder = Config::get('constants.storage_docx') . '/';
+
+        $docx = md5(uniqid('template', true)) . '.docx';
+        $docx_file_path = $docx_folder . $docx;
+
+        /** Создаем файл на сервере и конвертируем его в пдф */
+        $req['file']->move($docx_folder, $docx);
+        exec('libreoffice --headless --writer --convert-to pdf ' . $docx_file_path . ' --outdir ' . $pdf_folder);
+        $pdf = substr($docx, 0, -4) . 'pdf';
+        $template->pdf = $pdf;
+        $template->docx = $docx;
+        $template->save();
+
+        return response()->json($template->docx);
+    }
+
     public function test()
     {
         $sim = new simProRequestService();
