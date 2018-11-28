@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Template;
 
 use App\Appointment;
 use App\Http\Controllers\Controller;
+use App\Service\JobUploader;
 use App\Service\simProRequestService;
 use App\TemplateParent;
 use App\Templates;
@@ -212,38 +213,39 @@ class TemplateController extends Controller
 
     public function test4()
     {
-        $starttime = microtime(true);
-        $curl = new CurlMultiHandler();
-        $handler = HandlerStack::create($curl);
-        $this->client = new \GuzzleHttp\Client(['handler' => $handler]);
-
-        $promise = $this->client->requestAsync('GET', 'https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/schedules/?Type=job&access_token=e929be7849b90e553082e592552739082c7614ab&display=all&pageSize=1', [
-            'headers' => [
-                'Accept' => 'application/json'
-            ]
-        ]);
-        $promise->then(
-            function (ResponseInterface $res) {
-                $headers = $res->getHeaders();
-                if (array_key_exists('Result-Total', $headers)) {
-                    $pages = (int)ceil($headers['Result-Total'][0] / 25);
-                    for ($i = $pages; $i > 0; $i--) {
-                        $this->getPageWithJobs($i);
-                    }
-                }
-                echo $res->getStatusCode() . "\n";
-            },
-            function (RequestException $e) {
-                echo $e->getMessage() . "\n";
-                echo $e->getRequest()->getMethod();
-            }
-        );
-        $curl->tick();
-        $promise->wait();
-        $this->clearDublicates();
-        $endtime = microtime(true);
-        $timediff = $endtime - $starttime;
-        dump($timediff);
+        (new JobUploader())->run();
+//        $starttime = microtime(true);
+//        $curl = new CurlMultiHandler();
+//        $handler = HandlerStack::create($curl);
+//        $this->client = new \GuzzleHttp\Client(['handler' => $handler]);
+//
+//        $promise = $this->client->requestAsync('GET', 'https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/schedules/?Type=job&access_token=e929be7849b90e553082e592552739082c7614ab&display=all&pageSize=1', [
+//            'headers' => [
+//                'Accept' => 'application/json'
+//            ]
+//        ]);
+//        $promise->then(
+//            function (ResponseInterface $res) {
+//                $headers = $res->getHeaders();
+//                if (array_key_exists('Result-Total', $headers)) {
+//                    $pages = (int)ceil($headers['Result-Total'][0] / 25);
+//                    for ($i = $pages; $i > 0; $i--) {
+//                        $this->getPageWithJobs($i);
+//                    }
+//                }
+//                echo $res->getStatusCode() . "\n";
+//            },
+//            function (RequestException $e) {
+//                echo $e->getMessage() . "\n";
+//                echo $e->getRequest()->getMethod();
+//            }
+//        );
+//        $curl->tick();
+//        $promise->wait();
+//        $this->clearDublicates();
+//        $endtime = microtime(true);
+//        $timediff = $endtime - $starttime;
+//        dump($timediff);
     }
 
     public function getPageWithJobs($page = 1)
