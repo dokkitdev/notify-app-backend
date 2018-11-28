@@ -9,8 +9,10 @@
 namespace App\Service;
 
 
+use App\Appointment;
 use App\Settings;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 
 class simProRequestService
@@ -193,6 +195,22 @@ class simProRequestService
         $settings = Settings::where(['name' => $name])->get()->toArray();
         if (count($settings) == 0) return new Settings();
         else return Settings::find($settings[0]['id']);
+    }
+
+    function uploadAppointment(Appointment $a)
+    {
+        $today = new \DateTime();
+        $pdf_folder = Config::get('constants.storage_pdf');
+        $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $a->pdf));
+        $file_name = $a->job_id . '.appointment.'. $today->format('Y-m-d') . '.pdf';
+        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/jobs/' . $a->job_id . '/attachments/files/',
+            [
+                'Filename' => $file_name,
+                'Base64Data' => $b64Doc,
+                'Public' => true,
+                'Email' => true,
+            ]
+        );
     }
 
     public function getAccessToken()

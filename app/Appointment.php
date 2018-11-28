@@ -25,7 +25,8 @@ class Appointment extends Model
         'time',
         'pdf',
         'docx',
-        'is_proccessed'
+        'is_proccessed',
+        'customer_id'
     ];
 
     public function getAddress()

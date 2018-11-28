@@ -27,23 +27,27 @@ class TemplateGenerator
         $today = new \DateTime();
 
 
-        $ContactName = str_replace("\n", ', ', ucwords(strtolower($appointment->getContact())));
+        $ContactName = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->getContact()))));
         $Address = str_replace("\n", ', ', ucwords(strtolower($appointment->getAddress())));
-        $Address2 = str_replace("\n", ', ', ucwords(strtolower($appointment->state)));
-        $City = str_replace("\n", ', ', ucwords(strtolower($appointment->city)));
-        $County = str_replace("\n", ', ', strtoupper($appointment->country));
-        $Postcode = str_replace("\n", ', ', strtoupper($appointment->postcode));
-        $TodayDate = $today->format('d/m/Y');
-        $JobID = $appointment->job_id;
-        $ScheduleDate = $appointment->getFormatedScheduleDate();
-        $ScheduleTime = $appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime();
-        $WorkType = str_replace("\n", ', ', ucwords(strtolower($appointment->work_type)));
+        $exploded = explode(',', $Address);
+        $address = htmlentities(array_shift($exploded) ?? '');
+        $address2 = htmlentities(trim(implode(', ', $exploded)));
+
+        $state = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->state))));
+        $City = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->city))));
+        $County = htmlentities(str_replace("\n", ', ', strtoupper($appointment->country)));
+        $Postcode = htmlentities(str_replace("\n", ', ', strtoupper($appointment->postcode)));
+        $TodayDate = htmlentities($today->format('d/m/Y'));
+        $JobID = htmlentities($appointment->job_id);
+        $ScheduleDate = htmlentities($appointment->getFormatedScheduleDate());
+        $ScheduleTime = htmlentities($appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime());
+        $WorkType = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->work_type))));
 
         $template->setValue('ContactName', $ContactName);
-        $template->setValue('Address', $Address);
-        $template->setValue('Address2', $Address2);
+        $template->setValue('Address', $address);
+        $template->setValue('Address2', $address2);
         $template->setValue('City', $City);
-        $template->setValue('County', $County);
+        $template->setValue('County', $state);
         $template->setValue('Postcode', $Postcode);
         $template->setValue('TodayDate', $TodayDate);
         $template->setValue('JobID', $JobID);
@@ -52,6 +56,19 @@ class TemplateGenerator
         $template->setValue('WorkType', $WorkType);
         $new_file = md5(uniqid('generated_docx', true)) . '.docx';
 
+        if ($appointment->docx) {
+            $old_file = $docx_folder . '/' . $appointment->docx;
+            if (file_exists($old_file)) {
+                unlink($old_file);
+            }
+        }
+        if ($appointment->pdf) {
+            $pdf_folder = Config::get('constants.storage_pdf');
+            $old_file = $pdf_folder . '/' . $appointment->pdf;
+            if (file_exists($old_file)) {
+                unlink($old_file);
+            }
+        }
 
         $template->saveAs($docx_folder . '/' . $new_file);
         return $new_file;
@@ -66,8 +83,9 @@ class TemplateGenerator
             return false;
         }
 
-        exec('libreoffice --headless --writer --convert-to pdf ' . $file . ' --outdir ' . $pdf_folder);
+        exec('libreoffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $file . ' --outdir ' . $pdf_folder);
         $new_file = substr($docx, 0, -4) . 'pdf';
+
         return $new_file;
     }
 

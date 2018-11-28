@@ -6,6 +6,7 @@ use App\Appointment;
 use App\Http\Requests\UserRequest;
 use App\Logs;
 use App\Mail\AdminRegister;
+use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
 use App\Template;
 use App\Templates;
@@ -58,7 +59,6 @@ class AppointmentsController extends Controller
 
         $pdf_folder = \Illuminate\Support\Facades\Config::get('constants.storage_pdf');
 
-
         return response()->file($pdf_folder . '/' . $appointment->pdf);
     }
 
@@ -70,6 +70,7 @@ class AppointmentsController extends Controller
                 'error' => 'Please fill "Appointment letter" template by docx',
             ]);
         }
+        $sim = new simProRequestService();
 
         $data = $request->all();
         $appointments = $data['appointments'] ?? null;
@@ -83,11 +84,12 @@ class AppointmentsController extends Controller
                     unset($appointment);
                     continue;
                 }
-                if ($appointment->pdf === null || $appointment->docx === null) {
+                if (!$appointment->is_proccessed) {
                     $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
                     $pdf = $generator->generatePdfFromDocx($docx);
                     $appointment->docx = $docx;
                     $appointment->pdf = $pdf;
+                    $sim->uploadAppointment($appointment);
                 }
                 $appointment->is_proccessed = true;
                 $appointment->save();
