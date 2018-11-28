@@ -74,6 +74,7 @@ class JobUploader
             function (ResponseInterface $res) {
                 $result = json_decode($res->getBody()->getContents());
                 foreach ($result as $job) {
+                    dump($job);
                     $this->addParseJob($job);
                 }
             },
