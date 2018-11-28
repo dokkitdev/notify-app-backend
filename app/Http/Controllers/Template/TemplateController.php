@@ -107,32 +107,6 @@ class TemplateController extends Controller
         return response()->json($template->docx);
     }
 
-    public function test()
-    {
-        $sim = new simProRequestService();
-        $companies = $sim->getRequest('GET', '/api/v1.0/companies/0/customers/companies/');
-        foreach ($companies as $companyId) {
-            $company = $sim->getRequest('GET', '/api/v1.0/companies/0/customers/companies/' . $companyId->ID);
-            if (isset($company->Sites)) {
-                foreach ($company->Sites as $siteId) {
-                    $assets = $sim->getRequest('GET', '/api/v1.0/companies/0/sites/' . $siteId->ID . '/assets/');
-                    foreach ($assets as $assetId) {
-                        $asset = $sim->getRequest('GET', '/api/v1.0/companies/0/sites/' . $siteId->ID . '/assets/' . $assetId->ID);
-//                        if (sizeOf($asset->CustomerContract) > 0) {
-                        dump($asset);
-//                        }
-                    }
-                }
-            }
-            $contracts = $sim->getRequest('GET', '/api/v1.0/companies/0/customers/' . $companyId->ID . '/contracts/');
-            foreach ($contracts as $contractId) {
-                $contract = $sim->getRequest('GET', '/api/v1.0/companies/0/customers/' . $companyId->ID . '/contracts/' . $contractId->ID);
-//                dump($contract);
-            }
-        }
-        die;
-
-    }
 
 }
 
