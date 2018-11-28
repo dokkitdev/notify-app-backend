@@ -33,7 +33,7 @@ class AppointmentsController extends Controller
                 $query->where('is_proccessed', '<>', 1)
                     ->orWhere('is_proccessed', '=', null);
             })
-//            ->where('send_date', '<=', $fourDay)
+            ->where('send_date', '<=', $fourDay)
             ->get();
 
         return view('admin.appointments.index', [
