@@ -25,6 +25,19 @@ class TemplateGenerator
         }
         $template = new \PhpOffice\PhpWord\TemplateProcessor($file);
         $today = new \DateTime();
+        $month = $today->format('F');
+        $year = $today->format('Y');
+        $day = $today->format('d');
+        if ($day % 10 == 1 && $day != 11) {
+            $day .= 'st';
+        } else if ($day % 10 == 2 && $day != 12) {
+            $day .= 'nd';
+        } else if ($day % 10 == 3 && $day != 13) {
+            $day .= 'rd';
+        } else {
+            $day .= 'th';
+        }
+        $today =  $day . ' ' . $month . ' ' . $year;
 
 
         $ContactName = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->getContact()))));
@@ -37,7 +50,7 @@ class TemplateGenerator
         $City = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->city))));
         $County = htmlentities(str_replace("\n", ', ', strtoupper($appointment->country)));
         $Postcode = htmlentities(str_replace("\n", ', ', strtoupper($appointment->postcode)));
-        $TodayDate = htmlentities($today->format('d/m/Y'));
+        $TodayDate = htmlentities($today);
         $JobID = htmlentities($appointment->job_id);
         $ScheduleDate = htmlentities($appointment->getFormatedScheduleDate());
         $ScheduleTime = htmlentities($appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime());

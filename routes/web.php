@@ -38,10 +38,6 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
         Route::get('/', 'Template\\TemplateController@all')->name('templates.all');
         Route::get('/{id}/edit', 'Template\\TemplateController@getTemplate')->name('templates.edit');
         Route::put('/{id}/edit', 'Template\\TemplateController@putTemplate')->name('templates.edit');
-        Route::get('/test', 'Template\\TemplateController@test');
-        Route::get('/test2', 'Template\\TemplateController@test2');
-        Route::get('/test3', 'ImportCustomersController@test');
-        Route::get('/test4', 'Template\\TemplateController@test4');
         Route::post('/upload_docx', 'Template\\TemplateController@uploadDocx')->name('templates.upload_docx');
     });
     Route::group(['prefix' => '/appointments'], function () {
