@@ -74,11 +74,11 @@ class JobUploader
             function (ResponseInterface $res) {
                 $result = json_decode($res->getBody()->getContents());
                 foreach ($result as $job) {
-                    dump($job);
                     $this->addParseJob($job);
                 }
             },
             function (RequestException $e) {
+                echo 'getPageWithJobs error here';
                 echo $e->getMessage() . "\n";
                 echo $e->getRequest()->getMethod();
             }
@@ -109,6 +109,7 @@ class JobUploader
                 }
             },
             function (RequestException $e) {
+                echo 'addParseJob error here';
                 echo $e->getMessage() . "\n";
                 echo $e->getRequest()->getMethod();
             }
@@ -130,6 +131,7 @@ class JobUploader
                 $this->createAppointment($job_scheduler, $result_job, $site);
             },
             function (RequestException $e) {
+                echo 'finishParseJob error here';
                 echo $e->getMessage() . "\n";
                 echo $e->getRequest()->getMethod();
             }
@@ -166,6 +168,7 @@ class JobUploader
             $title = 'The Occupier';
         }
 
+        echo 'createAppointment error here';
         Appointment::create([
             'customer_id' => $customerId,
             'title' => $title,
