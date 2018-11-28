@@ -168,7 +168,6 @@ class JobUploader
             $title = 'The Occupier';
         }
 
-        echo 'createAppointment error here';
         Appointment::create([
             'customer_id' => $customerId,
             'title' => $title,
