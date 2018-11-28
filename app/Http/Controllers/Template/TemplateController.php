@@ -8,9 +8,13 @@ use App\Service\simProRequestService;
 use App\TemplateParent;
 use App\Templates;
 use CloudConvert\Api;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Handler\CurlMultiHandler;
+use GuzzleHttp\HandlerStack;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Psr\Http\Message\ResponseInterface;
 
 
 class TemplateController extends Controller
@@ -131,60 +135,61 @@ class TemplateController extends Controller
 
     public function test2()
     {
-//        set_time_limit(0);
-//        $sim = new simProRequestService();
-//        for ($i = 1; $i < 100; $i++) {
-//            $jobs = $sim->getRequest('GET', '/api/v1.0/companies/0/schedules/?Type=job&page=' . $i);
-//            foreach ($jobs as $jobSchedule) {
-//                $date = $jobSchedule->Date;
-//                $blocks = $jobSchedule->Blocks;
-//                $time = $blocks[0]->EndTime;
-//                $jobParse = explode('-', $jobSchedule->Reference);
-//                $jobId = array_shift($jobParse);
-//
-//                $job = $sim->getRequest('GET', '/api/v1.0/companies/0/jobs/' . $jobId . '?display=all');
-//                $siteId = $job->Site->ID ?? null;
-//                if (!$siteId) {
-//                    continue;
-//                }
-//                $site = $sim->getRequest('GET', '/api/v1.0/companies/0/sites/' . $siteId);
-//
-//                $workType = $job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null;
-//                $sendDate = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time) ?? null;
-//                $address = $site->Address->Address ?? null;
-//                $city = $site->Address->City ?? null;
-//                $state = $site->Address->State ?? null;
-//                $postalCode = $site->Address->PostalCode ?? null;
-//                $country = $site->Address->Country ?? null;
-//                $title = $site->PrimaryContact->Title ?? '';
-//                $givenName = $site->PrimaryContact->GivenName ?? '';
-//                $familyName = $site->PrimaryContact->FamilyName ?? '';
-//
-//                if (strlen($title) == 0
-//                    && strlen($givenName) == 0
-//                    && strlen($familyName) == 0) {
-//                    $title = 'The Occupier';
-//                }
-//
-//                Appointment::create([
-//                    'title' => $title,
-//                    'family_name' => $familyName,
-//                    'given_name' => $givenName,
-//                    'address' => $address,
-//                    'state' => $state,
-//                    'city' => $city,
-//                    'country' => $country,
-//                    'postcode' => $postalCode,
-//                    'job_id' => $jobId,
-//                    'send_date' => $sendDate,
-//                    'work_type' => $workType,
-//                    'appointment_id' => $jobSchedule->ID ?? null,
-//                    'site_id' => $siteId,
-//                    'time' => $time
-//                ]);
-//            }
-            $this->clearDublicates();
-//        }
+        set_time_limit(0);
+        $sim = new simProRequestService();
+        $jobs = $sim->getRequest('GET', '/api/v1.0/companies/0/schedules/?Type=job&page=1');
+        foreach ($jobs as $jobSchedule) {
+            $date = $jobSchedule->Date;
+            $blocks = $jobSchedule->Blocks;
+            $time = $blocks[0]->EndTime;
+            $jobParse = explode('-', $jobSchedule->Reference);
+            $jobId = array_shift($jobParse);
+
+            $job = $sim->getRequest('GET', '/api/v1.0/companies/0/jobs/' . $jobId . '?display=all');
+            $siteId = $job->Site->ID ?? null;
+            if (!$siteId) {
+                continue;
+            }
+            $site = $sim->getRequest('GET', '/api/v1.0/companies/0/sites/' . $siteId);
+
+            $workType = $job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null;
+            $customerId = $job->Customer->ID;
+
+            $sendDate = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time) ?? null;
+            $address = $site->Address->Address ?? null;
+            $city = $site->Address->City ?? null;
+            $state = $site->Address->State ?? null;
+            $postalCode = $site->Address->PostalCode ?? null;
+            $country = $site->Address->Country ?? null;
+            $title = $site->PrimaryContact->Title ?? '';
+            $givenName = $site->PrimaryContact->GivenName ?? '';
+            $familyName = $site->PrimaryContact->FamilyName ?? '';
+
+            if (strlen($title) == 0
+                && strlen($givenName) == 0
+                && strlen($familyName) == 0) {
+                $title = 'The Occupier';
+            }
+
+            Appointment::create([
+                'customer_id' => $customerId,
+                'title' => $title,
+                'family_name' => $familyName,
+                'given_name' => $givenName,
+                'address' => $address,
+                'state' => $state,
+                'city' => $city,
+                'country' => $country,
+                'postcode' => $postalCode,
+                'job_id' => $jobId,
+                'send_date' => $sendDate,
+                'work_type' => $workType,
+                'appointment_id' => $jobSchedule->ID ?? null,
+                'site_id' => $siteId,
+                'time' => $time
+            ]);
+        }
+        $this->clearDublicates();
 
     }
 
@@ -203,6 +208,156 @@ class TemplateController extends Controller
         }
     }
 
+    protected $client;
+
+    public function test4()
+    {
+        $starttime = microtime(true);
+        $curl = new CurlMultiHandler();
+        $handler = HandlerStack::create($curl);
+        $this->client = new \GuzzleHttp\Client(['handler' => $handler]);
+
+        $promise = $this->client->requestAsync('GET', 'https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/schedules/?Type=job&access_token=e929be7849b90e553082e592552739082c7614ab&display=all&pageSize=1', [
+            'headers' => [
+                'Accept' => 'application/json'
+            ]
+        ]);
+        $promise->then(
+            function (ResponseInterface $res) {
+                $headers = $res->getHeaders();
+                if (array_key_exists('Result-Total', $headers)) {
+                    $pages = (int)ceil($headers['Result-Total'][0] / 25);
+                    for ($i = $pages; $i > 0; $i--) {
+                        $this->getPageWithJobs($i);
+                    }
+                }
+                echo $res->getStatusCode() . "\n";
+            },
+            function (RequestException $e) {
+                echo $e->getMessage() . "\n";
+                echo $e->getRequest()->getMethod();
+            }
+        );
+        $curl->tick();
+        $promise->wait();
+        $this->clearDublicates();
+        $endtime = microtime(true);
+        $timediff = $endtime - $starttime;
+        dump($timediff);
+    }
+
+    public function getPageWithJobs($page = 1)
+    {
+        $client = new \GuzzleHttp\Client(['base_uri' => 'https://blueflamecornwallltd.simprosuite.com/api/v1.0/']);
+        $promise = $this->client->requestAsync('GET', 'https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/schedules/?Type=job&access_token=e929be7849b90e553082e592552739082c7614ab&display=all&pageSize=25&page=' . $page, [
+            'headers' => [
+                'Accept' => 'application/json'
+            ]
+        ]);
+        $promise->then(
+            function (ResponseInterface $res) {
+                $result = json_decode($res->getBody()->getContents());
+                foreach ($result as $job) {
+                    $this->addParseJob($job);
+                }
+            },
+            function (RequestException $e) {
+                echo $e->getMessage() . "\n";
+                echo $e->getRequest()->getMethod();
+            }
+        );
+    }
+
+    public function addParseJob($job_scheduler)
+    {
+
+        $jobParse = explode('-', $job_scheduler->Reference);
+        $jobId = array_shift($jobParse);
+
+        $promise = $this->client->requestAsync('GET', 'https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/jobs/' . $jobId . '?display=all&&access_token=e929be7849b90e553082e592552739082c7614ab', [
+            'headers' => [
+                'Accept' => 'application/json'
+            ]
+        ]);
+        $promise->then(
+            function (ResponseInterface $res) use ($job_scheduler) {
+                $result_job = json_decode($res->getBody()->getContents());
+                $site_id = $result_job->Site->ID ?? null;
+                if ($site_id) {
+                    $this->finishParseJob($job_scheduler, $result_job, $site_id);
+                }
+            },
+            function (RequestException $e) {
+                echo $e->getMessage() . "\n";
+                echo $e->getRequest()->getMethod();
+            }
+        );
+    }
+
+    public function finishParseJob($job_scheduler, $result_job, $site_id)
+    {
+        $promise = $this->client->requestAsync('GET', 'https://blueflamecornwallltd.simprosuite.com/api/v1.0/companies/0/sites/' . $site_id . '?access_token=e929be7849b90e553082e592552739082c7614ab', [
+            'headers' => [
+                'Accept' => 'application/json'
+            ]
+        ]);
+        $promise->then(
+            function (ResponseInterface $res) use ($job_scheduler, $result_job) {
+                $site = json_decode($res->getBody()->getContents());
+                $this->createAppointment($job_scheduler, $result_job, $site);
+            },
+            function (RequestException $e) {
+                echo $e->getMessage() . "\n";
+                echo $e->getRequest()->getMethod();
+            }
+        );
+    }
+
+    public function createAppointment($job_scheduler, $result_job, $site)
+    {
+        $date = $job_scheduler->Date;
+        $blocks = $job_scheduler->Blocks;
+        $time = $blocks[0]->EndTime;
+
+        $jobId = $result_job->ID;
+        $workType = $result_job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null;
+        $customerId = $result_job->Customer->ID;
+        $sendDate = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time) ?? null;
+
+        $siteId = $site->ID;
+        $address = $site->Address->Address ?? null;
+        $city = $site->Address->City ?? null;
+        $state = $site->Address->State ?? null;
+        $postalCode = $site->Address->PostalCode ?? null;
+        $country = $site->Address->Country ?? null;
+        $title = $site->PrimaryContact->Title ?? '';
+        $givenName = $site->PrimaryContact->GivenName ?? '';
+        $familyName = $site->PrimaryContact->FamilyName ?? '';
+
+        if (strlen($title) == 0
+            && strlen($givenName) == 0
+            && strlen($familyName) == 0) {
+            $title = 'The Occupier';
+        }
+
+        Appointment::create([
+            'customer_id' => $customerId,
+            'title' => $title,
+            'family_name' => $familyName,
+            'given_name' => $givenName,
+            'address' => $address,
+            'state' => $state,
+            'city' => $city,
+            'country' => $country,
+            'postcode' => $postalCode,
+            'job_id' => $jobId,
+            'send_date' => $sendDate,
+            'work_type' => $workType,
+            'appointment_id' => $jobSchedule->ID ?? null,
+            'site_id' => $siteId,
+            'time' => $time
+        ]);
+    }
 }
 
 
