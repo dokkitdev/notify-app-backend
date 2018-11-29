@@ -58,7 +58,7 @@ class Appointment extends Model
         $weekday = $date->format('l');
         $month = $date->format('F');
         $year = $date->format('Y');
-        $day = $date->format('d');
+        $day = ltrim($date->format('d'), '0');
         if ($day % 10 == 1 && $day != 11) {
             $day .= 'st';
         } else if ($day % 10 == 2 && $day != 12) {

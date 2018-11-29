@@ -37,3 +37,39 @@
     text-align: left;
     padding: 10px 0 10px 4px !important;
 }
+
+.pagination-button {
+    min-width: 38px;
+    height: 38px;
+    display: inline-block;
+    background-color: white;
+    line-height: 38px;
+    margin-right: 5px;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    font-size: 28px;
+    color: #606060 !important;
+    text-decoration: none !important;
+}
+.disabled {
+    cursor: not-allowed;
+}
+
+.pagination {
+    display: flex;
+    float: right;
+    justify-content: right;
+    align-items: center;
+
+}
+
+.pagination > span {
+    margin: 0 10px;
+}
+
+.pagination > li.active {
+    color: #000000;
+    font-weight: bold;
+    background-color: white;
+    box-shadow: none;
+}

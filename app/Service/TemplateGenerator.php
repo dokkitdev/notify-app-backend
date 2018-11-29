@@ -27,7 +27,7 @@ class TemplateGenerator
         $today = new \DateTime();
         $month = $today->format('F');
         $year = $today->format('Y');
-        $day = $today->format('d');
+        $day = ltrim($today->format('d'), '0');
         if ($day % 10 == 1 && $day != 11) {
             $day .= 'st';
         } else if ($day % 10 == 2 && $day != 12) {
@@ -37,7 +37,7 @@ class TemplateGenerator
         } else {
             $day .= 'th';
         }
-        $today =  $day . ' ' . $month . ' ' . $year;
+        $today = $day . ' ' . $month . ' ' . $year;
 
 
         $ContactName = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->getContact()))));
@@ -67,7 +67,9 @@ class TemplateGenerator
         $template->setValue('ScheduleDate', $ScheduleDate);
         $template->setValue('ScheduleTime', $ScheduleTime);
         $template->setValue('WorkType', $WorkType);
-        $new_file = md5(uniqid('generated_docx', true)) . '.docx';
+
+        $today = new \DateTime();
+        $new_file = $appointment->job_id . '.appointment.' . $today->format('Y-m-d') . '.docx';
 
         if ($appointment->docx) {
             $old_file = $docx_folder . '/' . $appointment->docx;

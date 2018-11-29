@@ -30,9 +30,9 @@
 @endsection
 
 @section('content')
-    <form action="{{ route('appointments.generate') }}" method="post">
-        <h2>Appointment Letters <input class="btn btn-primary float-right" type="submit" value="Process"></h2>
+    <form action="{{ route('appointments.generate') }}" method="post" id="appointment-form">
         @csrf
+        <h2>Appointment Letters</h2>
         <table id="appointment-table" class="tablesorter" style="width: 100%">
             <thead>
             <tr>
@@ -90,11 +90,15 @@
             @endforeach
             </tbody>
         </table>
-        <div class="form-group text-right">
-            <input class="btn btn-primary" type="submit" value="Process">
-        </div>
     </form>
-
+    <div class="form-group  clearfix">
+        {{ $appointments->links('admin.pagination.default', [
+        'limit' => $limit]
+        ) }}
+    </div>
+    <div class="form-group text-right">
+        <input class="btn btn-primary" form="appointment-form" type="submit" value="Process">
+    </div>
     <script>
 
 
@@ -112,6 +116,9 @@
                     9: {sorter: false}
                 }
             });
+            $('body').on('click', '.disabled', e => {
+                e.preventDefault();
+            })
         });
 
         const checkboxAll = $('.checkbox-th input[type="checkbox"]'),
