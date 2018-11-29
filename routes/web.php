@@ -45,6 +45,7 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
         Route::post('/generate', 'Admin\\AppointmentsController@generate')->name('appointments.generate');
         Route::get('/{id}/clear', 'Admin\\AppointmentsController@clear')->name('appointments.clear');
         Route::get('/{id}/view', 'Admin\\AppointmentsController@viewPdf')->name('appointments.view');
+        Route::get('/import', 'Admin\\AppointmentsController@import')->name('appointments.import');
     });
 
 

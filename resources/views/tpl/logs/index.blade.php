@@ -28,7 +28,7 @@
                 <td>
                     @if ($log->pdf)
                         <a target="_blank"
-                           href="/storage/pdf/{!! $log->pdf !!}"
+                           href="javascript: w=window.open('{!! url('storage/pdf/' . $log->pdf) !!}'); w.print(); "
                            title="Download PDF template">View</a>
                     @endif
                 </td>

@@ -15,6 +15,7 @@ use Composer\Config;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -64,6 +65,15 @@ class AppointmentsController extends Controller
         return response()->file($pdf_folder . '/' . $appointment->pdf);
     }
 
+    public function import()
+    {
+//        exec('php ' . base_path() . '/artisan upload:job');
+        dump('php ' . base_path() . '/artisan upload:job');die;
+        return redirect()->route('appointments.all')->with([
+            'ok' => 'Import jobs are being processed and will appear in the page shortly.',
+        ]);
+    }
+
     public function generate(Request $request)
     {
         $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
@@ -72,31 +82,45 @@ class AppointmentsController extends Controller
                 'error' => 'Please fill "Appointment letter" template by docx',
             ]);
         }
-        $sim = new simProRequestService();
 
         $data = $request->all();
         $appointments = $data['appointments'] ?? null;
         $filled = [];
         $generator = new TemplateGenerator();
+        $sim = new simProRequestService();
         if ($appointments && is_array($appointments)) {
-            foreach ($appointments as $a) {
-                $appointment = Appointment::find($a);
-                /** Проверка на существование или сгенерированость */
-                if (!$appointment) {
-                    unset($appointment);
-                    continue;
+            if (count($appointments) > 15) {
+                foreach ($appointments as $a) {
+                    $appointment = Appointment::find($a);
+                    $appointment->is_proccessed = true;
+                    $appointment->save();
+                    $filled[] = $appointment->id;
                 }
-                if (!$appointment->is_proccessed) {
-                    $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
-                    $pdf = $generator->generatePdfFromDocx($docx);
-                    $appointment->docx = $docx;
-                    $appointment->pdf = $pdf;
-//                    $sim->uploadAppointment($appointment);
-                }
-                $appointment->is_proccessed = true;
-                $appointment->save();
+                $filled = implode(',', $filled);
+                exec('php ' . base_path() . '/artisan combine:pdf ' . $filled . ' > /dev/null 2>&1 &');
+                return redirect()->route('appointments.all')->with([
+                    'ok' => 'Your letters are being processed and will appear in the logs page shortly.',
+                ]);
+            } else {
+                foreach ($appointments as $a) {
+                    $appointment = Appointment::find($a);
+                    /** Проверка на существование или сгенерированость */
+                    if (!$appointment) {
+                        unset($appointment);
+                        continue;
+                    }
+                    if (!$appointment->is_proccessed) {
+                        $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
+                        $pdf = $generator->generatePdfFromDocx($docx);
+                        $appointment->docx = $docx;
+                        $appointment->pdf = $pdf;
+//                        $sim->uploadAppointment($appointment);
+                    }
+                    $appointment->is_proccessed = true;
+                    $appointment->save();
 
-                $filled[] = $appointment->pdf;
+                    $filled[] = $appointment->pdf;
+                }
             }
         }
         if (count($filled) > 0) {
