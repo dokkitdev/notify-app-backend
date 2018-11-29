@@ -90,9 +90,10 @@ class AppointmentsController extends Controller
 
     public function generate(Request $request)
     {
+
         $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
         if ($template->html === null) {
-            return redirect()->route('appointments.all')->with([
+            return redirect()->back()->with([
                 'error' => 'Please fill "Appointment letter" template by docx',
             ]);
         }
@@ -112,7 +113,7 @@ class AppointmentsController extends Controller
                 }
                 $filled = implode(',', $filled);
                 exec('php ' . base_path() . '/artisan combine:pdf ' . $filled . ' > /dev/null 2>&1 &');
-                return redirect()->route('appointments.all')->with([
+                return redirect()->back()->with([
                     'ok' => 'Your letters are being processed and will appear in the logs page shortly.',
                 ]);
             } else {
@@ -146,13 +147,13 @@ class AppointmentsController extends Controller
                 'pdf' => $merged
             ]);
 
-            return redirect()->route('appointments.all')->with([
+            return redirect()->back()->with([
                 'ok' => 'Appointment Letters has been successfull generated.',
                 'merged' => $merged,
             ]);
         }
 
-        return redirect()->route('appointments.all')->with([
+        return redirect()->back()->with([
             'error' => 'Please select at least one appointment letter.',
         ]);
     }
