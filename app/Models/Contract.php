@@ -13,5 +13,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Contract extends Model
 {
+    protected $table = 'n_contracts';
+    protected $fillable = [
+        'contract_id',
+        'name',
+        'end_date',
+        'value',
+    ];
 
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function assets()
+    {
+        return $this->hasMany(Asset::class);
+    }
 }

@@ -49,7 +49,8 @@ class Requester
             $params .= $key . '=' . $value . '&';
         }
 
-        return $this->client->requestAsync('GET', $this->api_url . $url . '?access_token=' . $this->token . $params, [
+
+        return $this->client->requestAsync('GET', $this->api_url . $url . ((strpos($url, '?') != false) ? '&' : '?') . 'access_token=' . $this->token . $params, [
             'headers' => [
                 'Accept' => 'application/json'
             ]
