@@ -27,7 +27,7 @@ class AppointmentsController extends Controller
         $today->setTime(0, 0, 0);
         $fourDay = new \DateTime('+3 day');
         $fourDay->setTime(23, 59, 59);
-        $limit = $request->get('limit') ?? 5;
+        $limit = $request->get('limit') ?? 20;
 
         $appointments = Appointment::where('send_date', '>=', $today)
             ->where(function ($query) {
