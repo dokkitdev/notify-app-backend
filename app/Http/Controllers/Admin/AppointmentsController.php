@@ -34,7 +34,7 @@ class AppointmentsController extends Controller
                 $query->where('is_proccessed', '<>', 1)
                     ->orWhere('is_proccessed', '=', null);
             })
-            ->where('send_date', '<=', $fourDay)
+//            ->where('send_date', '<=', $fourDay)
             ->paginate($limit);
 
         return view('admin.appointments.index', [
@@ -91,7 +91,7 @@ class AppointmentsController extends Controller
                     $pdf = $generator->generatePdfFromDocx($docx);
                     $appointment->docx = $docx;
                     $appointment->pdf = $pdf;
-                    $sim->uploadAppointment($appointment);
+//                    $sim->uploadAppointment($appointment);
                 }
                 $appointment->is_proccessed = true;
                 $appointment->save();
