@@ -9,6 +9,8 @@
             <option value="100" {!! $limit == 100 ? 'selected' : '' !!}>100</option>
             <option value="99999" {!! $limit == 99999 ? 'selected' : '' !!}>All</option>
         </select>
+        <input type="hidden"  name="start" value="{!! $start !!}">
+        <input type="hidden" name="end" value="{!! $end !!}">
     </form>
     <span>
     @php ($start_item = ($paginator->currentPage() - 1) * $paginator->perPage() + 1)
@@ -25,9 +27,9 @@
         {!! $paginator->total() !!}
     </span>
     <a class="pagination-button prev {{ ($paginator->currentPage() == 1) ? 'disabled' : '' }}"
-       href="{{ $paginator->url($paginator->currentPage()-1) }}&limit={!! $limit !!}"> < </a>
+       href="{{ $paginator->url($paginator->currentPage()-1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}"> < </a>
     <a class="pagination-button next {{ ($paginator->currentPage() == $paginator->lastPage()) ? 'disabled' : '' }}"
-       href="{{ $paginator->url($paginator->currentPage()+1) }}&limit={!! $limit !!}"> > </a>
+       href="{{ $paginator->url($paginator->currentPage()+1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}"> > </a>
 </div>
 
 <script>

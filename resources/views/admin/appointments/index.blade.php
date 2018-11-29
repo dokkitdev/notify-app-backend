@@ -2,6 +2,7 @@
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
+    <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
     <style>
         /*#appointment-table {*/
         /*table-layout: fixed;*/
@@ -45,7 +46,11 @@
                 <th>Address</th>
                 <th>City</th>
                 <th style="width: 7%;">Postcode</th>
-                <th style="width: 10%;">Schedule Date</th>
+                <th style="width: 10%;">
+                    Schedule Date
+                    <i id="filter" class="fas fa-filter cursor-pointer"></i>
+                    <input type="text" class="datepicker hidden-input" id="range">
+                </th>
                 <th style="width: 10%;">Schedule time</th>
                 <th>Work type</th>
                 <th class="col" style="width: 9%;"></th>
@@ -92,9 +97,17 @@
             </tbody>
         </table>
     </form>
+    <form method="get" id="filter-form" class="d-none">
+        <input type="text" name="limit" value="{!! $limit !!}">
+        <input type="text" name="start">
+        <input type="text" name="end">
+    </form>
     <div class="form-group  clearfix">
         {{ $appointments->links('admin.pagination.default', [
-        'limit' => $limit]
+        'limit' => $limit,
+        'start' => $start,
+        'end' => $end,
+        ]
         ) }}
     </div>
     <div class="form-group text-right">
@@ -107,6 +120,9 @@
 @endsection
 
 @section('js')
+    <script type="text/javascript" src="{{ asset('js/moment.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/daterangepicker.min.js') }}"></script>
+
     <script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
     <script>
         $(document).ready(function () {
@@ -114,6 +130,7 @@
                 widgets: ['zebra'],
                 headers: {
                     0: {sorter: false},
+                    6: {sorter: false},
                     9: {sorter: false}
                 }
             });
@@ -143,5 +160,17 @@
                 tr.removeClass('checked');
             }
         }
+
+        $('#filter').click(e => {
+            e.preventDefault();
+            $('#range').trigger('click');
+        });
+
+        $('.datepicker').daterangepicker().on('apply.daterangepicker', function (ev, picker) {
+            $('[name="start"]').val(picker.startDate.format('DD.MM.YYYY'));
+            $('[name="end"]').val(picker.endDate.format('DD.MM.YYYY'));
+            $('#filter-form').submit();
+        });
+
     </script>
 @endsection

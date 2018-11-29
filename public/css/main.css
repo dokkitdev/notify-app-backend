@@ -51,6 +51,7 @@
     color: #606060 !important;
     text-decoration: none !important;
 }
+
 .disabled {
     cursor: not-allowed;
 }
@@ -72,4 +73,15 @@
     font-weight: bold;
     background-color: white;
     box-shadow: none;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.hidden-input {
+    width: 1px;
+    height: 1px;
+    background: transparent;
+    border: none;
 }
