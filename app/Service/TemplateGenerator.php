@@ -56,12 +56,36 @@ class TemplateGenerator
         $ScheduleTime = htmlentities($appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime());
         $WorkType = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->work_type))));
 
-        $template->setValue('ContactName', $ContactName);
-        $template->setValue('Address', $address);
-        $template->setValue('Address2', $address2);
-        $template->setValue('City', $City);
-        $template->setValue('County', $state);
-        $template->setValue('Postcode', $Postcode);
+        $variables = [
+            'ContactName',
+            'Address',
+            'Address2',
+            'City',
+            'County',
+            'Postcode'
+        ];
+
+        $values = [
+            $ContactName,
+            $address,
+            $address2,
+            $City,
+            $state,
+            $Postcode,
+        ];
+
+        foreach ($variables as $v) {
+            $str = '';
+            while (($value = array_shift($values)) !== null) {
+                if (strlen($value) > 0) {
+                    $str = $value;
+                    break;
+                }
+            }
+            $template->setValue($v, $str);
+        }
+
+
         $template->setValue('TodayDate', $TodayDate);
         $template->setValue('JobID', $JobID);
         $template->setValue('ScheduleDate', $ScheduleDate);
@@ -117,7 +141,8 @@ class TemplateGenerator
                 $pdf_merger->addPDF($file, '1');
             }
         }
-        $new_file = md5(uniqid('result_pdf', true)) . '.pdf';
+        $today = new \DateTime();
+        $new_file = 'appointments.' . $today->format('Y-m-d.H-i-s') . '.pdf';
         $pdf_merger->merge('file', $pdf_folder . $new_file);
         return $new_file;
     }
