@@ -32,7 +32,8 @@
 @section('content')
     <form action="{{ route('appointments.generate') }}" method="post" id="appointment-form">
         @csrf
-        <h2>Appointment Letters</h2>
+        <h2>Appointment Letters <a href="{{ route('appointments.import') }}"
+                                   class="btn btn-primary float-right">Import</a></h2>
         <table id="appointment-table" class="tablesorter" style="width: 100%">
             <thead>
             <tr>
