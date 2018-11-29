@@ -24,24 +24,39 @@ class AppointmentsController extends Controller
 {
     public function index(Request $request)
     {
-        $today = new \DateTime('');
-        $today->setTime(0, 0, 0);
-        $fourDay = new \DateTime('+3 day');
-        $fourDay->setTime(23, 59, 59);
         $limit = $request->get('limit') ?? 20;
+        $start = $request->get('start') ?? null;
+        $end = $request->get('end') ?? null;
+        if ($start) {
+            $start = \DateTime::createFromFormat('d.m.Y', $start);
+        } else {
+            $start = new \DateTime();
+        }
+        $start->setTime(0, 0, 0);
 
-        $appointments = Appointment::where('send_date', '>=', $today)
+
+        if ($end) {
+            $end = \DateTime::createFromFormat('d.m.Y', $end);
+        } else {
+            $end = new \DateTime('+3 day');
+        }
+        $end->setTime(23, 59, 59);
+
+
+        $appointments = Appointment::where('send_date', '>=', $start)
             ->where(function ($query) {
                 $query->where('is_proccessed', '<>', 1)
                     ->orWhere('is_proccessed', '=', null);
             })
-//            ->where('send_date', '<=', $fourDay)
+            ->where('send_date', '<=', $end)
             ->paginate($limit);
 
         return view('admin.appointments.index', [
             'appointments' => $appointments,
-            'today' => $today,
+            'today' => $start,
             'limit' => $limit,
+            'start' => $start->format('d.m.Y'),
+            'end' => $end->format('d.m.Y'),
         ]);
     }
 
