@@ -14,6 +14,7 @@ use App\User;
 use Composer\Config;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -21,12 +22,13 @@ use PDFMerger\PDFMerger;
 
 class AppointmentsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $today = new \DateTime('');
         $today->setTime(0, 0, 0);
-        $fourDay = new \DateTime('+4 day');
+        $fourDay = new \DateTime('+3 day');
         $fourDay->setTime(23, 59, 59);
+        $limit = $request->get('limit') ?? 5;
 
         $appointments = Appointment::where('send_date', '>=', $today)
             ->where(function ($query) {
@@ -34,11 +36,12 @@ class AppointmentsController extends Controller
                     ->orWhere('is_proccessed', '=', null);
             })
             ->where('send_date', '<=', $fourDay)
-            ->get();
+            ->paginate($limit);
 
         return view('admin.appointments.index', [
             'appointments' => $appointments,
             'today' => $today,
+            'limit' => $limit,
         ]);
     }
 
