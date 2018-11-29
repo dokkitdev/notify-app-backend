@@ -49,6 +49,7 @@ class AppointmentsController extends Controller
                     ->orWhere('is_proccessed', '=', null);
             })
             ->where('send_date', '<=', $end)
+            ->orderBy('send_date', 'ASC')
             ->paginate($limit);
 
         return view('admin.appointments.index', [
