@@ -23,7 +23,15 @@
             <tr>
                 <td>{{$log->getCreatedAt()}}</td>
                 <td>{{$log->customer_type}}</td>
-                <td>{{$log->letters_generated ?: 0}}</td>
+                <td>
+                    @if (!$log->is_finished && $log->is_started  && $log->command)
+                        Processing
+                    @elseif (!$log->is_started && $log->command)
+                        Queuing for execution
+                    @else
+                        {{$log->letters_generated ?: 0}}
+                    @endif
+                </td>
                 <td>{{$log->emails_generated ?: 0}}</td>
                 <td>
                     @if ($log->pdf)
@@ -35,15 +43,15 @@
             </tr>
         @endforeach
         {{--@foreach ($data as $item)--}}
-            {{--<tr>--}}
-                {{--<td>{{$item['date']}}</td>--}}
-                {{--<td>{{$item['customer_type']}}</td>--}}
-                {{--<td>{{$item['letters_generated']}}</td>--}}
-                {{--<td>{{$item['emails_generated']}}</td>--}}
-                {{--<td>@if($item['letters_generated'] > 0)<a--}}
-                            {{--href="{{ route('daily-letters-log', [$item['customer_type'], $item['date']]) }}">Download--}}
-                        {{--letters</a>@endif</td>--}}
-            {{--</tr>--}}
+        {{--<tr>--}}
+        {{--<td>{{$item['date']}}</td>--}}
+        {{--<td>{{$item['customer_type']}}</td>--}}
+        {{--<td>{{$item['letters_generated']}}</td>--}}
+        {{--<td>{{$item['emails_generated']}}</td>--}}
+        {{--<td>@if($item['letters_generated'] > 0)<a--}}
+        {{--href="{{ route('daily-letters-log', [$item['customer_type'], $item['date']]) }}">Download--}}
+        {{--letters</a>@endif</td>--}}
+        {{--</tr>--}}
         {{--@endforeach--}}
 
         </tbody>

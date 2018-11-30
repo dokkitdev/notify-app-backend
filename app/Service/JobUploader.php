@@ -83,6 +83,7 @@ class JobUploader
                 echo $e->getRequest()->getMethod();
             }
         );
+//        $promise->wait();
     }
 
     /**

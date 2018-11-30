@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 
 class CombinePdfCommand extends Command
 {
-    protected $signature = 'combine:pdf {combined}';
+    protected $signature = 'combine:pdf {combined} {log}';
     protected $description = 'Combine pdfs';
 
     public function __construct()
@@ -22,7 +22,13 @@ class CombinePdfCommand extends Command
 
     public function handle()
     {
+
         set_time_limit(0);
+        $log = $this->argument('log');
+        $log = Logs::find($log);
+        $log->is_started = 1;
+        $log->is_finished = 0;
+        $log->save();
         $combined = $this->argument('combined');
         $combined = explode(',', $combined);
 
@@ -46,12 +52,11 @@ class CombinePdfCommand extends Command
         }
         if (count($filled) > 0) {
             $merged = $generator->mergePdfs($filled);
+            $log->pdf = $merged;
         }
-        Logs::create([
-            'customer_type' => 'Appointment',
-            'letters_generated' => count($filled),
-            'email_generated' => 0,
-            'pdf' => $merged
-        ]);
+        $log->is_finished = 1;
+        $log->save();
+
+
     }
 }
