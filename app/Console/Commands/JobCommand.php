@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Service\JobUploader;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class JobCommand extends Command
 {

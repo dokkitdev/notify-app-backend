@@ -112,8 +112,17 @@ class AppointmentsController extends Controller
                     $appointment->save();
                     $filled[] = $appointment->id;
                 }
+
+                $log = Logs::create([
+                    'customer_type' => 'Appointment',
+                    'letters_generated' => count($filled),
+                    'email_generated' => 0,
+                ]);
                 $filled = implode(',', $filled);
-                exec('php ' . base_path() . '/artisan combine:pdf ' . $filled . ' > /dev/null 2>&1 &');
+                $command = 'php ' . base_path() . '/artisan combine:pdf ' . $filled . ' ' . $log->id . '  > /dev/null 2>&1 &';
+                $log->command = $command;
+                $log->save();
+                exec('php ' . base_path() . '/artisan queue:log:start > /dev/null 2>&1 &');
                 return redirect()->back()->with([
                     'ok' => 'Your letters are being processed and will appear in the logs page shortly.',
                 ]);

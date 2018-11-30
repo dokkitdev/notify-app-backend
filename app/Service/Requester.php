@@ -30,6 +30,7 @@ class Requester
     public function tick()
     {
         $this->curl->tick();
+
     }
 
     public function setApiUrl($url)
