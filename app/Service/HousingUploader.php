@@ -118,8 +118,8 @@ class HousingUploader
                 $tag_selected = null;
                 foreach ($job_info->Tags as $tags) {
                     if ($tags->Name == 'No Access 3 (Letter)'
-                    || $tags->Name == 'No Access 2 (Letter)'
-                    || $tags->Name == 'No Access 1 (Letter)') {
+                        || $tags->Name == 'No Access 2 (Letter)'
+                        || $tags->Name == 'No Access 1 (Letter)') {
                         if (!$tag_selected) {
                             $tag_selected = $tags->Name;
                         } else {
@@ -138,23 +138,41 @@ class HousingUploader
                 if (!$tag_selected) {
                     return;
                 }
+                $housingJob = \App\Models\HousingJob::where('job_id', '=', $job_info->ID)->get()->first();
+                if ($housingJob) {
+                    $housingJob->job_id = $job_info->ID;
+                    $housingJob->company_name = $job_info->Customer->CompanyName;
+                    $housingJob->due_date = \DateTime::createFromFormat('Y-m-d', $job_info->DueDate);
+                    $housingJob->tags = $tag_selected;
+                    $housingJob->stage = $job_info->Stage;
+                    $housingJob->job_name = $job_info->Sections[0]->CostCenters[0]->CostCenter->Name ?? $housingJob->job_name;
+                    $housingJob->site_id = $site_info->ID;
+                    $housingJob->address = $site_info->Address->Address ?? $housingJob->address;
+                    $housingJob->city = $site_info->Address->City ?? $housingJob->city;
+                    $housingJob->state = $site_info->Address->State ?? $housingJob->state;
+                    $housingJob->postal_code = $site_info->Address->PostalCode ?? $housingJob->postal_code;
+                    $housingJob->given_name = $site_info->PrimaryContact->GivenName ?? $housingJob->given_name;
+                    $housingJob->family_name = $site_info->PrimaryContact->FamilyName ?? $housingJob->family_name;
+                    $housingJob->save();
+                } else {
+                    $housingJob = \App\Models\HousingJob::create([
+                        'job_id' => $job_info->ID,
+                        'company_name' => $job_info->Customer->CompanyName,
+                        'due_date' => \DateTime::createFromFormat('Y-m-d', $job_info->DueDate),
+                        'tags' => $tag_selected,
+                        'stage' => $job_info->Stage,
+                        'job_name' => $job_info->Sections[0]->CostCenters[0]->CostCenter->Name ?? null,
+                        'site_id' => $site_info->ID,
+                        'address' => $site_info->Address->Address ?? null,
+                        'city' => $site_info->Address->City ?? null,
+                        'state' => $site_info->Address->State ?? null,
+                        'postal_code' => $site_info->Address->PostalCode ?? null,
+                        'given_name' => $site_info->PrimaryContact->GivenName ?? null,
+                        'family_name' => $site_info->PrimaryContact->FamilyName ?? null,
 
-                $housingJob = \App\Models\HousingJob::create([
-                    'job_id' => $job_info->ID,
-                    'company_name' => $job_info->Customer->CompanyName,
-                    'due_date' => \DateTime::createFromFormat('Y-m-d', $job_info->DueDate),
-                    'tags' => $tag_selected,
-                    'stage' => $job_info->Stage,
-                    'job_name' => $job_info->Sections[0]->CostCenters[0]->CostCenter->Name ?? null,
-                    'site_id' => $site_info->ID,
-                    'address' => $site_info->Address->Address ?? null,
-                    'city' => $site_info->Address->City ?? null,
-                    'state' => $site_info->Address->State ?? null,
-                    'postal_code' => $site_info->Address->PostalCode ?? null,
-                    'given_name' => $site_info->PrimaryContact->GivenName ?? null,
-                    'family_name' => $site_info->PrimaryContact->FamilyName ?? null,
+                    ]);
+                }
 
-                ]);
             },
             function (RequestException $e) {
                 echo $e->getMessage() . "\n";
