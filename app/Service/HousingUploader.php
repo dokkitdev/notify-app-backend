@@ -9,7 +9,9 @@
 namespace App\Service;
 
 
+use App\Jobs\HousingJob;
 use App\Jobs\HousingPage;
+use App\Jobs\HousingSite;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -60,47 +62,12 @@ class HousingUploader
         ]);
 
         $promise->then(
-            function (ResponseInterface $res) use ($page_num) {
-                $jobs = json_decode($res->getBody()->getContents());
-                DB::insert("INSERT INTO `temp`
-(
-`long`)
-VALUES
-('privetik $page_num')");
-
-//                if ($jobs) {
-//                    foreach ($jobs as $job) {
-//                        dump('b');
-//                        $this->b($job);
-//                    }
-//                }
-            },
-            function (RequestException $e) {
-                echo $e->getMessage() . "\n";
-                echo $e->getRequest()->getMethod();
-            }
-        );
-        $this->requester->tick();
-        $promise->wait();
-    }
-
-
-    public function parseJob($job_id)
-    {
-        $promise = $this->requester->getRequestAsync('companies/0/jobs/' . $job->ID, [
-            'display' => 'all',
-        ]);
-        $promise->then(
             function (ResponseInterface $res) {
-                $job_info = json_decode($res->getBody()->getContents());
-                if (isset($job_info->Site->ID) && count($job_info->Tags) > 0 && $job_info->DueDate) {
-                    dump($job_info->Customer);
-                    dump($job_info->ID);
-                    dump($job_info->DueDate);
-                    dump($job_info->Tags);
-                    dump($job_info->Stage);
-                    $this->c($job_info->Site->ID);
-                    die;
+                $jobs = json_decode($res->getBody()->getContents());
+                if ($jobs) {
+                    foreach ($jobs as $job_info) {
+                        dispatch(new HousingJob($job_info));
+                    }
                 }
             },
             function (RequestException $e) {
@@ -112,16 +79,52 @@ VALUES
         $promise->wait();
     }
 
-    public function parseSite($site_id)
+
+    public function parseJob($job_info)
     {
-        $promise = $this->requester->getRequestAsync('companies/0/sites/' . $site, [
+        $promise = $this->requester->getRequestAsync('companies/0/jobs/' . $job_info->ID, [
+            'display' => 'all',
         ]);
         $promise->then(
             function (ResponseInterface $res) {
+                $job_info = json_decode($res->getBody()->getContents());
+                if (isset($job_info->Site->ID) && count($job_info->Tags) > 0 && $job_info->DueDate) {
+                    dispatch(new HousingSite($job_info));
+                }
+            },
+            function (RequestException $e) {
+                echo $e->getMessage() . "\n";
+                echo $e->getRequest()->getMethod();
+            }
+        );
+        $this->requester->tick();
+        $promise->wait();
+    }
+
+    public function parseSite($job_info)
+    {
+        $promise = $this->requester->getRequestAsync('companies/0/sites/' . $job_info->Site->ID, [
+        ]);
+        $promise->then(
+            function (ResponseInterface $res) use ($job_info) {
                 $site_info = json_decode($res->getBody()->getContents());
-                dump($site_info->Address);
-                dump($site_info->PrimaryContact);
-                die;
+
+                HousingJob::create([
+                    'job_id' => $job_info->ID,
+                    'company_name' => $job_info->Customer->CompanyName,
+                    'due_date' => \DateTime::createFromFormat('Y-m-d', $job_info->DueDate),
+                    'tags' => json_encode($job_info->Tags),
+                    'stage' => $job_info->Stage,
+                    'job_name' => $job_info->Sections[0]->CostCenters[0]->CostCenter->Name ?? null,
+                    'site_id' => $site_info->ID,
+                    'address' => $site_info->Address->Address ?? null,
+                    'city' => $site_info->Address->City ?? null,
+                    'state' => $site_info->Address->State ?? null,
+                    'postal_code' => $site_info->Address->PostalCode ?? null,
+                    'given_name' => $site_info->PrimaryContact->GivenName ?? null,
+                    'family_name' => $site_info->PrimaryContact->FamilyName ?? null,
+
+                ]);
             },
             function (RequestException $e) {
                 echo $e->getMessage() . "\n";

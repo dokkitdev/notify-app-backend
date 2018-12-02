@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Service\HousingUploader;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -12,14 +13,15 @@ class HousingSite implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    private $job;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($job)
     {
-        //
+        $this->job = $job;
     }
 
     /**
@@ -29,6 +31,10 @@ class HousingSite implements ShouldQueue
      */
     public function handle()
     {
-        //
+        if ($this->attempts() > 5) {
+            $this->delete();
+        }
+        (new HousingUploader())
+            ->parseSite($this->job);
     }
 }
