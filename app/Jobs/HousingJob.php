@@ -13,15 +13,15 @@ class HousingJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $job;
+    private $job_info;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($job)
+    public function __construct($job_info)
     {
-        $this->job = $job;
+        $this->job_info = $job_info;
     }
 
     /**
@@ -35,6 +35,6 @@ class HousingJob implements ShouldQueue
             $this->delete();
         }
         (new HousingUploader())
-            ->parseJob($this->job);
+            ->parseJob($this->job_info);
     }
 }

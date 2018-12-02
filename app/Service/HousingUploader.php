@@ -40,6 +40,8 @@ class HousingUploader
                 if (array_key_exists('Result-Total', $headers)) {
                     $pages = (int)ceil($headers['Result-Total'][0] / 25);
                     for ($i = $pages; $i > 0; $i--) {
+//                        dump('parse jobs page ' . $i);
+//                        $this->parseJobPage($i);
                         dispatch(new HousingPage($i));
                     }
                 }
@@ -66,6 +68,8 @@ class HousingUploader
                 $jobs = json_decode($res->getBody()->getContents());
                 if ($jobs) {
                     foreach ($jobs as $job_info) {
+//                        dump('parse jobs ');
+//                        $this->parseJob($job_info);
                         dispatch(new HousingJob($job_info));
                     }
                 }
@@ -89,6 +93,8 @@ class HousingUploader
             function (ResponseInterface $res) {
                 $job_info = json_decode($res->getBody()->getContents());
                 if (isset($job_info->Site->ID) && count($job_info->Tags) > 0 && $job_info->DueDate) {
+//                    dump('parse site ');
+//                    $this->parseSite($job_info);
                     dispatch(new HousingSite($job_info));
                 }
             },
@@ -109,11 +115,35 @@ class HousingUploader
             function (ResponseInterface $res) use ($job_info) {
                 $site_info = json_decode($res->getBody()->getContents());
 
-                HousingJob::create([
+                $tag_selected = null;
+                foreach ($job_info->Tags as $tags) {
+                    if ($tags->Name == 'No Access 3 (Letter)'
+                    || $tags->Name == 'No Access 2 (Letter)'
+                    || $tags->Name == 'No Access 1 (Letter)') {
+                        if (!$tag_selected) {
+                            $tag_selected = $tags->Name;
+                        } else {
+                            if ($tag_selected == 'No Access 3 (Letter)') {
+                                continue;
+                            }
+
+                            if ($tag_selected == 'No Access 2 (Letter)' && $tags->Name == 'No Access 3 (Letter)') {
+                                $tag_selected = $tags->Name;
+                                continue;
+                            }
+                            $tag_selected = $tags->Name;
+                        }
+                    }
+                }
+                if (!$tag_selected) {
+                    return;
+                }
+
+                $housingJob = \App\Models\HousingJob::create([
                     'job_id' => $job_info->ID,
                     'company_name' => $job_info->Customer->CompanyName,
                     'due_date' => \DateTime::createFromFormat('Y-m-d', $job_info->DueDate),
-                    'tags' => json_encode($job_info->Tags),
+                    'tags' => $tag_selected,
                     'stage' => $job_info->Stage,
                     'job_name' => $job_info->Sections[0]->CostCenters[0]->CostCenter->Name ?? null,
                     'site_id' => $site_info->ID,
