@@ -17,6 +17,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
@@ -182,5 +183,30 @@ class AppointmentsController extends Controller
         return redirect()->route('appointments.all')->with([
             'ok' => 'Appointment Letter has been successfull cleared',
         ]);
+    }
+
+    public function clearDublicates()
+    {
+        $result = DB::select('SELECT job_id, min(`send_date`) as mtime FROM appointments GROUP BY job_id HAVING COUNT(*) > 1');
+        foreach ($result as $r) {
+
+            $appointment = Appointment::where('job_id', '=', $r->job_id)
+                ->where('is_proccessed', '=', 1)
+                ->orderBy('send_date', 'ASC')
+                ->first();
+            if ($appointment) {
+                $id = $appointment->id;
+            } else {
+                $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date LIMIT 1', [
+                    $r->job_id,
+                    $r->mtime
+                ]);
+                $id = $finded[0]->id;
+            }
+            DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND id <> :id;', [
+                $r->job_id,
+                $id
+            ]);
+        }
     }
 }
