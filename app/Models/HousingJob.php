@@ -76,4 +76,15 @@ class HousingJob extends Model
         return $weekday . ', ' . $day . ' ' . $month . ' ' . $year;
     }
 
+    public function getContactPhone()
+    {
+        if ($this->work_phone) {
+            return $this->work_phone;
+        }
+        if ($this->cell_phone) {
+            return $this->cell_phone;
+        }
+        return 'Not Listed';
+    }
+
 }
