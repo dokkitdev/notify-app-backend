@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\DB;
 use Psr\Http\Message\ResponseInterface;
 
 class AppointmentSite implements ShouldQueue
@@ -39,7 +40,7 @@ class AppointmentSite implements ShouldQueue
      */
     public function handle()
     {
-        if($this->attempts() > 5){ # ttl
+        if ($this->attempts() > 5) { # ttl
             $this->delete();
         }
 
@@ -98,6 +99,7 @@ class AppointmentSite implements ShouldQueue
                     'site_id' => $siteId,
                     'time' => $time
                 ]);
+                $this->clearDublicates();
             },
             function (RequestException $e) {
                 echo 'finishParseJob error here';
@@ -107,5 +109,30 @@ class AppointmentSite implements ShouldQueue
         );
         $requester->tick();
         $promise->wait();
+    }
+
+    public function clearDublicates()
+    {
+        $result = DB::select('SELECT job_id, min(`send_date`) as mtime FROM appointments GROUP BY job_id HAVING COUNT(*) > 1');
+        foreach ($result as $r) {
+
+            $appointment = Appointment::where('job_id', '=', $r->job_id)
+                ->where('is_proccessed', '=', 1)
+                ->orderBy('send_date', 'ASC')
+                ->first();
+            if ($appointment) {
+                $id = $appointment->id;
+            } else {
+                $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date LIMIT 1', [
+                    $r->job_id,
+                    $r->mtime
+                ]);
+                $id = $finded[0]->id;
+            }
+            DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND id <> :id;', [
+                $r->job_id,
+                $id
+            ]);
+        }
     }
 }

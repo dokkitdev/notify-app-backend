@@ -15,15 +15,15 @@ class Customer extends Model
 {
     protected $table = 'n_customers';
     protected $fillable = [
+        'company_name',
         'first_name',
         'last_name',
         'company_id',
         'address',
         'city',
+        'state',
         'country',
         'postal_code',
-        'given_name',
-        'family_name',
     ];
 
     public function sites()

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\HousingPage;
+use App\Models\Asset;
 use App\Models\HousingJob;
 use App\Service\HousingUploader;
 use App\Service\Requester;
@@ -46,20 +47,9 @@ class Test extends Command
      */
     public function handle()
     {
-        HousingJob::create([
-            "job_id" => 354,
-            "company_name" => "Coastline Housing Ltd",
-            "due_date" => new \DateTime(),
-            "tags" => "[{\"ID\":54,\"Name\":\"No Access 1 (Letter)\"}]",
-            "stage" => "Progress",
-            "job_name" => "Gas Planned Maintenance ",
-            "site_id" => 32854,
-            "address" => "15 Veor House",
-            "city" => "Camborne",
-            "state" => "Cornwall",
-            "postal_code" => "TR14 8SS",
-            "given_name" => "Price",
-            "family_name" => "Price",
+        $asset = Asset::create([
+            'asset_id' => 1,
+            'value' => 'privet'
         ]);
         die;
 
