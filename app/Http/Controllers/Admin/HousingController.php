@@ -127,6 +127,7 @@ class HousingController extends Controller
                 }
             }
         }
+
         if (count($filled) > 0) {
             $merged = $generator->mergePdfs($filled);
             Logs::create([

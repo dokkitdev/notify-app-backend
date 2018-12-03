@@ -156,19 +156,19 @@ class TemplateGenerator
         $siteAddress = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->address))));
         $city = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->city))));
         $state = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->state))));
-        $postcode = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->postal_code))));
+        $postcode = htmlentities(str_replace("\n", ', ', strtoupper(strtolower($housing->postal_code))));
         $siteContact = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->siteContact()))));
         $serviceType = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->job_name))));
         $first_name = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->given_name))));
         $family_name = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->family_name))));
         $due_date = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->getDueDateWithDay()))));
         $company_name = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->company_name))));
+        $contactName = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->siteContact()))));
 
         $variables = [
-            'SiteAddress',
+            'Address',
             'Address2',
             'City',
-            'County',
             'County',
             'Postcode'
         ];
@@ -200,6 +200,7 @@ class TemplateGenerator
         $template->setValue('ServiceType', $serviceType);
         $template->setValue('DueDate', $due_date);
         $template->setValue('HousingCompany', $company_name);
+        $template->setValue('ContactName', $contactName);
 
 
         $today = new \DateTime();
@@ -248,17 +249,16 @@ class TemplateGenerator
         foreach ($pdf_names as $pdf) {
             if ($pdf instanceof HousingJob) {
                 $file = $pdf_folder . $pdf->pdf;
-                if ($pdf->tags == 'No Access 1 (Letter)') {
-                    $pages = '1';
-                } else {
+                if ($pdf->tags == 'No Access 3 (Letter)') {
                     $pages = '1-2';
+                } else {
+                    $pages = '1';
                 }
             } else {
                 $file = $pdf_folder . $pdf;
                 $pages = '1';
             }
             if (file_exists($file)) {
-                dump($pages);
                 $pdf_merger->addPDF($file, $pages);
             }
         }
