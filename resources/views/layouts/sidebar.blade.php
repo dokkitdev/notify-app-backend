@@ -17,13 +17,8 @@
         </a>
         {{--/privateContracts--}}
     </li>
-    <li class="nav-item
-                    @if(Request::path() === 'housingCustomers')
-                                active
-                    @endif
-                    ">
-        <a class="nav-link" href="#">
-            {{--/housingCustomers--}}
+    <li class="nav-item {!! Route::current()->getName() == 'housing.all' ? 'active' : '' !!}">
+        <a class="nav-link" href="{{ route('housing.all') }}">
             <i class="fas fa-fw fa-folder"></i>
             <span>Housing Customers</span>
         </a>

@@ -28,6 +28,50 @@ class HousingJob extends Model
         'postal_code',
         'given_name',
         'family_name',
-
+        'is_proccessed'
     ];
+
+
+
+    private function initDueDate()
+    {
+        $date = $this->due_date;
+        $date = $date ? \DateTime::createFromFormat('Y-m-d H:i:s', $date) : null;
+        return $date;
+    }
+
+    public function getDueDate()
+    {
+        $dueDate = $this->initDueDate();
+        return $dueDate ? $dueDate->format('Y-m-d') : '';
+    }
+
+    public function siteContact()
+    {
+        return trim($this->given_name . ' ' . $this->family_name);
+    }
+
+    public function getDueDateWithDay()
+    {
+        $dueDate = $this->initDueDate();
+        if ($dueDate == '') {
+            return '';
+        }
+        $weekday = $dueDate->format('l');
+        $month = $dueDate->format('F');
+        $year = $dueDate->format('Y');
+        $day = ltrim($dueDate->format('d'), '0');
+        if ($day % 10 == 1 && $day != 11) {
+            $day .= 'st';
+        } else if ($day % 10 == 2 && $day != 12) {
+            $day .= 'nd';
+        } else if ($day % 10 == 3 && $day != 13) {
+            $day .= 'rd';
+        } else {
+            $day .= 'th';
+        }
+
+        return $weekday . ', ' . $day . ' ' . $month . ' ' . $year;
+    }
+
 }

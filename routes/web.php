@@ -40,6 +40,7 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
         Route::put('/{id}/edit', 'Template\\TemplateController@putTemplate')->name('templates.edit');
         Route::post('/upload_docx', 'Template\\TemplateController@uploadDocx')->name('templates.upload_docx');
     });
+
     Route::group(['prefix' => '/appointments'], function () {
         Route::get('/', 'Admin\\AppointmentsController@index')->name('appointments.all');
         Route::post('/generate', 'Admin\\AppointmentsController@generate')->name('appointments.generate');
@@ -48,6 +49,12 @@ Route::group(['middleware'=>['CheckAdmin']],function (){
         Route::get('/import', 'Admin\\AppointmentsController@import')->name('appointments.import');
     });
 
+    Route::group(['prefix' => '/housing'], function () {
+        Route::get('/', 'Admin\\HousingController@index')->name('housing.all');
+        Route::get('/{id}/view', 'Admin\\HousingController@viewPdf')->name('housing.view');
+        Route::post('/generate', 'Admin\\HousingController@generate')->name('housing.generate');
+        Route::get('/import', 'Admin\\HousingController@import')->name('housing.import');
+    });
 
 
 
