@@ -1,0 +1,148 @@
+@extends('layouts.app')
+
+@section('css')
+    <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
+    <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
+    <style>
+        /*#appointment-table {*/
+        /*table-layout: fixed;*/
+        /*}*/
+
+        input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+        }
+
+        .fa-info {
+            position: absolute;
+            right: 2px;
+            box-shadow: 0 0 1px;
+            width: 16px;
+            height: 16px;
+            text-align: center;
+            line-height: 16px;
+            border-radius: 50px;
+            top: 10px;
+            cursor: pointer;
+            background: #f5a622;
+            font-size: 10px;
+        }
+    </style>
+@endsection
+
+@section('content')
+    <form action="{{ route('housing.generate') }}" method="post" id="housing-form">
+        @csrf
+        <h2>Housing Letters <a href="{{ route('housing.import') }}"
+                               class="btn btn-primary float-right">Import</a></h2>
+        <table id="housing-table" class="tablesorter" style="width: 100%">
+            <thead>
+            <tr>
+                <th class="col checkbox-th"><input type="checkbox"> <i
+                            title="Select entries that should be processed"
+                            class="fas fa-info"></i></th>
+                <th class="header">Job ID</th>
+                <th class="header">Due Date</th>
+                <th class="header">Service type</th>
+                <th class="header">Tag</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach ($housing as $a)
+                <tr>
+                    <td>
+                        <input type="checkbox" name="housing[]"
+                               {!! $templates[$a->tags]->docx ? '' : 'disabled' !!} value="{!! $a->id !!}">
+                    </td>
+                    <td>{{$a->job_id}}</td>
+                    <td>{{$a->getDueDate()}}</td>
+                    <td>{{$a->job_name}}</td>
+                    <td>{{$a->tags}}</td>
+                    <td>
+                        @if( $templates[$a->tags]->docx)
+                            <a href="{{ route('housing.view', ['id' => $a->id]) }}"
+                               target="_blank">View</a>
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    </form>
+    <form method="get" id="filter-form" class="d-none">
+        <input type="text" name="limit" value="{!! $limit !!}">
+        <input type="text" name="start">
+        <input type="text" name="end">
+    </form>
+    <div class="form-group  clearfix">
+        {{ $housing->links('admin.pagination.default', [
+        'limit' => $limit,
+        'start' => $start,
+        'end' => $end,
+        ]
+        ) }}
+    </div>
+    <div class="form-group text-right">
+        <input class="btn btn-primary" form="housing-form" type="submit" value="Process">
+    </div>
+    <script>
+
+
+    </script>
+@endsection
+
+@section('js')
+    <script type="text/javascript" src="{{ asset('js/moment.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/daterangepicker.min.js') }}"></script>
+
+    <script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            $("#housing-table").tablesorter({
+                widgets: ['zebra'],
+                headers: {
+                    0: {sorter: false},
+                    5: {sorter: false},
+                    6: {sorter: false},
+                }
+            });
+            $('body').on('click', '.disabled', e => {
+                e.preventDefault();
+            })
+        });
+
+        const checkboxAll = $('.checkbox-th input[type="checkbox"]'),
+            checkboxes = $('#housing-table > tbody input[type="checkbox"]:not(:disabled)');
+
+        checkboxAll.click(function (e) {
+            const checked = this.checked;
+            checkboxes.each((i, el) => {
+                el.checked = checked;
+                clickCheckbox.call(el);
+            });
+        });
+
+        checkboxes.click(clickCheckbox);
+
+        function clickCheckbox() {
+            const tr = $(this).closest('tr');
+            if (this.checked) {
+                tr.addClass('checked')
+            } else {
+                tr.removeClass('checked');
+            }
+        }
+
+        // $('#filter').click(e => {
+        //     e.preventDefault();
+        //     $('#range').trigger('click');
+        // });
+        //
+        // $('.datepicker').daterangepicker().on('apply.daterangepicker', function (ev, picker) {
+        //     $('[name="start"]').val(picker.startDate.format('DD.MM.YYYY'));
+        //     $('[name="end"]').val(picker.endDate.format('DD.MM.YYYY'));
+        //     $('#filter-form').submit();
+        // });
+
+    </script>
+@endsection
