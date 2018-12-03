@@ -28,9 +28,11 @@ class HousingJob extends Model
         'postal_code',
         'given_name',
         'family_name',
-        'is_proccessed'
+        'is_proccessed',
+        'cell_phone',
+        'work_phone',
+        'email',
     ];
-
 
 
     private function initDueDate()
