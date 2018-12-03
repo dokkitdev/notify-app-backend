@@ -153,6 +153,9 @@ class HousingUploader
                     $housingJob->postal_code = $site_info->Address->PostalCode ?? $housingJob->postal_code;
                     $housingJob->given_name = $site_info->PrimaryContact->GivenName ?? $housingJob->given_name;
                     $housingJob->family_name = $site_info->PrimaryContact->FamilyName ?? $housingJob->family_name;
+                    $housingJob->email = $site_info->PrimaryContact->Email ?? $housingJob->email;
+                    $housingJob->work_phone = $site_info->PrimaryContact->WorkPhone ?? $housingJob->work_phone;
+                    $housingJob->cell_phone = $site_info->PrimaryContact->CellPhone ?? $housingJob->cell_phone;
                     $housingJob->save();
                 } else {
                     $housingJob = \App\Models\HousingJob::create([
@@ -169,7 +172,9 @@ class HousingUploader
                         'postal_code' => $site_info->Address->PostalCode ?? null,
                         'given_name' => $site_info->PrimaryContact->GivenName ?? null,
                         'family_name' => $site_info->PrimaryContact->FamilyName ?? null,
-
+                        'email' => $site_info->PrimaryContact->Email ?? null,
+                        'work_phone' => $site_info->PrimaryContact->WorkPhone ?? null,
+                        'cell_phone' => $site_info->PrimaryContact->CellPhone ?? null,
                     ]);
                 }
 
