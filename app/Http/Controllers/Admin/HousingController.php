@@ -20,7 +20,7 @@ class HousingController extends Controller
         if ($start) {
             $start = \DateTime::createFromFormat('d.m.Y', $start);
         } else {
-            $start = new \DateTime();
+            $start = new \DateTime('-1 day');
         }
         $start->setTime(0, 0, 0);
 
@@ -28,7 +28,7 @@ class HousingController extends Controller
         if ($end) {
             $end = \DateTime::createFromFormat('d.m.Y', $end);
         } else {
-            $end = new \DateTime('+3 day');
+            $end = new \DateTime('-1 day');
         }
         $end->setTime(23, 59, 59);
 
@@ -38,6 +38,8 @@ class HousingController extends Controller
                 $query->where('is_proccessed', '<>', 1)
                     ->orWhere('is_proccessed', '=', null);
             })
+            ->where('due_date', '>=', $start    )
+            ->where('due_date', '<=', $end)
             ->orderBy('due_date', 'ASC')
             ->paginate($limit);
 
