@@ -164,6 +164,7 @@ class TemplateGenerator
         $due_date = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->getDueDateWithDay()))));
         $company_name = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->company_name))));
         $contactName = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->siteContact()))));
+        $contactPhone = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->getContactPhone()))));
 
         $variables = [
             'Address',
@@ -201,6 +202,7 @@ class TemplateGenerator
         $template->setValue('DueDate', $due_date);
         $template->setValue('HousingCompany', $company_name);
         $template->setValue('ContactName', $contactName);
+        $template->setValue('ContactPhone', $contactPhone);
 
 
         $today = new \DateTime();
