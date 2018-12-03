@@ -45,6 +45,7 @@
                 <th class="header">Due Date</th>
                 <th class="header">Service type</th>
                 <th class="header">Tag</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>

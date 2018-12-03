@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Service\PrivateUploader;
 use App\Service\simProRequestService;
 use Illuminate\Console\Command;
 
@@ -17,6 +18,12 @@ class PrivateCommand extends Command
     }
 
     public function handle()
+    {
+        (new PrivateUploader())
+            ->start();
+    }
+
+    public function q()
     {
         $sim = new simProRequestService();
         $companies = $sim->getRequest('GET', '/api/v1.0/companies/0/customers/companies/');
