@@ -47,7 +47,7 @@
                 <th style="width: 7%;">Postcode</th>
                 <th style="width: 10%;">
                     Schedule Date
-                    <i id="filter" class="fas fa-filter cursor-pointer"></i>
+                    {{--<i id="filter" class="fas fa-filter cursor-pointer"></i>--}}
                     <input type="text" class="datepicker hidden-input" id="range">
                 </th>
                 <th style="width: 10%;">Schedule time</th>
@@ -129,7 +129,7 @@
                 widgets: ['zebra'],
                 headers: {
                     0: {sorter: false},
-                    6: {sorter: false},
+                    // 6: {sorter: false},
                     9: {sorter: false}
                 }
             });
