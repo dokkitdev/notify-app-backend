@@ -85,7 +85,7 @@ class AppointmentsController extends Controller
 
     public function import()
     {
-        exec('php ' . base_path() . '/artisan upload:job > /dev/null 2>&1 &');
+        exec('php ' . base_path() . '/artisan upload:job');
         return redirect()->route('appointments.all')->with([
             'ok' => 'Import jobs are being processed and will appear in the page shortly.',
         ]);
