@@ -48,7 +48,7 @@ class JobUploader
                     $pages = (int)ceil($headers['Result-Total'][0] / 25);
                     for ($i = $pages; $i > 0; $i--) {
 //                        dump('page ' . $i);
-                        $this->getPageWithJobs($i);
+//                        $this->getPageWithJobs($i);
                         dispatch(new AppointmentPage($i));
                     }
                 }
