@@ -10,6 +10,10 @@ namespace App\Service;
 
 
 use App\Appointment;
+use App\Jobs\AppointmentJob;
+use App\Jobs\AppointmentPage;
+use App\Jobs\AppointmentSite;
+use App\Models\AppointmentProcessed;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\DB;
 use Psr\Http\Message\ResponseInterface;
@@ -43,7 +47,9 @@ class JobUploader
                 if (array_key_exists('Result-Total', $headers)) {
                     $pages = (int)ceil($headers['Result-Total'][0] / 25);
                     for ($i = $pages; $i > 0; $i--) {
-                        $this->getPageWithJobs($i);
+//                        dump('page ' . $i);
+//                        $this->getPageWithJobs($i);
+                        dispatch(new AppointmentPage($i));
                     }
                 }
             },
@@ -61,7 +67,7 @@ class JobUploader
      * Получаем jobs на определенной странице
      * и запускаем парсер для каждой работы
      */
-    private function getPageWithJobs($page = 1)
+    public function getPageWithJobs($page = 1)
     {
         $promise = $this->requester->getRequestAsync('companies/0/schedules/', [
             'Type' => 'job',
@@ -74,7 +80,9 @@ class JobUploader
             function (ResponseInterface $res) {
                 $result = json_decode($res->getBody()->getContents());
                 foreach ($result as $job) {
-                    $this->addParseJob($job);
+//                    dump('add parse');
+//                    $this->addParseJob($job);
+                    dispatch(new AppointmentJob($job));
                 }
             },
             function (RequestException $e) {
@@ -91,11 +99,15 @@ class JobUploader
      * проверяем есть ли у нее site
      * и если есть продолжаем парсить site
      */
-    private function addParseJob($job_scheduler)
+    public function addParseJob($job_scheduler)
     {
 
         $job_parse = explode('-', $job_scheduler->Reference);
         $job_id = array_shift($job_parse);
+
+        if (count(AppointmentProcessed::where('job_id', '=', $job_id)->get()) > 0) {
+            return true;
+        }
 
         $promise = $this->requester->getRequestAsync('companies/0/jobs/' . $job_id, [
             'display' => 'all',
@@ -106,7 +118,9 @@ class JobUploader
                 $result_job = json_decode($res->getBody()->getContents());
                 $site_id = $result_job->Site->ID ?? null;
                 if ($site_id) {
-                    $this->finishParseJob($job_scheduler, $result_job, $site_id);
+//                    dump('finishParseJob');
+                    dispatch(new AppointmentSite($job_scheduler, $result_job, $site_id));
+//                    $this->finishParseJob($job_scheduler, $result_job, $site_id);
                 }
             },
             function (RequestException $e) {
@@ -120,7 +134,7 @@ class JobUploader
     /**
      * Получаем site после чего запускаем создание Appointment
      */
-    private function finishParseJob($job_scheduler, $result_job, $site_id)
+    public function finishParseJob($job_scheduler, $result_job, $site_id)
     {
         $promise = $this->requester->getRequestAsync('companies/0/sites/' . $site_id, [
             'display' => 'all',
@@ -142,7 +156,7 @@ class JobUploader
     /**
      * Создаем appointment относительно полученных данных
      */
-    private function createAppointment($job_scheduler, $result_job, $site)
+    public function createAppointment($job_scheduler, $result_job, $site)
     {
         $date = $job_scheduler->Date;
         $blocks = $job_scheduler->Blocks;
@@ -169,7 +183,7 @@ class JobUploader
             $title = 'The Occupier';
         }
 
-        Appointment::create([
+        $appointment = Appointment::create([
             'customer_id' => $customerId,
             'title' => $title,
             'family_name' => $familyName,
@@ -186,6 +200,8 @@ class JobUploader
             'site_id' => $siteId,
             'time' => $time
         ]);
+        dump($appointment);
+        $this->clearDublicates();
     }
 
 
@@ -196,13 +212,23 @@ class JobUploader
     {
         $result = DB::select('SELECT job_id, min(`send_date`) as mtime FROM appointments GROUP BY job_id HAVING COUNT(*) > 1');
         foreach ($result as $r) {
-            $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date LIMIT 1', [
-                $r->job_id,
-                $r->mtime
-            ]);
+
+            $appointment = Appointment::where('job_id', '=', $r->job_id)
+                ->where('is_proccessed', '=', 1)
+                ->orderBy('send_date', 'ASC')
+                ->first();
+            if ($appointment) {
+                $id = $appointment->id;
+            } else {
+                $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date LIMIT 1', [
+                    $r->job_id,
+                    $r->mtime
+                ]);
+                $id = $finded[0]->id;
+            }
             DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND id <> :id;', [
                 $r->job_id,
-                $finded[0]->id
+                $id
             ]);
         }
     }

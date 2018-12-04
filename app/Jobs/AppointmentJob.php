@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\AppointmentProcessed;
+use App\Service\JobUploader;
 use App\Service\Requester;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Bus\Queueable;
@@ -38,39 +39,8 @@ class AppointmentJob implements ShouldQueue
             $this->delete();
         }
 
+        (new JobUploader())
+            ->addParseJob($this->job_scheduler);
 
-        $requester = new Requester();
-
-        $job_scheduler = $this->job_scheduler;
-        $job_parse = explode('-', $job_scheduler->Reference);
-        $job_id = array_shift($job_parse);
-
-        $findAppointment = AppointmentProcessed::where('job_id', '=', $job_id)->get();
-        if (count($findAppointment) > 0) {
-            $this->delete();
-            return;
-        }
-
-        $promise = $requester->getRequestAsync('companies/0/jobs/' . $job_id, [
-            'display' => 'all',
-        ]);
-
-        $promise->then(
-            function (ResponseInterface $res) use ($job_scheduler) {
-                $result_job = json_decode($res->getBody()->getContents());
-                $site_id = $result_job->Site->ID ?? null;
-                if ($site_id) {
-                    self::dispatch(new AppointmentSite($job_scheduler, $result_job, $site_id));
-                }
-            },
-            function (RequestException $e) {
-                echo 'addParseJob error here';
-                echo $e->getMessage() . "\n";
-                echo $e->getRequest()->getMethod();
-            }
-        );
-
-        $requester->tick();
-        $promise->wait();
     }
 }
