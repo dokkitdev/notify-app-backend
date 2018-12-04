@@ -49,7 +49,7 @@ class JobUploader
                     for ($i = $pages; $i > 0; $i--) {
 //                        dump('page ' . $i);
                         $this->getPageWithJobs($i);
-//                        dispatch(new AppointmentPage($i));
+                        dispatch(new AppointmentPage($i));
                     }
                 }
             },
@@ -81,8 +81,8 @@ class JobUploader
                 $result = json_decode($res->getBody()->getContents());
                 foreach ($result as $job) {
 //                    dump('add parse');
-                    $this->addParseJob($job);
-//                    dispatch(new AppointmentJob($job));
+//                    $this->addParseJob($job);
+                    dispatch(new AppointmentJob($job));
                 }
             },
             function (RequestException $e) {
@@ -119,8 +119,8 @@ class JobUploader
                 $site_id = $result_job->Site->ID ?? null;
                 if ($site_id) {
 //                    dump('finishParseJob');
-//                    dispatch(new AppointmentSite($job_scheduler, $result_job, $site_id));
-                    $this->finishParseJob($job_scheduler, $result_job, $site_id);
+                    dispatch(new AppointmentSite($job_scheduler, $result_job, $site_id));
+//                    $this->finishParseJob($job_scheduler, $result_job, $site_id);
                 }
             },
             function (RequestException $e) {
