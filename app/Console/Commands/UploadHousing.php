@@ -7,6 +7,7 @@ use App\Service\HousingUploader;
 use App\Service\Requester;
 use App\Service\simProRequestService;
 use App\Service\simProService;
+use App\Service\Upload\HousingUpload;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
@@ -45,8 +46,8 @@ class UploadHousing extends Command
      */
     public function handle()
     {
-        (new HousingUploader())
-            ->startParsing();
+        (new HousingUpload())
+            ->run();
     }
 
 }

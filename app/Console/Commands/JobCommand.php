@@ -18,6 +18,6 @@ class JobCommand extends Command
     public function handle()
     {
         (new JobUpload())
-            ->uploadJob();
+            ->run();
     }
 }

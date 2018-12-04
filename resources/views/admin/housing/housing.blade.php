@@ -33,8 +33,7 @@
 @section('content')
     <form action="{{ route('housing.generate') }}" method="post" id="housing-form">
         @csrf
-        <h2>Housing Letters <a href="{{ route('housing.import') }}"
-                               class="btn btn-primary float-right">Import</a></h2>
+        <h2>Housing Letters</h2>
         <table id="housing-table" class="tablesorter" style="width: 100%">
             <thead>
             <tr>

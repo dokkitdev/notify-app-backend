@@ -26,7 +26,7 @@ class JobUpload
         $this->simpro = new simProRequestService();
     }
 
-    public function uploadJob()
+    public function run()
     {
         DB::delete('DELETE FROM `appointments` WHERE id > 0;');
             $begin = new \DateTime();
