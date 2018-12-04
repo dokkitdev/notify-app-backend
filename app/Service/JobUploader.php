@@ -105,9 +105,9 @@ class JobUploader
         $job_parse = explode('-', $job_scheduler->Reference);
         $job_id = array_shift($job_parse);
 
-        if (count(AppointmentProcessed::where('job_id', '=', $job_id)->get()) > 0) {
-            return true;
-        }
+//        if (count(AppointmentProcessed::where('job_id', '=', $job_id)->get()) > 0) {
+//            return true;
+//        }
 
         $promise = $this->requester->getRequestAsync('companies/0/jobs/' . $job_id, [
             'display' => 'all',
