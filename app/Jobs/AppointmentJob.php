@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\AppointmentProcessed;
 use App\Service\Requester;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Bus\Queueable;
@@ -43,6 +44,12 @@ class AppointmentJob implements ShouldQueue
         $job_scheduler = $this->job_scheduler;
         $job_parse = explode('-', $job_scheduler->Reference);
         $job_id = array_shift($job_parse);
+
+        $findAppointment = AppointmentProcessed::where('job_id', '=', $job_id)->get();
+        if (count($findAppointment) > 0) {
+            $this->delete();
+            return;
+        }
 
         $promise = $requester->getRequestAsync('companies/0/jobs/' . $job_id, [
             'display' => 'all',

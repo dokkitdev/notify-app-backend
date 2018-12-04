@@ -6,6 +6,7 @@ use App\Appointment;
 use App\Http\Requests\UserRequest;
 use App\Logs;
 use App\Mail\AdminRegister;
+use App\Models\AppointmentProcessed;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
 use App\Template;
@@ -84,7 +85,7 @@ class AppointmentsController extends Controller
 
     public function import()
     {
-        exec('php ' . base_path() . '/artisan upload:job > /dev/null 2>&1 &');
+        exec('php ' . base_path() . '/artisan upload:job');
         return redirect()->route('appointments.all')->with([
             'ok' => 'Import jobs are being processed and will appear in the page shortly.',
         ]);
@@ -110,6 +111,9 @@ class AppointmentsController extends Controller
                 foreach ($appointments as $a) {
                     $appointment = Appointment::find($a);
                     $appointment->is_proccessed = true;
+                    $appointment_processed = AppointmentProcessed::create([
+                        'job_id' => $appointment->job_id,
+                    ]);
                     $appointment->save();
                     $filled[] = $appointment->id;
                 }
@@ -141,6 +145,10 @@ class AppointmentsController extends Controller
                         $appointment->docx = $docx;
                         $appointment->pdf = $pdf;
 //                        $sim->uploadAppointment($appointment);
+
+                        $appointment_processed = AppointmentProcessed::create([
+                            'job_id' => $appointment->job_id,
+                        ]);
                     }
                     $appointment->is_proccessed = true;
                     $appointment->save();
