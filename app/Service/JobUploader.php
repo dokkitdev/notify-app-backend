@@ -200,7 +200,6 @@ class JobUploader
             'site_id' => $siteId,
             'time' => $time
         ]);
-        dump($appointment);
         $this->clearDublicates();
     }
 
