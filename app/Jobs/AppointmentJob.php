@@ -43,4 +43,10 @@ class AppointmentJob implements ShouldQueue
             ->addParseJob($this->job_scheduler);
 
     }
+
+    public function fail($exception = null)
+    {
+        $exception->getMessage();
+    }
+
 }

@@ -49,4 +49,9 @@ class AppointmentSite implements ShouldQueue
             ->finishParseJob($this->job_scheduler, $this->result_job, $this->site_id);
 
     }
+
+    public function fail($exception = null)
+    {
+        $exception->getMessage();
+    }
 }
