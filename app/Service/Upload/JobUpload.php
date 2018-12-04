@@ -28,7 +28,8 @@ class JobUpload
 
     public function uploadJob()
     {
-        $begin = new \DateTime();
+        DB::delete('DELETE FROM `appointments` WHERE id > 0;'); 
+            $begin = new \DateTime();
         $end = new \DateTime('+14 day');
 
         $interval = \DateInterval::createFromDateString('1 day');
