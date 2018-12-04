@@ -41,4 +41,9 @@ class AppointmentPage implements ShouldQueue
         (new JobUploader())
             ->getPageWithJobs($this->page);
     }
+
+    public function fail($exception = null)
+    {
+        $exception->getMessage();
+    }
 }
