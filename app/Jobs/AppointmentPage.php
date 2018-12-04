@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Service\JobUploader;
 use App\Service\Requester;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Bus\Queueable;
@@ -37,28 +38,7 @@ class AppointmentPage implements ShouldQueue
             $this->delete();
         }
 
-        $requester = new Requester();
-        $promise = $requester->getRequestAsync('companies/0/schedules/', [
-            'Type' => 'job',
-            'display' => 'all',
-            'pageSize' => 25,
-            'page' => $this->page,
-        ]);
-
-        $promise->then(
-            function (ResponseInterface $res) {
-                $result = json_decode($res->getBody()->getContents());
-                foreach ($result as $job) {
-                    dispatch(new AppointmentJob($job));
-                }
-            },
-            function (RequestException $e) {
-                echo 'getPageWithJobs error here';
-                echo $e->getMessage() . "\n";
-                echo $e->getRequest()->getMethod();
-            }
-        );
-        $requester->tick();
-        $promise->wait();
+        (new JobUploader())
+            ->getPageWithJobs($this->page);
     }
 }

@@ -22,29 +22,7 @@ class JobCommand extends Command
 
     public function handle()
     {
-        $requester = new Requester();
-        $promise = $requester->getRequestAsync('companies/0/schedules/', [
-            'Type' => 'job',
-            'display' => 'all',
-            'pageSize' => 1,
-        ]);
-
-        $promise->then(
-            function (ResponseInterface $res) {
-                $headers = $res->getHeaders();
-                if (array_key_exists('Result-Total', $headers)) {
-                    $pages = (int)ceil($headers['Result-Total'][0] / 25);
-                    for ($i = $pages; $i > 0; $i--) {
-                        dispatch(new AppointmentPage($i));
-                    }
-                }
-            },
-            function (RequestException $e) {
-                echo $e->getMessage() . "\n";
-                echo $e->getRequest()->getMethod();
-            }
-        );
-        $requester->tick();
-        $promise->wait();
+        (new JobUploader())
+            ->run();
     }
 }
