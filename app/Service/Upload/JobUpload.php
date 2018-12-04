@@ -28,7 +28,7 @@ class JobUpload
 
     public function uploadJob()
     {
-        DB::delete('DELETE FROM `appointments` WHERE id > 0;'); 
+        DB::delete('DELETE FROM `appointments` WHERE id > 0;');
             $begin = new \DateTime();
         $end = new \DateTime('+14 day');
 
@@ -90,7 +90,7 @@ class JobUpload
     {
         $date = $job_scheduler->Date;
         $blocks = $job_scheduler->Blocks;
-        $time = $blocks[0]->EndTime;
+        $time = $blocks[0]->StartTime;
 
         $jobId = $result_job->ID;
         $workType = $result_job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null;
