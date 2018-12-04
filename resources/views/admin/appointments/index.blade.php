@@ -129,7 +129,7 @@
                 widgets: ['zebra'],
                 headers: {
                     0: {sorter: false},
-                    6: {sorter: false},
+                    // 6: {sorter: false},
                     9: {sorter: false}
                 }
             });
