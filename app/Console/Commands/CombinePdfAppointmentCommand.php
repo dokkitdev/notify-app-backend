@@ -52,7 +52,7 @@ class CombinePdfAppointmentCommand extends Command
                 'date' => $appointment->send_date,
             ]);
             $appointment->save();
-//            $sim->uploadAppointment($appointment);
+            $sim->uploadAppointment($appointment);
             $filled[] = $appointment->pdf;
         }
         if (count($filled) > 0) {
