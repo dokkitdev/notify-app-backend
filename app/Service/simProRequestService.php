@@ -63,7 +63,7 @@ class simProRequestService
             $headers = $res->getHeaders();
             $urls[] = $url;
             if (isset($headers['Result-Pages'][0]) && $headers['Result-Pages'][0] > 1) {
-                for ($i = 2; $i < $headers['Result-Pages'][0]; $i++) {
+                for ($i = 2; $i < $headers['Result-Pages'][0] + 1; $i++) {
 
                     $urls[] = $url . ((strpos($url, '?') != false) ? '&' : '?') . 'page=' . $i;
                 }
