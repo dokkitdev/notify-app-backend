@@ -29,7 +29,7 @@ class JobUpload
     public function run()
     {
         DB::delete('DELETE FROM `appointments` WHERE id > 0;');
-        $begin = new \DateTime();
+        $begin = new \DateTime('+2 day');
         $end = new \DateTime('+14 day');
 
         $interval = \DateInterval::createFromDateString('1 day');
@@ -66,10 +66,6 @@ class JobUpload
         $job_parse = explode('-', $job_scheduler->Reference);
         $job_id = array_shift($job_parse);
         dump('job id = ' . $job_id);
-        if (count(AppointmentProcessed::where('job_id', '=', $job_id)->get()) > 0) {
-            dump('AppointmentProcessed');
-            return;
-        }
         $result_job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_id . '?display=all');
         if (!$result_job) {
             dump('!$result_job');
