@@ -29,7 +29,7 @@ class JobUpload
     public function run()
     {
         DB::delete('DELETE FROM `appointments` WHERE id > 0;');
-            $begin = new \DateTime();
+        $begin = new \DateTime();
         $end = new \DateTime('+14 day');
 
         $interval = \DateInterval::createFromDateString('1 day');
@@ -65,7 +65,7 @@ class JobUpload
         if (count(AppointmentProcessed::where('job_id', '=', $job_id)->get()) > 0) {
             return;
         }
-        $result_job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_id);
+        $result_job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_id . '?display=all');
         if (!$result_job) {
             return;
         }
@@ -130,7 +130,6 @@ class JobUpload
             'site_id' => $siteId,
             'time' => $time
         ]);
-        $this->clearDublicates();
     }
 
 

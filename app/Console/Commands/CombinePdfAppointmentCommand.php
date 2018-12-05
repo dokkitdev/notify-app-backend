@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Appointment;
 use App\Logs;
+use App\Models\AppointmentProcessed;
 use App\Service\JobUploader;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
@@ -46,6 +47,10 @@ class CombinePdfAppointmentCommand extends Command
             $appointment->docx = $docx;
             $appointment->pdf = $pdf;
             $appointment->is_proccessed = true;
+            $appointment_processed = AppointmentProcessed::create([
+                'job_id' => $appointment->job_id,
+                'date' => $appointment->send_date,
+            ]);
             $appointment->save();
 //            $sim->uploadAppointment($appointment);
             $filled[] = $appointment->pdf;
