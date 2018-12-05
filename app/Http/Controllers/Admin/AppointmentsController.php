@@ -27,39 +27,23 @@ class AppointmentsController extends Controller
     public function index(Request $request)
     {
         $limit = $request->get('limit') ?? 20;
-        $start = $request->get('start') ?? null;
-        $end = $request->get('end') ?? null;
-        if ($start) {
-            $start = \DateTime::createFromFormat('d.m.Y', $start);
-        } else {
-            $start = new \DateTime();
-        }
-        $start->setTime(0, 0, 0);
 
 
-        if ($end) {
-            $end = \DateTime::createFromFormat('d.m.Y', $end);
-        } else {
-            $end = new \DateTime('+3 day');
-        }
-        $end->setTime(23, 59, 59);
-
-
-        $appointments = Appointment::where('send_date', '>=', $start)
-            ->where(function ($query) {
-                $query->where('is_proccessed', '<>', 1)
-                    ->orWhere('is_proccessed', '=', null);
-            })
-            ->where('send_date', '<=', $end)
+        $appointments = Appointment::where(function ($query) {
+            $query->where('is_proccessed', '<>', 1)
+                ->orWhere('is_proccessed', '=', null);
+        })
             ->orderBy('send_date', 'ASC')
             ->paginate($limit);
 
+        $today = new \DateTime();
+
         return view('admin.appointments.index', [
             'appointments' => $appointments,
-            'today' => $start,
+//            'today' => $start,
             'limit' => $limit,
-            'start' => $start->format('d.m.Y'),
-            'end' => $end->format('d.m.Y'),
+            'start' => $today->format('d.m.Y'),
+            'end' => $today->format('d.m.Y'),
         ]);
     }
 
@@ -113,6 +97,7 @@ class AppointmentsController extends Controller
                     $appointment->is_proccessed = true;
                     $appointment_processed = AppointmentProcessed::create([
                         'job_id' => $appointment->job_id,
+                        'date' => $appointment->send_date,
                     ]);
                     $appointment->save();
                     $filled[] = $appointment->id;
@@ -148,6 +133,7 @@ class AppointmentsController extends Controller
 
                         $appointment_processed = AppointmentProcessed::create([
                             'job_id' => $appointment->job_id,
+                            'date' => $appointment->send_date,
                         ]);
                     }
                     $appointment->is_proccessed = true;
@@ -195,26 +181,39 @@ class AppointmentsController extends Controller
 
     public function clearDublicates()
     {
-        $result = DB::select('SELECT job_id, min(`send_date`) as mtime FROM appointments GROUP BY job_id HAVING COUNT(*) > 1');
-        foreach ($result as $r) {
 
-            $appointment = Appointment::where('job_id', '=', $r->job_id)
-                ->where('is_proccessed', '=', 1)
-                ->orderBy('send_date', 'ASC')
-                ->first();
-            if ($appointment) {
-                $id = $appointment->id;
-            } else {
-                $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date LIMIT 1', [
+        $begin = new \DateTime();
+        $end = new \DateTime('+14 day');
+
+        $interval = \DateInterval::createFromDateString('1 day');
+        $period = new \DatePeriod($begin, $interval, $end);
+        foreach ($period as $dt) {
+            $sDate = $dt->format('Y-m-d 00:00:00');
+            $eDate = $dt->format('Y-m-d 23:59:59');
+
+            $result = DB::select('SELECT job_id, min(`send_date`) as mtime FROM appointments WHERE `send_date` > \'' . $sDate . '\' AND `send_date` < \'' . $eDate . '\' GROUP BY job_id HAVING COUNT(*) > 1 ');
+            foreach ($result as $r) {
+
+                $appointment = Appointment::where('job_id', '=', $r->job_id)
+                    ->where('is_proccessed', '=', 1)
+                    ->where('send_date', '>', $sDate)
+                    ->where('send_date', '<', $eDate)
+                    ->orderBy('send_date', 'ASC')
+                    ->first();
+                if ($appointment) {
+                    $id = $appointment->id;
+                } else {
+                    $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\'  LIMIT 1', [
+                        $r->job_id,
+                        $r->mtime
+                    ]);
+                    $id = $finded[0]->id;
+                }
+                DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND id <> :id AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
                     $r->job_id,
-                    $r->mtime
+                    $id
                 ]);
-                $id = $finded[0]->id;
             }
-            DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND id <> :id;', [
-                $r->job_id,
-                $id
-            ]);
         }
     }
 }

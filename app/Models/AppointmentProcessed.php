@@ -8,6 +8,7 @@ class AppointmentProcessed extends Model
 {
     protected $table = 'appointments_processed';
     protected $fillable = [
-       'job_id'
+        'job_id',
+        'date'
     ];
 }
