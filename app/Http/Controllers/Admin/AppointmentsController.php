@@ -192,30 +192,28 @@ class AppointmentsController extends Controller
             $sDate = $dt->format('Y-m-d 00:00:00');
             $eDate = $dt->format('Y-m-d 23:59:59');
 
-            $result = DB::select('SELECT job_id, min(`send_date`) as mtime FROM appointments WHERE `send_date` > \'' . $sDate . '\' AND `send_date` < \'' . $eDate . '\' GROUP BY job_id HAVING COUNT(*) > 1 ');
-            foreach ($result as $r) {
-
-                $appointment = AppointmentProcessed::where('job_id', '=', $r->job_id)
-                    ->where('send_date', '>', $sDate)
-                    ->where('send_date', '<', $eDate)
-                    ->orderBy('send_date', 'ASC')
-                    ->first();
-                if ($appointment) {
+            $appointment = AppointmentProcessed::where('date', '>', $sDate)
+                ->where('date', '<', $eDate)
+                ->get();
+            if (sizeOf($appointment) > 0) {
+                foreach ($appointment as $a) {
                     DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
-                        $r->job_id,
-                    ]);
-                } else {
-                    $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\'  LIMIT 1', [
-                        $r->job_id,
-                        $r->mtime
-                    ]);
-                    $id = $finded[0]->id;
-                    DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND id <> :id AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
-                        $r->job_id,
-                        $id
+                        $a->job_id
                     ]);
                 }
+            }
 
+            $result = DB::select('SELECT job_id, min(`send_date`) as mtime FROM appointments WHERE `send_date` > \'' . $sDate . '\' AND `send_date` < \'' . $eDate . '\' GROUP BY job_id HAVING COUNT(*) > 1 ');
+            foreach ($result as $r) {
+                $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\'  LIMIT 1', [
+                    $r->job_id,
+                    $r->mtime
+                ]);
+                $id = $finded[0]->id;
+                DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND id <> :id AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
+                    $r->job_id,
+                    $id
+                ]);
             }
         }
     }
