@@ -43,7 +43,21 @@ class PrivateUpload
 
     public function parseCompany($company_info)
     {
-        dump($company_info);
+        $company = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/companies/' . $company_info->ID);
+        $this->parseContract($company);
+    }
+
+    public function parseContract($company)
+    {
+        $contracts = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/companies/' . $company->ID . '/contracts/');
+        if (sizeof($contracts) > 0) {
+            $this->addCreateCompanyAndParseContracts($company, $contracts);
+        }
+    }
+
+    public function addCreateCompanyAndParseContracts()
+    {
+
     }
 
 }

@@ -49,6 +49,7 @@ class JobUpload
 
     public function getPageByNumber($url)
     {
+        dump('getPagyByBumber ' . $url);
         $schedules = $this->simpro->getRequest('get', $url);
         foreach ($schedules as $job_scheduler) {
             $this->parseSchedule($job_scheduler);
@@ -57,27 +58,34 @@ class JobUpload
 
     public function parseSchedule($job_scheduler)
     {
+        dump('parseSchedule ' . $job_scheduler->ID);
         if (!isset($job_scheduler->Reference)) {
+            dump('no reference');
             return;
         }
         $job_parse = explode('-', $job_scheduler->Reference);
         $job_id = array_shift($job_parse);
-
+        dump('job id = ' . $job_id);
         if (count(AppointmentProcessed::where('job_id', '=', $job_id)->get()) > 0) {
+            dump('AppointmentProcessed');
             return;
         }
         $result_job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_id . '?display=all');
         if (!$result_job) {
+            dump('!$result_job');
             return;
         }
         $site_id = $result_job->Site->ID ?? null;
         if ($site_id) {
             $this->parseSite($job_scheduler, $result_job, $site_id);
+        } else {
+            dump('site_id null');
         }
     }
 
     public function parseSite($job_scheduler, $result_job, $site_id)
     {
+        dump('parseSite ');
         $site = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/' . $site_id);
         if ($site) {
             $this->createAppointment($job_scheduler, $result_job, $site);
