@@ -27,18 +27,23 @@ class PrivateUpload
         $pages = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/customers/companies/');
         if ($pages) {
             foreach ($pages as $url) {
-                $this->getPageByUrl($url);
+                $this->parsePageByUrl($url);
             }
         }
     }
 
     public function parsePageByUrl($url)
     {
-        $page = $this->simpro->getRequest('get', $url);
-        dump($page);
-        die;
+        $companies = $this->simpro->getRequest('get', $url);
+        foreach ($companies as $company_info) {
+            $this->parseCompany($company_info);
+            die;
+        }
     }
 
-    public function parseCompany($)
+    public function parseCompany($company_info)
+    {
+        dump($company_info);
+    }
 
 }
