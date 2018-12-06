@@ -98,7 +98,7 @@ class HousingUpload
         if ($housingJob) {
             $housingJob->job_id = $job->ID;
             $housingJob->company_name = $job->Customer->CompanyName;
-            $housingJob->due_date =  $job->DueDate ? \DateTime::createFromFormat('Y-m-d', $job->DueDate) : null;
+            $housingJob->due_date =  $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null;
             $housingJob->tags = $tag_selected;
             $housingJob->stage = $job->Stage;
             $housingJob->job_name = $job->Sections[0]->CostCenters[0]->CostCenter->Name ?? $housingJob->job_name;
@@ -117,7 +117,7 @@ class HousingUpload
             $housingJob = \App\Models\HousingJob::create([
                 'job_id' => $job->ID,
                 'company_name' => $job->Customer->CompanyName,
-                'due_date' => \DateTime::createFromFormat('Y-m-d', $job->DueDate),
+                'due_date' => $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null,
                 'tags' => $tag_selected,
                 'stage' => $job->Stage,
                 'job_name' => $job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null,
@@ -136,3 +136,5 @@ class HousingUpload
     }
 
 }
+
+
