@@ -195,7 +195,6 @@ class AppointmentsController extends Controller
             $appointment = AppointmentProcessed::where('date', '>', $sDate)
                 ->where('date', '<', $eDate)
                 ->get();
-            dump($appointment);die;
             if (sizeOf($appointment) > 0) {
                 foreach ($appointment as $a) {
                     DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
