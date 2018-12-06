@@ -49,12 +49,11 @@ class HousingUpload
     public function parseJob($job_info)
     {
         $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_info->ID);
-        if ($job->DueDate && $this->yesterday == $job->DueDate) {
+        dump($job->Stage);
+        if (($job->Stage == 'Progress' || $job->Stage == 'Pending')) {
             dump('parseSite');
             $this->parseSite($job);
         }
-        dump('due date not yesterday ' . $job->DueDate);
-
     }
 
     public function parseSite($job)
