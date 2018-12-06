@@ -41,7 +41,7 @@
                             title="Select entries that should be processed"
                             class="fas fa-info"></i></th>
                 <th class="header">Job ID</th>
-                <th class="header">Due Date</th>
+                <th class="header">Schedule date</th>
                 <th class="header">Service type</th>
                 <th class="header">Tag</th>
                 <th></th>
@@ -55,7 +55,7 @@
                                {!! $templates[$a->tags]->docx ? '' : 'disabled' !!} value="{!! $a->id !!}">
                     </td>
                     <td>{{$a->job_id}}</td>
-                    <td>{{$a->getDueDate()}}</td>
+                    <td>{{$a->getScheduleDate()}}</td>
                     <td>{{$a->job_name}}</td>
                     <td>{{$a->tags}}</td>
                     <td>

@@ -49,6 +49,14 @@ class HousingJob extends Model
         return $dueDate ? $dueDate->format('Y-m-d') : '';
     }
 
+    public function getScheduleDate()
+    {
+        $date = $this->schedule_date;
+        $date = $date ? \DateTime::createFromFormat('Y-m-d H:i:s', $date) : null;
+
+        return $date ? $date->format('Y-m-d') : '';
+    }
+
     public function siteContact()
     {
         return trim($this->given_name . ' ' . $this->family_name);
