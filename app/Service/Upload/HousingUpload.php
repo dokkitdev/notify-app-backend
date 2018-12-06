@@ -98,7 +98,7 @@ class HousingUpload
         if ($housingJob) {
             $housingJob->job_id = $job->ID;
             $housingJob->company_name = $job->Customer->CompanyName;
-            $housingJob->due_date = \DateTime::createFromFormat('Y-m-d', $job->DueDate);
+            $housingJob->due_date =  $job->DueDate ? \DateTime::createFromFormat('Y-m-d', $job->DueDate) : null;
             $housingJob->tags = $tag_selected;
             $housingJob->stage = $job->Stage;
             $housingJob->job_name = $job->Sections[0]->CostCenters[0]->CostCenter->Name ?? $housingJob->job_name;
