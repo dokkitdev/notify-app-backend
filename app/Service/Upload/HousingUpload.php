@@ -48,13 +48,14 @@ class HousingUpload
 
     public function parseJob($job_info)
     {
-        $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_info->ID);
+        $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_info->ID . '?display=all');
         dump($job->Stage);
         if (($job->Stage == 'Progress' || $job->Stage == 'Pending')) {
             dump('parseSite');
             $this->parseSite($job);
         }
     }
+
 
     public function parseSite($job)
     {
@@ -87,21 +88,28 @@ class HousingUpload
             dump('noo tag selected');
             return;
         }
+
+        $costCenterId = $job->Sections[0]->CostCenters[0]->ID ?? null;
+        $schedule = $this->simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Type=job&Reference=' . $job->ID . '-' . $costCenterId . '&date=' . $this->yesterday);
+        if (sizeOf($schedule) < 1) {
+            return;
+        }
         $site = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/' . $site_id);
         dump('create housing');
-        $this->createHousing($site, $job, $tag_selected);
+        $this->createHousing($site, $job, $tag_selected, $schedule);
     }
 
-    public function createHousing($site, $job, $tag_selected)
+    public function createHousing($site, $job, $tag_selected, $schedule)
     {
         $housingJob = \App\Models\HousingJob::where('job_id', '=', $job->ID)->get()->first();
+        $schedule = array_shift($schedule);
         if ($housingJob) {
             $housingJob->job_id = $job->ID;
             $housingJob->company_name = $job->Customer->CompanyName;
-            $housingJob->due_date =  $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null;
+            $housingJob->due_date = $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null;
             $housingJob->tags = $tag_selected;
             $housingJob->stage = $job->Stage;
-            $housingJob->job_name = $job->Sections[0]->CostCenters[0]->CostCenter->Name ?? $housingJob->job_name;
+            $housingJob->job_name = $job->Sections[0]->CostCenters[0]->Name ?? $housingJob->job_name;
             $housingJob->site_id = $site->ID;
             $housingJob->address = $site->Address->Address ?? $housingJob->address;
             $housingJob->city = $site->Address->City ?? $housingJob->city;
@@ -112,6 +120,7 @@ class HousingUpload
             $housingJob->email = $site->PrimaryContact->Email ?? $housingJob->email;
             $housingJob->work_phone = $site->PrimaryContact->WorkPhone ?? $housingJob->work_phone;
             $housingJob->cell_phone = $site->PrimaryContact->CellPhone ?? $housingJob->cell_phone;
+            $housingJob->schedule_date = $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null;
             $housingJob->save();
         } else {
             $housingJob = \App\Models\HousingJob::create([
@@ -131,10 +140,19 @@ class HousingUpload
                 'email' => $site->PrimaryContact->Email ?? null,
                 'work_phone' => $site->PrimaryContact->WorkPhone ?? null,
                 'cell_phone' => $site->PrimaryContact->CellPhone ?? null,
+                'schedule_date' => $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null,
             ]);
         }
     }
 
 }
+
+
+
+
+
+
+
+
 
 

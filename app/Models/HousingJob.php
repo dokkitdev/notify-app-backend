@@ -32,6 +32,7 @@ class HousingJob extends Model
         'cell_phone',
         'work_phone',
         'email',
+        'schedule_date'
     ];
 
 
