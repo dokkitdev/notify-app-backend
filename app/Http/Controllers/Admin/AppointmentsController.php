@@ -206,11 +206,13 @@ class AppointmentsController extends Controller
 
 
             $result = DB::select('SELECT job_id, min(`send_date`) as mtime FROM appointments WHERE `send_date` > \'' . $sDate . '\' AND `send_date` < \'' . $eDate . '\' GROUP BY job_id HAVING COUNT(*) > 1 ');
+            dump($result);
             foreach ($result as $r) {
                 $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\'  LIMIT 1', [
                     $r->job_id,
                     $r->mtime
                 ]);
+                dump($finded);die;
                 $id = $finded[0]->id;
                 DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND id <> :id AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
                     $r->job_id,
