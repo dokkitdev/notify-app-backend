@@ -26,6 +26,11 @@ class Customer extends Model
         'postal_code',
     ];
 
+    public function getName()
+    {
+        return trim($this->company_name ?: ($this->first_name . ' ' . $this->last_name));
+    }
+
     public function sites()
     {
         return $this->hasMany(Site::class);

@@ -6,16 +6,11 @@
             <span>Dashboard</span>
         </a>
     </li>
-    <li class="nav-item
-                    @if(Request::path() === 'privateContracts')
-                        active
-                    @endif
-                    ">
-        <a class="nav-link" href="#">
+    <li class="nav-item {!! Route::current()->getName() == 'private.all' ? 'active' : '' !!}">
+        <a class="nav-link" href="{{ route('private.all') }}">
             <i class="fas fa-fw fa-folder"></i>
             <span>Private Contracts</span>
         </a>
-        {{--/privateContracts--}}
     </li>
     <li class="nav-item {!! Route::current()->getName() == 'housing.all' ? 'active' : '' !!}">
         <a class="nav-link" href="{{ route('housing.all') }}">

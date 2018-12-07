@@ -34,7 +34,15 @@ class PrivateUpload
         $pages = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/customers/companies/');
         if ($pages) {
             foreach ($pages as $url) {
+                dump('parse page by url');
                 $this->parsePageByUrl($url);
+            }
+        }
+        $pages = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/customers/individuals/');
+        if ($pages) {
+            foreach ($pages as $url) {
+                dump('parsePageByUrlIndividual');
+                $this->parsePageByUrlIndividual($url);
             }
         }
     }
@@ -47,6 +55,23 @@ class PrivateUpload
         }
     }
 
+    public function parsePageByUrlIndividual($url)
+    {
+        dump($url);
+        $companies = $this->simpro->getRequest('get', $url);
+        foreach ($companies as $company_info) {
+            dump('parseIndividual   ');
+            $this->parseIndividual($company_info);
+        }
+    }
+
+    public function parseIndividual($company_info)
+    {
+        $company = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/individuals/' . $company_info->ID);
+        dump('parse contract');
+        $this->parseContract($company);
+    }
+
     public function parseCompany($company_info)
     {
         $company = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/companies/' . $company_info->ID);
@@ -57,7 +82,10 @@ class PrivateUpload
     {
         $contracts = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/' . $company->ID . '/contracts/');
         if (sizeof($contracts) > 0) {
+            dump('addCreateCompanyAndParseContracts');
             $this->addCreateCompanyAndParseContracts($company, $contracts);
+        } else {
+            dump('zero');
         }
     }
 
@@ -104,14 +132,15 @@ class PrivateUpload
                 ]);
             }
 
-            dump($contract);
-
-            if (isset($company->Sites)) {
+            if (isset($company->Sites) && sizeOf($company->Sites) > 0) {
                 foreach ($company->Sites as $site_id) {
                     dump('addParseSite');
                     $this->addParseSite($company, $contract, $site_id->ID);
                 }
+            } else {
+                $company->delete();
             }
+        } else {
         }
     }
 
@@ -164,7 +193,7 @@ class PrivateUpload
         if (isset($asset_details->CustomFields) && is_array($asset_details->CustomFields)) {
             foreach ($asset_details->CustomFields as $cf) {
                 if ($cf->CustomField->ID == 1043) {
-                    $value = $cf->CustomField->Value;
+                    $value = $cf->Value;
                 }
             }
         }
