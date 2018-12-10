@@ -241,10 +241,13 @@ class TemplateGenerator
         $end_date = $end_date->format('Y-m-d');
         if ($week1->format('Y-m-d') == $end_date) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_1_WEEK)->first();
+            $type = '1wk';
         } else if ($week4->format('Y-m-d') == $end_date) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first();
+            $type = '4wks';
         } else if ($week8->format('Y-m-d') == $end_date) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first();
+            $type = '8wks';
         } else {
             return false;
         }
@@ -287,9 +290,10 @@ class TemplateGenerator
 
         $addressProperty = str_replace("\n", ', ', ucwords(strtolower($site->address)));
         $address2Property = '';
-        $cityProperty = htmlentities(str_replace("\n", ', ', ucwords(strtolower($customer->city))));
-        $stateProperty = htmlentities(str_replace("\n", ', ', ucwords(strtolower($customer->state))));
-        $postcodeProperty = htmlentities(str_replace("\n", ', ', strtoupper($customer->postal_code)));
+        $cityProperty = htmlentities(str_replace("\n", ', ', ucwords(strtolower($site->city))));
+        $stateProperty = htmlentities(str_replace("\n", ', ', ucwords(strtolower($site->state))));
+        $postcodeProperty = htmlentities(str_replace("\n", ', ', strtoupper($site->postal_code)));
+
 
         $contactName = htmlentities(str_replace("\n", ', ', ucwords(strtolower($customer->getName()))));
         $contractNo = $contract->contract_id;
@@ -352,6 +356,7 @@ class TemplateGenerator
             }
             $template->setValue($v, $str);
         }
+//        die;
 
         $template->setValue('ContractNo', $contractNo);
         $template->setValue('CustomerID', $customerId);
@@ -363,7 +368,7 @@ class TemplateGenerator
         $template->setValue('ExpiryDate', $expiryDate);
 
         $today = new \DateTime();
-        $new_file = $contract->contract_id . '.private.' . $today->format('Y-m-d') . '.docx';
+        $new_file = $customerId . '.' . $type . '.' . $today->format('Y-m-d') . '.docx';
 
         if ($contract->docx) {
             $old_file = $docx_folder . '/' . $contract->docx;

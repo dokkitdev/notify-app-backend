@@ -19,7 +19,8 @@
         "league/flysystem-aws-s3-v3": "^1.0",
         "lynx39/lara-pdf-merger": "^1.0",
         "pda/pheanstalk": "~3.0",
-        "phpoffice/phpword": "^0.15.0"
+        "phpoffice/phpword": "^0.15.0",
+        "sendgrid/sendgrid": "^7.2"
     },
     "require-dev": {
         "filp/whoops": "^2.0",
