@@ -50,7 +50,7 @@
                         <input type="checkbox" name="private[]" value="{!! $contract->id !!}">
                     </td>
                     <td>{!! $contract->contract_id !!}</td>
-                    <td>{!! $contract->end_date !!}</td>
+                    <td>{!! $contract->getEndDateYmd() !!}</td>
                     <td>{!! $contract->customer->getName() !!}</td>
                     <td>{!! $contract->asset->value !!}</td>
                     <td>

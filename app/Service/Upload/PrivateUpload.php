@@ -101,8 +101,8 @@ class PrivateUpload
             'state' => $company->Address->State ?? null,
             'country' => $company->Address->Country ?? null,
             'postal_code' => $company->Address->PostalCode ?? null,
+            'email' => $company->Email ?? null,
         ]);
-        dump($contracts);
 
         foreach ($contracts as $contract_info) {
             dump('addParseContract');

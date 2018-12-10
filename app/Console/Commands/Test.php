@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Models\HousingJob;
 use App\Service\HousingUploader;
 use App\Service\Requester;
+use App\Service\Sender\Sender;
 use App\Service\simProRequestService;
 use App\Service\simProService;
 use GuzzleHttp\Exception\RequestException;
@@ -47,10 +48,11 @@ class Test extends Command
      */
     public function handle()
     {
-        $asset = Asset::create([
-            'asset_id' => 1,
-            'value' => 'privet'
-        ]);
+        Sender::send(
+            'vitaliy.s.roslov@gmail.com',
+            'Hi vitaliy',
+            '<table><tr><td>Super td</td></tr></table>'
+        );
         die;
 
     }

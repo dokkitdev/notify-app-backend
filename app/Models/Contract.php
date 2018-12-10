@@ -9,6 +9,8 @@
 namespace App\Models;
 
 
+use App\Service\Sender\PrivateSender;
+use App\Templates;
 use Illuminate\Database\Eloquent\Model;
 
 class Contract extends Model
@@ -28,6 +30,12 @@ class Contract extends Model
     {
         $date = \DateTime::createFromFormat('Y-m-d H:i:s', $this->end_date);
         return $date ?: '';
+    }
+
+    public function getEndDateYmd()
+    {
+        $date = $this->getEndDate();
+        return $date ? $date->format('Y-m-d') : '';
     }
 
     public function getExpireDate()
@@ -62,10 +70,13 @@ class Contract extends Model
         $end_date = $end_date->format('Y-m-d');
         if ($week1->format('Y-m-d') == $end_date) {
             $this->is_processed_1 = true;
+            PrivateSender::generateAndSend($this, Templates::PRIVATE_1_WEEK);
         } else if ($week4->format('Y-m-d') == $end_date) {
             $this->is_processed_4 = true;
+            PrivateSender::generateAndSend($this, Templates::PRIVATE_4_WEEK);
         } else if ($week8->format('Y-m-d') == $end_date) {
             $this->is_processed_8 = true;
+            PrivateSender::generateAndSend($this, Templates::PRIVATE_8_WEEK);
         }
     }
 
