@@ -116,6 +116,7 @@ class TemplateGenerator
         }
 
         $template->saveAs($docx_folder . '/' . $new_file);
+	dump($new_file);die;
         return $new_file;
     }
 
