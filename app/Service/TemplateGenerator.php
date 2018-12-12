@@ -153,6 +153,21 @@ class TemplateGenerator
         }
         $today = $day . ' ' . $month . ' ' . $year;
 
+        $yesterday = new \DateTime();
+        $month = $today->format('F');
+        $year = $today->format('Y');
+        $day = ltrim($today->format('d'), '0');
+        if ($day % 10 == 1 && $day != 11) {
+            $day .= 'st';
+        } else if ($day % 10 == 2 && $day != 12) {
+            $day .= 'nd';
+        } else if ($day % 10 == 3 && $day != 13) {
+            $day .= 'rd';
+        } else {
+            $day .= 'th';
+        }
+        $yesterday = $day . ' ' . $month . ' ' . $year;
+
 
         $siteAddress = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->address))));
         $city = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->city))));
@@ -200,7 +215,7 @@ class TemplateGenerator
         $template->setValue('JobNumber', $housing->job_id);
         $template->setValue('SiteContact', $siteContact);
         $template->setValue('ServiceType', $serviceType);
-        $template->setValue('DueDate', $due_date);
+        $template->setValue('DueDate', $yesterday);
         $template->setValue('HousingCompany', $company_name);
         $template->setValue('ContactName', $contactName);
         $template->setValue('ContactPhone', $contactPhone);

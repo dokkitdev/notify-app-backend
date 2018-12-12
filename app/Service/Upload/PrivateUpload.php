@@ -190,14 +190,21 @@ class PrivateUpload
     {
         $asset_details = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/' . $site->site_id . '/assets/' . $asset_id);
         $value = "DEFAULT TEXT";
+        $value1044 = '';
         if (isset($asset_details->CustomFields) && is_array($asset_details->CustomFields)) {
             foreach ($asset_details->CustomFields as $cf) {
                 if ($cf->CustomField->ID == 1043) {
                     $value = $cf->Value;
                 }
+                if ($cf->CustomField->ID == 1044) {
+                    $value1044 = $cf->Value;
+                }
             }
         }
 
+        $joined = $value == 'DEFAULT TEXT'
+            ? $value
+            : trim($value . ' ' . $value1044);
 
         $asset = Asset::create([
             'asset_id' => $asset_details->ID,
