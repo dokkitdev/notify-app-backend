@@ -18,8 +18,11 @@ use LynX39\LaraPdfMerger\PdfManage;
 
 class TemplateGenerator
 {
-    public function fillAppoinmentLetterFromDocxTemplate($docx, Appointment $appointment)
+    public function fillAppoinmentLetterFromDocxTemplate($docx, Appointment $appointment = null)
     {
+	if ($appointment) {
+	return false;
+	}
         set_time_limit(0);
         $docx_folder = Config::get('constants.storage_docx');
         $file = $docx_folder . '/' . $docx;
