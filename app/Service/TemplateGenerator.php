@@ -411,7 +411,6 @@ class TemplateGenerator
         if (!is_file($file)) {
             return false;
         }
-
         exec('libreoffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $file . ' --outdir ' . $pdf_folder);
         $new_file = substr($docx, 0, -4) . 'pdf';
 
