@@ -153,7 +153,7 @@ class TemplateGenerator
         }
         $today = $day . ' ' . $month . ' ' . $year;
 
-        $yesterday = new \DateTime();
+        $yesterday = new \DateTime('-1 day');
         $month = $yesterday->format('F');
         $year = $yesterday->format('Y');
         $day = ltrim($yesterday->format('d'), '0');
