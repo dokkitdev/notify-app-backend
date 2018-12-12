@@ -9,6 +9,7 @@ use App\Mail\AdminRegister;
 use App\Models\AppointmentProcessed;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
+use App\Service\Upload\JobUpload;
 use App\Template;
 use App\Templates;
 use App\User;
@@ -182,43 +183,6 @@ class AppointmentsController extends Controller
 
     public function clearDublicates()
     {
-
-        $begin = new \DateTime();
-        $end = new \DateTime('+14 day');
-
-        $interval = \DateInterval::createFromDateString('1 day');
-        $period = new \DatePeriod($begin, $interval, $end);
-        foreach ($period as $dt) {
-            $sDate = $dt->format('Y-m-d 00:00:00');
-            $eDate = $dt->format('Y-m-d 23:59:59');
-
-            $appointment = AppointmentProcessed::where('date', '>', $sDate)
-                ->where('date', '<', $eDate)
-                ->get();
-            dump('a', $appointment);
-            if (sizeOf($appointment) > 0) {
-                foreach ($appointment as $a) {
-                    DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
-                        $a->job_id
-                    ]);
-                }
-            }
-
-
-            $result = DB::select('SELECT job_id, min(`send_date`) as mtime FROM appointments WHERE `send_date` > \'' . $sDate . '\' AND `send_date` < \'' . $eDate . '\' GROUP BY job_id HAVING COUNT(*) > 1 ');
-            dump($result);
-            foreach ($result as $r) {
-                $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\'  LIMIT 1', [
-                    $r->job_id,
-                    $r->mtime
-                ]);
-                dump($finded);die;
-                $id = $finded[0]->id;
-                DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND id <> :id AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
-                    $r->job_id,
-                    $id
-                ]);
-            }
-        }
+        (new JobUpload())->clearDublicates();
     }
 }
