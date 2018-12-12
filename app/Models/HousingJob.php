@@ -59,7 +59,7 @@ class HousingJob extends Model
 
     public function siteContact()
     {
-        return trim($this->given_name . ' ' . $this->family_name);
+        return trim($this->given_name . ' ' . $this->family_name) ?: 'The Occupier';
     }
 
     public function getDueDateWithDay()
