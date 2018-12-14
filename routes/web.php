@@ -47,7 +47,7 @@ Route::group(['middleware' => ['CheckAdmin']], function () {
         Route::get('/{id}/clear', 'Admin\\AppointmentsController@clear')->name('appointments.clear');
         Route::get('/{id}/view', 'Admin\\AppointmentsController@viewPdf')->name('appointments.view');
         Route::get('/import', 'Admin\\AppointmentsController@import')->name('appointments.import');
-        Route::get('/clear', 'Admin\\AppointmentsController@clearDublicates');  
+        Route::get('/clear', 'Admin\\AppointmentsController@clearDublicates');
     });
 
 
