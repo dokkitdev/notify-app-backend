@@ -52,7 +52,7 @@
                     <td>{!! $contract->contract_id !!}</td>
                     <td>{!! $contract->getEndDateYmd() !!}</td>
                     <td>{!! $contract->customer->getName() !!}</td>
-                    <td>{!! $contract->asset->value !!}</td>
+                    <td>{!! $contract->asset ? $contract->asset->value : 'Heating Equipment' !!}</td>
                     <td>
                         <a href="{!! route('private.view', ['id' => $contract->id]) !!}">View</a>
                     </td>

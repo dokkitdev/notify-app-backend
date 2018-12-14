@@ -24,7 +24,7 @@ class PrivateController extends Controller
         $contracts = Contract::with('customer')
             ->with('assets')
             ->has('customer')
-            ->has('assets')
+//            ->has('assets')
             ->where(function ($query) use ($week1, $week4, $week8) {
                 $query
                     ->where(function ($query) use ($week1) {

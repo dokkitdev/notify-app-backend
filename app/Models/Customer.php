@@ -16,6 +16,7 @@ class Customer extends Model
     protected $table = 'n_customers';
     protected $fillable = [
         'company_name',
+        'title',
         'first_name',
         'last_name',
         'company_id',
@@ -29,7 +30,12 @@ class Customer extends Model
 
     public function getName()
     {
-        return trim($this->company_name ?: ($this->first_name . ' ' . $this->last_name));
+        if ($this->company_name) {
+            return $this->company_name;
+        } else if (trim($this->title . ' ' . $this->first_name . ' ' . $this->last_name)) {
+            return trim($this->title . ' ' . $this->first_name . ' ' . $this->last_name);
+        }
+        return 'The Occupier';
     }
 
     public function sites()

@@ -10,6 +10,7 @@ namespace App\Service\Upload;
 
 
 use App\Service\simProRequestService;
+use Illuminate\Support\Facades\DB;
 
 class HousingUpload
 {
@@ -26,6 +27,7 @@ class HousingUpload
 
     public function run()
     {
+        DB::delete('TRUNCATE `n_housing_job`;');
         $result = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/jobs/?display=all');
         if ($result) {
             foreach ($result as $url) {

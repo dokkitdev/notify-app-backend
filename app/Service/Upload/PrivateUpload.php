@@ -14,6 +14,7 @@ use App\Models\Contract;
 use App\Models\Customer;
 use App\Models\Site;
 use App\Service\simProRequestService;
+use Illuminate\Support\Facades\DB;
 
 class PrivateUpload
 {
@@ -31,6 +32,10 @@ class PrivateUpload
 
     public function run()
     {
+        DB::delete('TRUNCATE `n_assets`;');
+        DB::delete('TRUNCATE `n_contracts`;');
+        DB::delete('TRUNCATE `n_customers`;');
+        DB::delete('TRUNCATE `n_sites`;');
         $pages = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/customers/companies/');
         if ($pages) {
             foreach ($pages as $url) {
@@ -94,6 +99,7 @@ class PrivateUpload
         $this->customer = Customer::create([
             'company_name' => $company->CompanyName ?? null,
             'first_name' => $company->GivenName ?? null,
+            'title' => $company->Title ?? null,
             'last_name' => $company->FamilyName ?? null,
             'company_id' => $company->ID ?? null,
             'address' => $company->Address->Address ?? null,
@@ -127,6 +133,7 @@ class PrivateUpload
                 $contract = $this->customer->contracts()->create([
                     'contract_id' => $contract_info->ID,
                     'name' => $contract_info->Name ?? null,
+                    'contract_no' => $contract_info->ContractNo ?? null,
                     'end_date' => $contract_info->EndDate ? \DateTime::createFromFormat('Y-m-d', $contract_info->EndDate) : null,
                     'value' => $contract_info->Value ?? null,
                 ]);
@@ -137,8 +144,6 @@ class PrivateUpload
                     dump('addParseSite');
                     $this->addParseSite($company, $contract, $site_id->ID);
                 }
-            } else {
-                $company->delete();
             }
         } else {
         }
@@ -189,7 +194,7 @@ class PrivateUpload
     public function addSiteContractAsset($site, $contract, $asset_id)
     {
         $asset_details = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/' . $site->site_id . '/assets/' . $asset_id);
-        $value = "DEFAULT TEXT";
+        $value = "Heating Equipment";
         $value1044 = '';
         if (isset($asset_details->CustomFields) && is_array($asset_details->CustomFields)) {
             foreach ($asset_details->CustomFields as $cf) {
@@ -202,13 +207,13 @@ class PrivateUpload
             }
         }
 
-        $joined = $value == 'DEFAULT TEXT'
+        $joined = $value == 'Heating Equipment'
             ? $value
             : trim($value . ' ' . $value1044);
 
         $asset = Asset::create([
             'asset_id' => $asset_details->ID,
-            'value' => $value,
+            'value' => $joined,
         ]);
         $site->assets()->save($asset);
         $contract->assets()->save($asset);

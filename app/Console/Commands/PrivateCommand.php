@@ -20,6 +20,7 @@ class PrivateCommand extends Command
 
     public function handle()
     {
+
         (new PrivateUpload())
             ->run();
     }
