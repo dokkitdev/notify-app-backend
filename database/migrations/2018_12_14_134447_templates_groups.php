@@ -15,10 +15,10 @@ class TemplatesGroups extends Migration
     {
         Schema::create('templates_groups', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('customer_group_tag');
-            $table->integer('customer_group_tag_id');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->string('customer_group_tag')->nullable();
+            $table->integer('customer_group_tag_id')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 
@@ -29,6 +29,6 @@ class TemplatesGroups extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('templates_groups');
     }
 }

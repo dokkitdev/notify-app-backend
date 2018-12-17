@@ -15,10 +15,10 @@ class TemplateParent extends Migration
     {
         Schema::create('template_parent', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title');
-            $table->string('alias');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->string('title')->nullable();
+            $table->string('alias')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 
@@ -29,6 +29,7 @@ class TemplateParent extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('template_parent');
+
     }
 }

@@ -15,15 +15,15 @@ class SimProJobs extends Migration
     {
         Schema::create('sim_pro_jobs', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('simpro_id');
-            $table->integer('simpro_customer_id');
-            $table->text('parsedData');
-            $table->string('status');
-            $table->bigInteger('set_status_date');
-            $table->integer('confirm');
-            $table->integer('delete');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->integer('simpro_id')->nullable();
+            $table->integer('simpro_customer_id')->nullable();
+            $table->text('parsedData')->nullable();
+            $table->string('status')->nullable();
+            $table->bigInteger('set_status_date')->nullable();
+            $table->integer('confirm')->nullable();
+            $table->integer('delete')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 
@@ -34,6 +34,6 @@ class SimProJobs extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('sim_pro_jobs');
     }
 }

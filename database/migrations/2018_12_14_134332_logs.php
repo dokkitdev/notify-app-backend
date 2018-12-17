@@ -15,14 +15,14 @@ class Logs extends Migration
     {
         Schema::create('logs', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('customer_type');
-            $table->integer('letters_generated');
-            $table->integer('email_generated');
-            $table->string('pdf');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
-            $table->integer('is_started');
-            $table->integer('is_finished');
+            $table->string('customer_type')->nullable();
+            $table->integer('letters_generated')->nullable();
+            $table->integer('email_generated')->nullable();
+            $table->string('pdf')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
+            $table->integer('is_started')->nullable();
+            $table->integer('is_finished')->nullable();
         });
     }
 
@@ -33,6 +33,6 @@ class Logs extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('logs');
     }
 }

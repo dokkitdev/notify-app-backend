@@ -11,6 +11,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+
+
         $append = [
             [
                 'title' => 'Private',
@@ -122,16 +124,16 @@ class DatabaseSeeder extends Seeder
             }
         }
         \Illuminate\Support\Facades\DB::statement("
-        INSERT INTO `blueflame`.`users`
-(`id`,
-`name`,
-`email`,
-`password`,
-`role`,
-`active`,
-`remember_token`,
-`created_at`,
-`updated_at`)
+        INSERT INTO users
+(id,
+name,
+email,
+password,
+role,
+active,
+remember_token,
+created_at,
+updated_at)
 VALUES (
 1,
 'Admin',

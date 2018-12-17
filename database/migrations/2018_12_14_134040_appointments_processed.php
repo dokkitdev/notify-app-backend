@@ -15,10 +15,10 @@ class AppointmentsProcessed extends Migration
     {
         Schema::create('appointments_processed', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('job_id');
-            $table->dateTime('updated_at');
-            $table->dateTime('created_at');
-            $table->dateTime('date');
+            $table->integer('job_id')->nullable();
+            $table->dateTime('updated_at')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('date')->nullable();
         });
     }
 
@@ -29,7 +29,7 @@ class AppointmentsProcessed extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('appointments_processed');
     }
 }
 

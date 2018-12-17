@@ -15,14 +15,14 @@ class NSites extends Migration
     {
         Schema::create('n_sites', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('site_id');
-            $table->string('city');
-            $table->string('address');
-            $table->string('state');
-            $table->string('postal_code');
-            $table->string('customer_id');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->integer('site_id')->nullable();
+            $table->string('city')->nullable();
+            $table->string('address')->nullable();
+            $table->string('state')->nullable();
+            $table->string('postal_code')->nullable();
+            $table->string('customer_id')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 
@@ -33,6 +33,6 @@ class NSites extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('n_sites');
     }
 }

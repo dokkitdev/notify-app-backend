@@ -15,12 +15,12 @@ class Jobs extends Migration
     {
         Schema::create('jobs', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('queue');
-            $table->longText('payload');
-            $table->integer('attempts');
-            $table->integer('reserved_at');
-            $table->integer('available_at');
-            $table->integer('created_at');
+            $table->string('queue')->nullable();
+            $table->longText('payload')->nullable();
+            $table->integer('attempts')->nullable();
+            $table->integer('reserved_at')->nullable();
+            $table->integer('available_at')->nullable();
+            $table->integer('created_at')->nullable();
         });
     }
 
@@ -31,6 +31,6 @@ class Jobs extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('jobs');
     }
 }

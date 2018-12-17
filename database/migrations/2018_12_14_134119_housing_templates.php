@@ -16,11 +16,11 @@ class HousingTemplates extends Migration
 
         Schema::create('housing_templates', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('housing_template_group_id');
-            $table->string('state');
-            $table->string('name');
-            $table->dateTime('updated_at');
-            $table->dateTime('created_at');
+            $table->integer('housing_template_group_id')->nullable();
+            $table->string('state')->nullable();
+            $table->string('name')->nullable();
+            $table->dateTime('updated_at')->nullable();
+            $table->dateTime('created_at')->nullable();
         });
     }
 
@@ -31,6 +31,6 @@ class HousingTemplates extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('housing_templates');
     }
 }

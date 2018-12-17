@@ -15,24 +15,24 @@ class Appointments extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title');
-            $table->string('given_name');
-            $table->string('family_name');
-            $table->string('state');
-            $table->string('address');
-            $table->string('city');
-            $table->string('country');
-            $table->integer('job_id');
-            $table->dateTime('send_date');
-            $table->integer('appointment_id');
-            $table->integer('site_id');
-            $table->string('postcode');
-            $table->string('work_type');
-            $table->dateTime('updated_at');
-            $table->dateTime('created_at');
-            $table->string('time');
-            $table->string('pdf');
-            $table->string('docx');
+            $table->string('title')->nullable();
+            $table->string('given_name')->nullable();
+            $table->string('family_name')->nullable();
+            $table->string('state')->nullable();
+            $table->string('address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('country')->nullable();
+            $table->integer('job_id')->nullable();
+            $table->dateTime('send_date')->nullable();
+            $table->integer('appointment_id')->nullable();
+            $table->integer('site_id')->nullable();
+            $table->string('postcode')->nullable();
+            $table->string('work_type')->nullable();
+            $table->dateTime('updated_at')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->string('time')->nullable();
+            $table->string('pdf')->nullable();
+            $table->string('docx')->nullable();
         });
     }
 
@@ -43,6 +43,6 @@ class Appointments extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('appointments');
     }
 }

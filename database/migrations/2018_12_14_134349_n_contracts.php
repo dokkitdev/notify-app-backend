@@ -15,20 +15,20 @@ class NContracts extends Migration
     {
         Schema::create('n_contracts', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('contract_id');
-            $table->string('name');
-            $table->dateTime('end_date');
-            $table->string('value');
-            $table->integer('customer_id');
+            $table->integer('contract_id')->nullable();
+            $table->string('name')->nullable();
+            $table->dateTime('end_date')->nullable();
+            $table->string('value')->nullable();
+            $table->integer('customer_id')->nullable();
 
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
-            $table->integer('is_processed_1');
-            $table->integer('is_processed_4');
-            $table->integer('is_processed_8');
-            $table->string('docx');
-            $table->string('pdf');
-            $table->string('contract_no');
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
+            $table->integer('is_processed_1')->nullable();
+            $table->integer('is_processed_4')->nullable();
+            $table->integer('is_processed_8')->nullable();
+            $table->string('docx')->nullable();
+            $table->string('pdf')->nullable();
+            $table->string('contract_no')->nullable();
         });
     }
 
@@ -39,6 +39,6 @@ class NContracts extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('n_contracts');
     }
 }

@@ -15,9 +15,9 @@ class Temp extends Migration
     {
         Schema::create('temp', function (Blueprint $table) {
             $table->increments('id');
-            $table->longText('long');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->longText('long')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 
@@ -28,6 +28,6 @@ class Temp extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('temp');
     }
 }

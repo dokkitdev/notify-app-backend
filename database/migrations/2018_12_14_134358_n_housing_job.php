@@ -16,32 +16,32 @@ class NHousingJob extends Migration
 
         Schema::create('n_housing_job', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('job_name');
-            $table->string('given_name');
-            $table->string('family_name');
+            $table->string('job_name')->nullable();
+            $table->string('given_name')->nullable();
+            $table->string('family_name')->nullable();
 
-            $table->integer('company_id');
-            $table->string('company_name');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
-            $table->dateTime('due_date');
-            $table->dateTime('schedule_date');
+            $table->integer('company_id')->nullable();
+            $table->string('company_name')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
+            $table->dateTime('due_date')->nullable();
+            $table->dateTime('schedule_date')->nullable();
 
-            $table->string('tags');
-            $table->string('stage');
-            $table->integer('site_id');
-            $table->integer('job_id');
-            $table->string('address');
-            $table->string('n_housing_jobcol');
-            $table->string('city');
-            $table->string('state');
-            $table->string('postal_code');
-            $table->integer('is_proccessed');
-            $table->string('docx');
-            $table->string('pdf');
-            $table->string('cell_phone');
-            $table->string('work_phone');
-            $table->string('email');
+            $table->string('tags')->nullable();
+            $table->string('stage')->nullable();
+            $table->integer('site_id')->nullable();
+            $table->integer('job_id')->nullable();
+            $table->string('address')->nullable();
+            $table->string('n_housing_jobcol')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('postal_code')->nullable();
+            $table->integer('is_proccessed')->nullable();
+            $table->string('docx')->nullable();
+            $table->string('pdf')->nullable();
+            $table->string('cell_phone')->nullable();
+            $table->string('work_phone')->nullable();
+            $table->string('email')->nullable();
         });
 
     }
@@ -53,6 +53,6 @@ class NHousingJob extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('n_housing_job');
     }
 }

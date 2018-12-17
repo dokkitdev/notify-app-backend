@@ -15,16 +15,16 @@ class Users extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
-            $table->string('email');
-            $table->string('password');
-            $table->string('role');
-            $table->integer('active');
-            $table->string('remember_token');
+            $table->string('name')->nullable();
+            $table->string('email')->nullable();
+            $table->string('password')->nullable();
+            $table->string('role')->nullable();
+            $table->integer('active')->nullable();
+            $table->string('remember_token')->nullable();
 
 
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 
@@ -35,6 +35,6 @@ class Users extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('users');
     }
 }

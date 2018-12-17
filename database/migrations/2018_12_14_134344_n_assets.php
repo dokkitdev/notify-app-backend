@@ -15,12 +15,12 @@ class NAssets extends Migration
     {
         Schema::create('n_assets', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('asset_id');
-            $table->integer('site_id');
-            $table->integer('contract_id');
-            $table->string('value');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->integer('asset_id')->nullable();
+            $table->integer('site_id')->nullable();
+            $table->integer('contract_id')->nullable();
+            $table->string('value')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
 
     }
@@ -32,6 +32,6 @@ class NAssets extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('n_assets');
     }
 }

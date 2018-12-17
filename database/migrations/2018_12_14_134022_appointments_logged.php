@@ -15,11 +15,11 @@ class AppointmentsLogged extends Migration
     {
         Schema::create('appointments_logged', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('job_id');
-            $table->integer('site_id');
-            $table->dateTime('send_date');
-            $table->dateTime('updated_at');
-            $table->dateTime('created_at');
+            $table->integer('job_id')->nullable();
+            $table->integer('site_id')->nullable();
+            $table->dateTime('send_date')->nullable();
+            $table->dateTime('updated_at')->nullable();
+            $table->dateTime('created_at')->nullable();
         });
     }
 
@@ -30,6 +30,6 @@ class AppointmentsLogged extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('appointments_logged');
     }
 }

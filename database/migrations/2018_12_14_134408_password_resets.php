@@ -15,10 +15,10 @@ class PasswordResets extends Migration
     {
         Schema::create('password_resets', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('email');
-            $table->string('token');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->string('email')->nullable();
+            $table->string('token')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 
@@ -29,6 +29,7 @@ class PasswordResets extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('password_resets');
+
     }
 }

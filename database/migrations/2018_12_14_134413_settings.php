@@ -15,12 +15,12 @@ class Settings extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
-            $table->string('value');
-            $table->string('expires_in');
-            $table->integer('wait');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->string('name')->nullable();
+            $table->string('value')->nullable();
+            $table->string('expires_in')->nullable();
+            $table->integer('wait')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 
@@ -31,6 +31,6 @@ class Settings extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('settings');
     }
 }

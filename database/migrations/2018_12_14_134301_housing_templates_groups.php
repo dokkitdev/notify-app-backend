@@ -15,10 +15,10 @@ class HousingTemplatesGroups extends Migration
     {
         Schema::create('housing_templates_groups', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('customer_id');
-            $table->string('company_name');
-            $table->dateTime('updated_at');
-            $table->dateTime('created_at');
+            $table->integer('customer_id')->nullable();
+            $table->string('company_name')->nullable();
+            $table->dateTime('updated_at')->nullable();
+            $table->dateTime('created_at')->nullable();
         });
     }
 
@@ -29,6 +29,6 @@ class HousingTemplatesGroups extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('housing_templates_groups');
     }
 }

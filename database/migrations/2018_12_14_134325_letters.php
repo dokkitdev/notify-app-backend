@@ -15,19 +15,19 @@ class Letters extends Migration
     {
         Schema::create('letters', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('contract_id');
-            $table->integer('job_id');
-            $table->integer('template_id');
-            $table->integer('housing_template_id');
-            $table->integer('tosend');
-            $table->dateTime('generated_at');
-            $table->dateTime('sended_at');
-            $table->integer('letter');
-            $table->integer('email');
-            $table->integer('simpro_attachment_id');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
-            $table->string('letter_s3_link');
+            $table->integer('contract_id')->nullable();
+            $table->integer('job_id')->nullable();
+            $table->integer('template_id')->nullable();
+            $table->integer('housing_template_id')->nullable();
+            $table->integer('tosend')->nullable();
+            $table->dateTime('generated_at')->nullable();
+            $table->dateTime('sended_at')->nullable();
+            $table->integer('letter')->nullable();
+            $table->integer('email')->nullable();
+            $table->integer('simpro_attachment_id')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
+            $table->string('letter_s3_link')->nullable();
         });
     }
 
@@ -38,6 +38,6 @@ class Letters extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('letters');
     }
 }

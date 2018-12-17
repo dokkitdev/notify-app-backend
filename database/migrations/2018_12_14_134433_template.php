@@ -15,21 +15,21 @@ class Template extends Migration
     {
         Schema::create('template', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title');
-            $table->string('tag');
-            $table->string('alias');
-            $table->longText('html_body');
-            $table->longText('html');
-            $table->string('subject');
-            $table->string('docx');
-            $table->string('pdf');
-            $table->integer('is_html');
+            $table->string('title')->nullable();
+            $table->string('tag')->nullable();
+            $table->string('alias')->nullable();
+            $table->longText('html_body')->nullable();
+            $table->longText('html')->nullable();
+            $table->string('subject')->nullable();
+            $table->string('docx')->nullable();
+            $table->string('pdf')->nullable();
+            $table->integer('is_html')->nullable();
 
-            $table->integer('term');
-            $table->integer('template_parent_id');
+            $table->integer('term')->nullable();
+            $table->integer('template_parent_id')->nullable();
 
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 
@@ -40,6 +40,6 @@ class Template extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('template');
     }
 }

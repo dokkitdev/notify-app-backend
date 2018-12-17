@@ -15,15 +15,15 @@ class Templates extends Migration
     {
         Schema::create('templates', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('template_group_id');
-            $table->string('file_link');
-            $table->integer('state');
-            $table->bigInteger('term');
-            $table->string('name');
-            $table->string('html_pdf');
-            $table->string('subject');
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at');
+            $table->integer('template_group_id')->nullable();
+            $table->string('file_link')->nullable();
+            $table->integer('state')->nullable();
+            $table->bigInteger('term')->nullable();
+            $table->string('name')->nullable();
+            $table->string('html_pdf')->nullable();
+            $table->string('subject')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 
@@ -34,6 +34,7 @@ class Templates extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('templates');
+
     }
 }
