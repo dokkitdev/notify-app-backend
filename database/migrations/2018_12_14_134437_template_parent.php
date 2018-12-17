@@ -13,21 +13,13 @@ class TemplateParent extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-CREATE SEQUENCE template_parent_seq;
-
-CREATE TABLE template_parent (
-  id int NOT NULL DEFAULT NEXTVAL (\'template_parent_seq\'),
-  title varchar(45) DEFAULT NULL,
-  created_at varchar(45) DEFAULT NULL,
-  updated_at timestamp(0) DEFAULT NULL,
-  alias varchar(45) DEFAULT NULL,
-  PRIMARY KEY (id)
-)  ;
-
-ALTER SEQUENCE template_parent_seq RESTART WITH 7;
-
-');
+        Schema::create('template_parent', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title');
+            $table->string('alias');
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
+        });
     }
 
     /**

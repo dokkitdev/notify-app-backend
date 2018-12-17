@@ -13,25 +13,17 @@ class NSites extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-CREATE SEQUENCE n_sites_seq;
-
-CREATE TABLE n_sites (
-  id int NOT NULL DEFAULT NEXTVAL (\'n_sites_seq\'),
-  site_id int DEFAULT NULL,
-  city varchar(255) DEFAULT NULL,
-  address varchar(255) DEFAULT NULL,
-  state varchar(255) DEFAULT NULL,
-  postal_code varchar(255) DEFAULT NULL,
-  customer_id varchar(45) DEFAULT NULL,
-  created_at timestamp(0) DEFAULT NULL,
-  updated_at timestamp(0) DEFAULT NULL,
-  PRIMARY KEY (id)
-)  ;
-
-ALTER SEQUENCE n_sites_seq RESTART WITH 850;
-
-');
+        Schema::create('n_sites', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('site_id');
+            $table->string('city');
+            $table->string('address');
+            $table->string('state');
+            $table->string('postal_code');
+            $table->string('customer_id');
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
+        });
     }
 
     /**

@@ -13,16 +13,12 @@ class Temp extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-CREATE SEQUENCE temp_seq;
-
-CREATE TABLE temp (
-  id int NOT NULL DEFAULT NEXTVAL (\'temp_seq\'),
-  long longtext,
-  PRIMARY KEY (id)
-) ;
-
-');
+        Schema::create('temp', function (Blueprint $table) {
+            $table->increments('id');
+            $table->longText('long');
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
+        });
     }
 
     /**

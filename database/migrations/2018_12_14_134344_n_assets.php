@@ -13,22 +13,16 @@ class NAssets extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-CREATE SEQUENCE n_assets_seq;
+        Schema::create('n_assets', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('asset_id');
+            $table->integer('site_id');
+            $table->integer('contract_id');
+            $table->string('value');
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
+        });
 
-CREATE TABLE n_assets (
-  id int NOT NULL DEFAULT NEXTVAL (\'n_assets_seq\'),
-  asset_id int DEFAULT NULL,
-  site_id int DEFAULT NULL,
-  contract_id int DEFAULT NULL,
-  value varchar(255) DEFAULT NULL,
-  created_at timestamp(0) DEFAULT NULL,
-  updated_at timestamp(0) DEFAULT NULL,
-  PRIMARY KEY (id)
-)  ;
-
-ALTER SEQUENCE n_assets_seq RESTART WITH 3517;
-');
     }
 
     /**

@@ -13,35 +13,27 @@ class Appointments extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-       CREATE SEQUENCE appointments_seq;
-
-CREATE TABLE appointments (
-  id int NOT NULL DEFAULT NEXTVAL (\'appointments_seq\'),
-  title varchar(45) DEFAULT NULL,
-  given_name varchar(45) DEFAULT NULL,
-  family_name varchar(45) DEFAULT NULL,
-  state varchar(45) DEFAULT NULL,
-  address varchar(255) DEFAULT NULL,
-  city varchar(255) DEFAULT NULL,
-  country varchar(45) DEFAULT NULL,
-  job_id int DEFAULT NULL,
-  send_date timestamp(0) DEFAULT NULL,
-  appointment_id int DEFAULT NULL,
-  site_id int DEFAULT NULL,
-  postcode varchar(45) DEFAULT NULL,
-  work_type varchar(45) DEFAULT NULL,
-  updated_at timestamp(0) DEFAULT NULL,
-  created_at timestamp(0) DEFAULT NULL,
-  time varchar(45) DEFAULT NULL,
-  pdf varchar(255) DEFAULT NULL,
-  docx varchar(255) DEFAULT NULL,
-  PRIMARY KEY (id)
-)  ;
-
-ALTER SEQUENCE appointments_seq RESTART WITH 181;
-
-');
+        Schema::create('appointments', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title');
+            $table->string('given_name');
+            $table->string('family_name');
+            $table->string('state');
+            $table->string('address');
+            $table->string('city');
+            $table->string('country');
+            $table->integer('job_id');
+            $table->dateTime('send_date');
+            $table->integer('appointment_id');
+            $table->integer('site_id');
+            $table->string('postcode');
+            $table->string('work_type');
+            $table->dateTime('updated_at');
+            $table->dateTime('created_at');
+            $table->string('time');
+            $table->string('pdf');
+            $table->string('docx');
+        });
     }
 
     /**

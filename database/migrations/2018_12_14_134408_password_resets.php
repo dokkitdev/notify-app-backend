@@ -13,16 +13,13 @@ class PasswordResets extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-CREATE TABLE password_resets (
-  email varchar(255) NOT NULL,
-  token varchar(255) NOT NULL,
-  created_at timestamp(0) NULL DEFAULT NULL
-)  ;
-
-CREATE INDEX password_resets_email_index ON password_resets (email);
-
-');
+        Schema::create('password_resets', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('email');
+            $table->string('token');
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
+        });
     }
 
     /**

@@ -13,32 +13,24 @@ class Template extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-CREATE SEQUENCE template_seq;
+        Schema::create('template', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title');
+            $table->string('tag');
+            $table->string('alias');
+            $table->longText('html_body');
+            $table->longText('html');
+            $table->string('subject');
+            $table->string('docx');
+            $table->string('pdf');
+            $table->integer('is_html');
 
-CREATE TABLE template (
-  id int NOT NULL DEFAULT NEXTVAL (\'template_seq\'),
-  title varchar(45) DEFAULT NULL,
-  term int DEFAULT NULL,
-  tag varchar(45) DEFAULT NULL,
-  created_at timestamp(0) DEFAULT NULL,
-  updated_at timestamp(0) DEFAULT NULL,
-  alias varchar(45) DEFAULT NULL,
-  template_parent_id int DEFAULT NULL,
-  html_body longtext,
-  html longtext,
-  subject varchar(45) DEFAULT NULL,
-  docx varchar(255) DEFAULT NULL,
-  pdf varchar(255) DEFAULT NULL,
-  is_html smallint DEFAULT NULL,
-  PRIMARY KEY (id)
-)  ;
+            $table->integer('term');
+            $table->integer('template_parent_id');
 
-ALTER SEQUENCE template_seq RESTART WITH 15;
-
-CREATE INDEX fk_template_1_idx ON template (template_parent_id);
-
-');
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
+        });
     }
 
     /**

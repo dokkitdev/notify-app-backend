@@ -13,23 +13,15 @@ class Settings extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-CREATE SEQUENCE settings_seq;
-
-CREATE TABLE settings (
-  id int check (id > 0) NOT NULL DEFAULT NEXTVAL (\'settings_seq\'),
-  name varchar(255) NOT NULL DEFAULT \'\',
-  value varchar(255) NOT NULL DEFAULT \'\',
-  expires_in varchar(255) NOT NULL DEFAULT \'\',
-  created_at timestamp(0) NULL DEFAULT NULL,
-  updated_at timestamp(0) NULL DEFAULT NULL,
-  wait int NOT NULL DEFAULT \'0\',
-  PRIMARY KEY (id)
-)   ;
-
-ALTER SEQUENCE settings_seq RESTART WITH 6;
-
-');
+        Schema::create('settings', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('value');
+            $table->string('expires_in');
+            $table->integer('wait');
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
+        });
     }
 
     /**

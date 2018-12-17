@@ -13,30 +13,23 @@ class NContracts extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-CREATE SEQUENCE n_contracts_seq;
+        Schema::create('n_contracts', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('contract_id');
+            $table->string('name');
+            $table->dateTime('end_date');
+            $table->string('value');
+            $table->integer('customer_id');
 
-CREATE TABLE n_contracts (
-  id int NOT NULL DEFAULT NEXTVAL (\'n_contracts_seq\'),
-  contract_id int DEFAULT NULL,
-  name varchar(255) DEFAULT NULL,
-  end_date timestamp(0) DEFAULT NULL,
-  value varchar(255) DEFAULT NULL,
-  customer_id int DEFAULT NULL,
-  created_at timestamp(0) DEFAULT NULL,
-  updated_at timestamp(0) DEFAULT NULL,
-  is_processed_1 int DEFAULT NULL,
-  is_processed_4 int DEFAULT NULL,
-  is_processed_8 int DEFAULT NULL,
-  docx varchar(255) DEFAULT NULL,
-  pdf varchar(255) DEFAULT NULL,
-  contract_no varchar(255) DEFAULT NULL,
-  PRIMARY KEY (id)
-)  ;
-
-ALTER SEQUENCE n_contracts_seq RESTART WITH 111;
-
-');
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
+            $table->integer('is_processed_1');
+            $table->integer('is_processed_4');
+            $table->integer('is_processed_8');
+            $table->string('docx');
+            $table->string('pdf');
+            $table->string('contract_no');
+        });
     }
 
     /**

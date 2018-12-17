@@ -13,23 +13,15 @@ class Jobs extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-       CREATE SEQUENCE jobs_seq;
-
-CREATE TABLE jobs (
-  id bigint check (id > 0) NOT NULL DEFAULT NEXTVAL (\'jobs_seq\'),
-  queue varchar(255) NOT NULL,
-  payload longtext NOT NULL,
-  attempts smallint check (attempts > 0) NOT NULL,
-  reserved_at int check (reserved_at > 0) DEFAULT NULL,
-  available_at int check (available_at > 0) NOT NULL,
-  created_at int check (created_at > 0) NOT NULL,
-  PRIMARY KEY (id)
-)  ;
-
-CREATE INDEX jobs_queue_index ON jobs (queue);
-
-');
+        Schema::create('jobs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('queue');
+            $table->longText('payload');
+            $table->integer('attempts');
+            $table->integer('reserved_at');
+            $table->integer('available_at');
+            $table->integer('created_at');
+        });
     }
 
     /**

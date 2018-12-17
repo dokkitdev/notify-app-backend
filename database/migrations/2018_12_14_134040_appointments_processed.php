@@ -13,20 +13,13 @@ class AppointmentsProcessed extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-       CREATE SEQUENCE appointments_processed_seq;
-
-CREATE TABLE appointments_processed (
-  id int NOT NULL DEFAULT NEXTVAL (\'appointments_processed_seq\'),
-  updated_at timestamp(0) DEFAULT NULL,
-  created_at timestamp(0) DEFAULT NULL,
-  job_id int DEFAULT NULL,
-  date timestamp(0) DEFAULT NULL,
-  PRIMARY KEY (id)
-)  ;
-
-ALTER SEQUENCE appointments_processed_seq RESTART WITH 4;
-');
+        Schema::create('appointments_processed', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('job_id');
+            $table->dateTime('updated_at');
+            $table->dateTime('created_at');
+            $table->dateTime('date');
+        });
     }
 
     /**

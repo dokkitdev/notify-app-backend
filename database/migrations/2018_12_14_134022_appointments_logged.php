@@ -13,19 +13,14 @@ class AppointmentsLogged extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-       CREATE SEQUENCE appointments_logged_seq;
-
-CREATE TABLE appointments_logged (
-  id int NOT NULL DEFAULT NEXTVAL (\'appointments_logged_seq\'),
-  job_id int DEFAULT NULL,
-  send_date timestamp(0) DEFAULT NULL,
-  site_id int DEFAULT NULL,
-  PRIMARY KEY (id)
-)  ;
-
-ALTER SEQUENCE appointments_logged_seq RESTART WITH 11100;
-');
+        Schema::create('appointments_logged', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('job_id');
+            $table->integer('site_id');
+            $table->dateTime('send_date');
+            $table->dateTime('updated_at');
+            $table->dateTime('created_at');
+        });
     }
 
     /**

@@ -13,27 +13,17 @@ class Logs extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-CREATE SEQUENCE logs_seq;
-
-CREATE TABLE logs (
-  id int NOT NULL DEFAULT NEXTVAL (\'logs_seq\'),
-  customer_type varchar(45) DEFAULT NULL,
-  letters_generated int DEFAULT NULL,
-  email_generated int DEFAULT NULL,
-  pdf varchar(255) DEFAULT NULL,
-  created_at timestamp(0) DEFAULT NULL,
-  updated_at timestamp(0) DEFAULT NULL,
-  is_started int NOT NULL DEFAULT \'0\',
-  is_finished int NOT NULL DEFAULT \'0\',
-  command longtext,
-  PRIMARY KEY (id)
-)  ;
-
-ALTER SEQUENCE logs_seq RESTART WITH 56;
-
-
-');
+        Schema::create('logs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('customer_type');
+            $table->integer('letters_generated');
+            $table->integer('email_generated');
+            $table->string('pdf');
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
+            $table->integer('is_started');
+            $table->integer('is_finished');
+        });
     }
 
     /**

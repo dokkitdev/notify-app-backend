@@ -13,37 +13,30 @@ class Customers extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement('
-      CREATE SEQUENCE customers_seq;
-
-CREATE TABLE customers (
-  id int check (id > 0) NOT NULL DEFAULT NEXTVAL (\'customers_seq\'),
-  email varchar(255) NOT NULL DEFAULT \'\',
-  company_name varchar(255) NOT NULL DEFAULT \'\',
-  given_name varchar(255) NOT NULL DEFAULT \'\',
-  family_name varchar(255) NOT NULL DEFAULT \'\',
-  simpro_id int NOT NULL,
-  address varchar(255) NOT NULL DEFAULT \'\',
-  city varchar(255) NOT NULL DEFAULT \'\',
-  state varchar(255) NOT NULL DEFAULT \'\',
-  postal_code varchar(255) NOT NULL DEFAULT \'\',
-  country varchar(255) NOT NULL DEFAULT \'\',
-  customer_type varchar(255) NOT NULL DEFAULT \'\',
-  customer_group varchar(255) NOT NULL DEFAULT \'\',
-  apiurl varchar(255) NOT NULL DEFAULT \'\',
-  customer_group_tag varchar(255) DEFAULT \'\',
-  customer_group_tag_id int DEFAULT \'0\',
-  parsedData text NOT NULL,
-  created_at timestamp(0) NULL DEFAULT NULL,
-  updated_at timestamp(0) NULL DEFAULT NULL,
-  letter_state int NOT NULL DEFAULT \'0\',
-  company_id int DEFAULT NULL,
-  PRIMARY KEY (id)
-)   ;
-
-ALTER SEQUENCE customers_seq RESTART WITH 11646;
-
-');
+        Schema::create('customers', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('email');
+            $table->string('company_name');
+            $table->string('given_name');
+            $table->string('family_name');
+            $table->integer('simpro_id');
+            $table->string('address');
+            $table->string('city');
+            $table->string('state');
+            $table->string('postal_code');
+            $table->string('country');
+            $table->string('customer_type');
+            $table->string('customer_group');
+            $table->string('apiurl');
+            $table->string('customer_group_tag');
+            $table->string('customer_group_tag_id');
+            $table->string('parsedData');
+            $table->integer('letter_state');
+            $table->integer('company_id');
+            $table->dateTime('updated_at');
+            $table->dateTime('created_at');
+            $table->dateTime('date');
+        });
     }
 
     /**
