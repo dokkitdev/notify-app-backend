@@ -34,6 +34,7 @@ class Appointments extends Migration
             $table->string('pdf')->nullable();
             $table->string('docx')->nullable();
             $table->integer('is_proccessed')->nullable();
+ 
         });
     }
 
