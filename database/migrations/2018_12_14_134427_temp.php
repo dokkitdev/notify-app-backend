@@ -14,10 +14,10 @@ class Temp extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
-CREATE TABLE `temp` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `long` longtext,
-  PRIMARY KEY (`id`)
+CREATE TABLE temp (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  long longtext,
+  PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 ');
