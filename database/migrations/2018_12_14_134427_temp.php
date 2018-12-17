@@ -14,11 +14,13 @@ class Temp extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
+CREATE SEQUENCE temp_seq;
+
 CREATE TABLE temp (
-  id int(11) NOT NULL AUTO_INCREMENT,
+  id int NOT NULL DEFAULT NEXTVAL (\'temp_seq\'),
   long longtext,
   PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ;
 
 ');
     }

@@ -14,16 +14,20 @@ class NAssets extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
+CREATE SEQUENCE n_assets_seq;
+
 CREATE TABLE n_assets (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  asset_id int(11) DEFAULT NULL,
-  site_id int(11) DEFAULT NULL,
-  contract_id int(11) DEFAULT NULL,
+  id int NOT NULL DEFAULT NEXTVAL (\'n_assets_seq\'),
+  asset_id int DEFAULT NULL,
+  site_id int DEFAULT NULL,
+  contract_id int DEFAULT NULL,
   value varchar(255) DEFAULT NULL,
-  created_at datetime DEFAULT NULL,
-  updated_at datetime DEFAULT NULL,
+  created_at timestamp(0) DEFAULT NULL,
+  updated_at timestamp(0) DEFAULT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=3517 DEFAULT CHARSET=latin1;
+)  ;
+
+ALTER SEQUENCE n_assets_seq RESTART WITH 3517;
 ');
     }
 

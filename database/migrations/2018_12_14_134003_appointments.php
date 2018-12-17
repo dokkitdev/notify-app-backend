@@ -14,8 +14,10 @@ class Appointments extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
-       CREATE TABLE appointments (
-  id int(11) NOT NULL AUTO_INCREMENT,
+       CREATE SEQUENCE appointments_seq;
+
+CREATE TABLE appointments (
+  id int NOT NULL DEFAULT NEXTVAL (\'appointments_seq\'),
   title varchar(45) DEFAULT NULL,
   given_name varchar(45) DEFAULT NULL,
   family_name varchar(45) DEFAULT NULL,
@@ -23,19 +25,21 @@ class Appointments extends Migration
   address varchar(255) DEFAULT NULL,
   city varchar(255) DEFAULT NULL,
   country varchar(45) DEFAULT NULL,
-  job_id int(11) DEFAULT NULL,
-  send_date datetime DEFAULT NULL,
-  appointment_id int(11) DEFAULT NULL,
-  site_id int(11) DEFAULT NULL,
+  job_id int DEFAULT NULL,
+  send_date timestamp(0) DEFAULT NULL,
+  appointment_id int DEFAULT NULL,
+  site_id int DEFAULT NULL,
   postcode varchar(45) DEFAULT NULL,
   work_type varchar(45) DEFAULT NULL,
-  updated_at datetime DEFAULT NULL,
-  created_at datetime DEFAULT NULL,
+  updated_at timestamp(0) DEFAULT NULL,
+  created_at timestamp(0) DEFAULT NULL,
   time varchar(45) DEFAULT NULL,
   pdf varchar(255) DEFAULT NULL,
   docx varchar(255) DEFAULT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=181 DEFAULT CHARSET=latin1;
+)  ;
+
+ALTER SEQUENCE appointments_seq RESTART WITH 181;
 
 ');
     }

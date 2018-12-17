@@ -14,24 +14,29 @@ class Template extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
+CREATE SEQUENCE template_seq;
+
 CREATE TABLE template (
-  id int(11) NOT NULL AUTO_INCREMENT,
+  id int NOT NULL DEFAULT NEXTVAL (\'template_seq\'),
   title varchar(45) DEFAULT NULL,
-  term int(11) DEFAULT NULL,
+  term int DEFAULT NULL,
   tag varchar(45) DEFAULT NULL,
-  created_at datetime DEFAULT NULL,
-  updated_at datetime DEFAULT NULL,
+  created_at timestamp(0) DEFAULT NULL,
+  updated_at timestamp(0) DEFAULT NULL,
   alias varchar(45) DEFAULT NULL,
-  template_parent_id int(11) DEFAULT NULL,
+  template_parent_id int DEFAULT NULL,
   html_body longtext,
   html longtext,
   subject varchar(45) DEFAULT NULL,
   docx varchar(255) DEFAULT NULL,
   pdf varchar(255) DEFAULT NULL,
-  is_html tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (id),
-  KEY fk_template_1_idx (template_parent_id)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+  is_html smallint DEFAULT NULL,
+  PRIMARY KEY (id)
+)  ;
+
+ALTER SEQUENCE template_seq RESTART WITH 15;
+
+CREATE INDEX fk_template_1_idx ON template (template_parent_id);
 
 ');
     }

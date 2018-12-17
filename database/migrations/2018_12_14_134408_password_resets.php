@@ -15,11 +15,12 @@ class PasswordResets extends Migration
     {
         \Illuminate\Support\Facades\DB::statement('
 CREATE TABLE password_resets (
-  email varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  token varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  created_at timestamp NULL DEFAULT NULL,
-  KEY password_resets_email_index (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  email varchar(255) NOT NULL,
+  token varchar(255) NOT NULL,
+  created_at timestamp(0) NULL DEFAULT NULL
+)  ;
+
+CREATE INDEX password_resets_email_index ON password_resets (email);
 
 ');
     }

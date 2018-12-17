@@ -14,14 +14,18 @@ class TemplateParent extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
+CREATE SEQUENCE template_parent_seq;
+
 CREATE TABLE template_parent (
-  id int(11) NOT NULL AUTO_INCREMENT,
+  id int NOT NULL DEFAULT NEXTVAL (\'template_parent_seq\'),
   title varchar(45) DEFAULT NULL,
   created_at varchar(45) DEFAULT NULL,
-  updated_at datetime DEFAULT NULL,
+  updated_at timestamp(0) DEFAULT NULL,
   alias varchar(45) DEFAULT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+)  ;
+
+ALTER SEQUENCE template_parent_seq RESTART WITH 7;
 
 ');
     }

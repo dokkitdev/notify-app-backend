@@ -14,17 +14,20 @@ class Jobs extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
-       CREATE TABLE jobs (
-  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  queue varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  payload longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  attempts tinyint(3) unsigned NOT NULL,
-  reserved_at int(10) unsigned DEFAULT NULL,
-  available_at int(10) unsigned NOT NULL,
-  created_at int(10) unsigned NOT NULL,
-  PRIMARY KEY (id),
-  KEY jobs_queue_index (queue)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+       CREATE SEQUENCE jobs_seq;
+
+CREATE TABLE jobs (
+  id bigint check (id > 0) NOT NULL DEFAULT NEXTVAL (\'jobs_seq\'),
+  queue varchar(255) NOT NULL,
+  payload longtext NOT NULL,
+  attempts smallint check (attempts > 0) NOT NULL,
+  reserved_at int check (reserved_at > 0) DEFAULT NULL,
+  available_at int check (available_at > 0) NOT NULL,
+  created_at int check (created_at > 0) NOT NULL,
+  PRIMARY KEY (id)
+)  ;
+
+CREATE INDEX jobs_queue_index ON jobs (queue);
 
 ');
     }

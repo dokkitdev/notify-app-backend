@@ -14,19 +14,23 @@ class Logs extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
+CREATE SEQUENCE logs_seq;
+
 CREATE TABLE logs (
-  id int(11) NOT NULL AUTO_INCREMENT,
+  id int NOT NULL DEFAULT NEXTVAL (\'logs_seq\'),
   customer_type varchar(45) DEFAULT NULL,
-  letters_generated int(11) DEFAULT NULL,
-  email_generated int(11) DEFAULT NULL,
+  letters_generated int DEFAULT NULL,
+  email_generated int DEFAULT NULL,
   pdf varchar(255) DEFAULT NULL,
-  created_at datetime DEFAULT NULL,
-  updated_at datetime DEFAULT NULL,
-  is_started int(1) NOT NULL DEFAULT \'0\',
-  is_finished int(1) NOT NULL DEFAULT \'0\',
+  created_at timestamp(0) DEFAULT NULL,
+  updated_at timestamp(0) DEFAULT NULL,
+  is_started int NOT NULL DEFAULT \'0\',
+  is_finished int NOT NULL DEFAULT \'0\',
   command longtext,
   PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=latin1;
+)  ;
+
+ALTER SEQUENCE logs_seq RESTART WITH 56;
 
 
 ');

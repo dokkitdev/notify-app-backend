@@ -14,19 +14,23 @@ class SimProJobs extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
+CREATE SEQUENCE sim_pro_jobs_seq;
+
 CREATE TABLE sim_pro_jobs (
-  id int(10) unsigned NOT NULL AUTO_INCREMENT,
-  simpro_id int(11) NOT NULL,
-  simpro_customer_id int(11) NOT NULL,
-  parsedData text COLLATE utf8mb4_unicode_ci NOT NULL,
-  status varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  set_status_date bigint(20) DEFAULT NULL,
-  created_at timestamp NULL DEFAULT NULL,
-  updated_at timestamp NULL DEFAULT NULL,
-  confirm int(11) NOT NULL DEFAULT \'0\',
-  delete int(11) NOT NULL DEFAULT \'0\',
+  id int check (id > 0) NOT NULL DEFAULT NEXTVAL (\'sim_pro_jobs_seq\'),
+  simpro_id int NOT NULL,
+  simpro_customer_id int NOT NULL,
+  parsedData text NOT NULL,
+  status varchar(255) DEFAULT NULL,
+  set_status_date bigint DEFAULT NULL,
+  created_at timestamp(0) NULL DEFAULT NULL,
+  updated_at timestamp(0) NULL DEFAULT NULL,
+  confirm int NOT NULL DEFAULT \'0\',
+  delete int NOT NULL DEFAULT \'0\',
   PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+)   ;
+
+ALTER SEQUENCE sim_pro_jobs_seq RESTART WITH 65;
 
 ');
     }

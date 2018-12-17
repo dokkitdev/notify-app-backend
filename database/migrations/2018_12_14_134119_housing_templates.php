@@ -14,16 +14,20 @@ class HousingTemplates extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
-       CREATE TABLE housing_templates (
-  id int(10) unsigned NOT NULL AUTO_INCREMENT,
-  housing_template_group_id int(10) unsigned NOT NULL,
-  state varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT \'No Access\',
-  name varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT \'\',
-  created_at timestamp NULL DEFAULT NULL,
-  updated_at timestamp NULL DEFAULT NULL,
-  html_pdf longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+       CREATE SEQUENCE housing_templates_seq;
+
+CREATE TABLE housing_templates (
+  id int check (id > 0) NOT NULL DEFAULT NEXTVAL (\'housing_templates_seq\'),
+  housing_template_group_id int check (housing_template_group_id > 0) NOT NULL,
+  state varchar(255) NOT NULL DEFAULT \'No Access\',
+  name varchar(255) NOT NULL DEFAULT \'\',
+  created_at timestamp(0) NULL DEFAULT NULL,
+  updated_at timestamp(0) NULL DEFAULT NULL,
+  html_pdf longtext NOT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+)   ;
+
+ALTER SEQUENCE housing_templates_seq RESTART WITH 7;
 
 ');
     }
