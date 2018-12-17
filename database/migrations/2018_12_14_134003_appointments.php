@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAppointmentTable extends Migration
+class Appointments extends Migration
 {
     /**
      * Run the migrations.
@@ -47,5 +47,6 @@ class CreateAppointmentTable extends Migration
      */
     public function down()
     {
+        //
     }
 }

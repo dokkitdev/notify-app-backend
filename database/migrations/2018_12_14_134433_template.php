@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableTemplate extends Migration
+class Template extends Migration
 {
     /**
      * Run the migrations.
@@ -14,17 +14,7 @@ class CreateTableTemplate extends Migration
     public function up()
     {
         \Illuminate\Support\Facades\DB::statement('
-        CREATE TABLE `template_parent` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(45) DEFAULT NULL,
-  `created_at` varchar(45) DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `alias` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
-');
-        \Illuminate\Support\Facades\DB::statement('
-        CREATE TABLE `template` (
+CREATE TABLE `template` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(45) DEFAULT NULL,
   `term` int(11) DEFAULT NULL,
@@ -40,11 +30,10 @@ class CreateTableTemplate extends Migration
   `pdf` varchar(255) DEFAULT NULL,
   `is_html` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_template_1_idx` (`template_parent_id`),
-  CONSTRAINT `fk_template_1` FOREIGN KEY (`template_parent_id`) REFERENCES `template_parent` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
-');
+  KEY `fk_template_1_idx` (`template_parent_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
 
+');
     }
 
     /**
