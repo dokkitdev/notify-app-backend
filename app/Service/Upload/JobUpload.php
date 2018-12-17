@@ -28,7 +28,7 @@ class JobUpload
 
     public function run()
     {
-        DB::delete('DELETE FROM `appointments` WHERE id > 0;');
+        DB::delete('DELETE FROM appointments WHERE id > 0;');
         $begin = new \DateTime('+2 day');
         $end = new \DateTime('+17 day');
 
@@ -144,9 +144,9 @@ class JobUpload
     public function clearDublicates()
     {
 
-        DB::insert('INSERT INTO `appointments_logged` (job_id, send_date, site_id)
+        DB::insert('INSERT INTO appointments_logged (job_id, send_date, site_id)
 SELECT job_id, send_date, site_id
-FROM `appointments`');
+FROM appointments');
 
 
         $begin = new \DateTime('+2 day');
@@ -163,22 +163,22 @@ FROM `appointments`');
                 ->get();
             if (sizeOf($appointment) > 0) {
                 foreach ($appointment as $a) {
-                    DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
+                    DB::delete('DELETE FROM appointments WHERE job_id = :job AND  send_date > \' ' . $sDate . '\' AND send_date < \'' . $eDate . '\';', [
                         $a->job_id
                     ]);
                 }
             }
 
             /** Clear duplicates for day */
-            $result = DB::select('SELECT job_id, min(`send_date`) as mtime FROM appointments WHERE `send_date` > \'' . $sDate . '\' AND `send_date` < \'' . $eDate . '\' GROUP BY job_id HAVING COUNT(*) > 1 ');
+            $result = DB::select('SELECT job_id, min(send_date) as mtime FROM appointments WHERE send_date > \'' . $sDate . '\' AND send_date < \'' . $eDate . '\' GROUP BY job_id HAVING COUNT(*) > 1 ');
             dump($result);
             foreach ($result as $r) {
-                $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and `send_date` = :send_date AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\'  LIMIT 1', [
+                $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and send_date = :send_date AND  send_date > \' ' . $sDate . '\' AND send_date < \'' . $eDate . '\'  LIMIT 1', [
                     $r->job_id,
                     $r->mtime
                 ]);
                 $id = $finded[0]->id;
-                DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND id <> :id AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
+                DB::delete('DELETE FROM appointments WHERE job_id = :job AND id <> :id AND  send_date > \' ' . $sDate . '\' AND send_date < \'' . $eDate . '\';', [
                     $r->job_id,
                     $id
                 ]);
@@ -189,9 +189,9 @@ FROM `appointments`');
             $previousDay->modify('-1 day');
             $sPreviousDate = $previousDay->format('Y-m-d 00:00:00');
             $ePreviousDate = $previousDay->format('Y-m-d 23:59:59');
-            $yesterday_jobs = DB::select('SELECT job_id FROM `appointments_logged` WHERE `send_date` > \' ' . $sPreviousDate . '\' AND `send_date` < \'' . $ePreviousDate . '\' GROUP BY job_id;');
+            $yesterday_jobs = DB::select('SELECT job_id FROM appointments_logged WHERE send_date > \' ' . $sPreviousDate . '\' AND send_date < \'' . $ePreviousDate . '\' GROUP BY job_id;');
             foreach ($yesterday_jobs as $job) {
-                DB::delete('DELETE FROM `appointments` WHERE job_id = :job AND  `send_date` > \' ' . $sDate . '\' AND `send_date` < \'' . $eDate . '\';', [
+                DB::delete('DELETE FROM appointments WHERE job_id = :job AND  send_date > \' ' . $sDate . '\' AND send_date < \'' . $eDate . '\';', [
                     $job->job_id,
                 ]);
             }
