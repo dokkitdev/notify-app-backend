@@ -58,7 +58,9 @@ class AppointmentsController extends Controller
         }
         $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
         $generator = new TemplateGenerator();
+
         $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
+
         $pdf = $generator->generatePdfFromDocx($docx);
         $appointment->docx = $docx;
         $appointment->pdf = $pdf;

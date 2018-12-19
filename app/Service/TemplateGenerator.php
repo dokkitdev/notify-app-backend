@@ -20,12 +20,12 @@ class TemplateGenerator
 {
     public function fillAppoinmentLetterFromDocxTemplate($docx, Appointment $appointment = null)
     {
-	if ($appointment) {
-	return false;
-	}
+	
+	
         set_time_limit(0);
         $docx_folder = Config::get('constants.storage_docx');
         $file = $docx_folder . '/' . $docx;
+
         if (!is_file($file)) {
             return false;
         }
@@ -116,7 +116,7 @@ class TemplateGenerator
         }
 
         $template->saveAs($docx_folder . '/' . $new_file);
-	dump($new_file);die;
+
         return $new_file;
     }
 
