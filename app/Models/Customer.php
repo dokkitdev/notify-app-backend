@@ -25,7 +25,8 @@ class Customer extends Model
         'state',
         'country',
         'postal_code',
-        'email'
+        'email',
+        'is_company'
     ];
 
     public function getName()
