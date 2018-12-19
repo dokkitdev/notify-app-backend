@@ -104,7 +104,7 @@ class TemplateController extends Controller
         $template->docx = $docx;
         $template->save();
 
-        return response()->json($template->docx);
+        return response()->json(Config::get('constants.storage_docx') . '/' .$template->docx);
     }
 
 

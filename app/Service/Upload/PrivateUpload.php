@@ -29,13 +29,9 @@ class PrivateUpload
         $this->simpro = new simProRequestService();
     }
 
-
-    public function run()
+    public function runCustomers()
     {
-        DB::delete('TRUNCATE `n_assets`;');
-        DB::delete('TRUNCATE `n_contracts`;');
         DB::delete('TRUNCATE `n_customers`;');
-        DB::delete('TRUNCATE `n_sites`;');
         $pages = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/customers/companies/');
         if ($pages) {
             foreach ($pages as $url) {
@@ -70,31 +66,32 @@ class PrivateUpload
         }
     }
 
+
     public function parseIndividual($company_info)
     {
         $company = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/individuals/' . $company_info->ID);
         dump('parse contract');
-        $this->parseContract($company);
+        $this->parseContract($company, false);
     }
 
     public function parseCompany($company_info)
     {
         $company = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/companies/' . $company_info->ID);
-        $this->parseContract($company);
+        $this->parseContract($company, true);
     }
 
-    public function parseContract($company)
+    public function parseContract($company, $is_company)
     {
         $contracts = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/' . $company->ID . '/contracts/');
         if (sizeof($contracts) > 0) {
             dump('addCreateCompanyAndParseContracts');
-            $this->addCreateCompanyAndParseContracts($company, $contracts);
+            $this->addCreateCompanyAndParseContracts($company, $contracts,$is_company);
         } else {
             dump('zero');
         }
     }
 
-    public function addCreateCompanyAndParseContracts($company, $contracts)
+    public function addCreateCompanyAndParseContracts($company, $contracts, $is_company)
     {
         $this->customer = Customer::create([
             'company_name' => $company->CompanyName ?? null,
@@ -108,16 +105,54 @@ class PrivateUpload
             'country' => $company->Address->Country ?? null,
             'postal_code' => $company->Address->PostalCode ?? null,
             'email' => $company->Email ?? null,
+            'is_company' => $is_company
         ]);
+        dump('create customer');
+    }
 
-        foreach ($contracts as $contract_info) {
-            dump('addParseContract');
-            $this->addParseContract($company, $contract_info);
+
+
+    public function run()
+    {
+        DB::delete('TRUNCATE `n_assets`;');
+        DB::delete('TRUNCATE `n_contracts`;');
+        DB::delete('TRUNCATE `n_sites`;');
+
+        $customers = Customer::all();
+//        dump($customers);
+        foreach ($customers as $customer) {
+            $this->customer = $customer;
+            if ($customer->is_company) {
+                $company = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/companies/' . $customer->company_id);
+                if ($company) {
+                    $contracts = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/' . $company->ID . '/contracts/');
+                    if (sizeof($contracts) > 0) {
+                        foreach ($contracts as $contract) {
+                            $this->addParseContract($company, $contract);
+                        }
+                    }
+                }
+            } else {
+                $company = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/individuals/' . $customer->company_id);
+                if ($company) {
+                    $contracts = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/' . $company->ID . '/contracts/');
+                    if (sizeof($contracts) > 0) {
+                        foreach ($contracts as $contract) {
+                            $this->addParseContract($company, $contract);
+                        }
+                    }
+                }
+            }
         }
     }
 
+
+
+
+
     public function addParseContract($company, $contract_info)
     {
+
         dump('/api/v1.0/companies/0/customers/' . $company->ID . '/contracts/' . $contract_info->ID);
         dump($contract_info);
         $contract_info = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/' . $company->ID . '/contracts/' . $contract_info->ID);

@@ -1,11 +1,11 @@
 <?php
 //$pgSql = parse_url(getenv("DATABASE_URL"));
-$url = parse_url(getenv("CLEARDB_DATABASE_URL"));
-$host = $url["host"];
-$username = $url["user"];
-$password = $url["pass"];
-$database = substr($url["path"], 1);
-return [
+//$url = parse_url(getenv("CLEARDB_DATABASE_URL"));
+//$host = $url["host"];
+//$username = $url["user"];
+//$password = $url["pass"];
+//$database = substr($url["path"], 1);
+return [    
 
     /*
     |--------------------------------------------------------------------------
@@ -46,23 +46,30 @@ return [
 
         'mysql' => [
             'driver'    => 'mysql',
-            'host'      => $host,
-            'database'  => $database,
-            'username'  => $username,
-            'password'  => $password,
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'blueflame'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', 'dbnfkbr23'),
+            'unix_socket' => env('DB_SOCKET', ''),
+//            'driver'    => 'mysql',
+//            'host'      => $host,
+//            'database'  => $database,
+//            'username'  => $username,
+//            'password'  => $password,
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
         ],
         'pgsql' => [
-            'driver'   => 'pgsql',
-            'host'     => $pgSql["host"],
-            'database' => substr($pgSql["path"], 1),
-            'username' => $pgSql["user"],
-            'password' => $pgSql["pass"],
-            'charset'  => 'utf8',
-            'prefix'   => '',
-            'schema'   => 'public',
+//            'driver'   => 'pgsql',
+//            'host'     => $pgSql["host"],
+//            'database' => substr($pgSql["path"], 1),
+//            'username' => $pgSql["user"],
+//            'password' => $pgSql["pass"],
+//            'charset'  => 'utf8',
+//            'prefix'   => '',
+//            'schema'   => 'public',
         ],
         'sqlsrv' => [
             'driver' => 'sqlsrv',
