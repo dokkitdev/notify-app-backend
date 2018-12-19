@@ -200,6 +200,7 @@ class simProRequestService
 
     function uploadAppointment(Appointment $a)
     {
+        dump('upload');
         $today = new \DateTime();
         $pdf_folder = Config::get('constants.storage_pdf');
         $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $a->pdf));
@@ -209,9 +210,10 @@ class simProRequestService
                 'Filename' => $file_name,
                 'Base64Data' => $b64Doc,
                 'Public' => true,
-                'Email' => true,
+                'Email' => false,
             ]
         );
+        dump($res);
     }
 
     public function getAccessToken()

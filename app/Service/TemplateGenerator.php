@@ -46,21 +46,21 @@ class TemplateGenerator
         $today = $day . ' ' . $month . ' ' . $year;
 
 
-        $ContactName = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->getContact()))));
-        $Address = str_replace("\n", ', ', ucwords(strtolower($appointment->getAddress())));
+        $ContactName = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($appointment->getContact())))));
+        $Address = htmlspecialchars(str_replace("\n", ', ', ucwords(strtolower($appointment->getAddress()))));
         $exploded = explode(',', $Address);
-        $address = htmlentities(array_shift($exploded) ?? '');
-        $address2 = htmlentities(trim(implode(', ', $exploded)));
+        $address = htmlspecialchars((array_shift($exploded) ?? ''));
+        $address2 = htmlspecialchars((trim(implode(', ', $exploded))));
 
-        $state = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->state))));
-        $City = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->city))));
-        $County = htmlentities(str_replace("\n", ', ', strtoupper($appointment->country)));
-        $Postcode = htmlentities(str_replace("\n", ', ', strtoupper($appointment->postcode)));
-        $TodayDate = htmlentities($today);
-        $JobID = htmlentities($appointment->job_id);
-        $ScheduleDate = htmlentities($appointment->getFormatedScheduleDate());
-        $ScheduleTime = htmlentities($appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime());
-        $WorkType = htmlentities(str_replace("\n", ', ', ucwords(strtolower($appointment->work_type))));
+        $state = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($appointment->state)))));
+        $City = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($appointment->city)))));
+        $County = htmlspecialchars((str_replace("\n", ', ', strtoupper($appointment->country))));
+        $Postcode = htmlspecialchars((str_replace("\n", ', ', strtoupper($appointment->postcode))));
+        $TodayDate = htmlspecialchars(($today));
+        $JobID = htmlspecialchars(($appointment->job_id));
+        $ScheduleDate = htmlspecialchars(($appointment->getFormatedScheduleDate()));
+        $ScheduleTime = htmlspecialchars(($appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime()));
+        $WorkType = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($appointment->work_type)))));
 
         $variables = [
             'ContactName',
@@ -173,18 +173,18 @@ class TemplateGenerator
         $yesterday = $day . ' ' . $month . ' ' . $year;
 
 
-        $siteAddress = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->address))));
-        $city = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->city))));
-        $state = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->state))));
-        $postcode = htmlentities(str_replace("\n", ', ', strtoupper(strtolower($housing->postal_code))));
-        $siteContact = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->siteContact()))));
-        $serviceType = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->job_name))));
-        $first_name = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->given_name))));
-        $family_name = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->family_name))));
-        $due_date = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->getDueDateWithDay()))));
-        $company_name = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->company_name))));
-        $contactName = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->siteContact()))));
-        $contactPhone = htmlentities(str_replace("\n", ', ', ucwords(strtolower($housing->getContactPhone()))));
+        $siteAddress = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->address)))));
+        $city = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->city)))));
+        $state = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->state)))));
+        $postcode = htmlspecialchars((str_replace("\n", ', ', strtoupper(strtolower($housing->postal_code)))));
+        $siteContact = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->siteContact())))));
+        $serviceType = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->job_name)))));
+        $first_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->given_name)))));
+        $family_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->family_name)))));
+        $due_date = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->getDueDateWithDay())))));
+        $company_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->company_name)))));
+        $contactName = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->siteContact())))));
+        $contactPhone = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->getContactPhone())))));
 
         $variables = [
             'Address',
@@ -299,28 +299,29 @@ class TemplateGenerator
 
         $customer = $contract->customer()->first();
         $asset = $contract->assets()->first();
-        $site = $asset->site()->first();
+        $site = $asset ? $asset->site()->first() : null;
 
-        $address = str_replace("\n", ', ', ucwords(strtolower($customer->address)));
+        $address = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->address)))));
         $address2 = '';
-        $city = htmlentities(str_replace("\n", ', ', ucwords(strtolower($customer->city))));
-        $state = htmlentities(str_replace("\n", ', ', ucwords(strtolower($customer->state))));
-        $postcode = htmlentities(str_replace("\n", ', ', strtoupper($customer->postal_code)));
+        $city = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->city)))));
+        $state = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->state)))));
+        $postcode = htmlspecialchars((str_replace("\n", ', ', strtoupper($customer->postal_code))));
 
-        $addressProperty = str_replace("\n", ', ', ucwords(strtolower($site->address)));
+        $addressProperty = htmlspecialchars(str_replace("\n", ', ', ucwords(strtolower($site ? $site->address : ''))));
         $address2Property = '';
-        $cityProperty = htmlentities(str_replace("\n", ', ', ucwords(strtolower($site->city))));
-        $stateProperty = htmlentities(str_replace("\n", ', ', ucwords(strtolower($site->state))));
-        $postcodeProperty = htmlentities(str_replace("\n", ', ', strtoupper($site->postal_code)));
+        $cityProperty = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($site ? $site->city : '')))));
+        $stateProperty = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($site ? $site->state : '')))));
+        $postcodeProperty = htmlspecialchars((str_replace("\n", ', ', strtoupper($site ? $site->postal_code : ''))));
 
+        $contractNo = htmlspecialchars($contract->contract_no);
+        $makeModel = htmlspecialchars($asset ? $asset->value : 'Heating Equipment');
+        $contactName = htmlspecialchars(str_replace("\n", ', ', ucwords(strtolower($customer->getName()))));
+        $totalDue = htmlspecialchars($contract->value);
+        $expiryDate = htmlspecialchars($contract->getExpireDate());
+        $contractName = htmlspecialchars($contract->name);
 
-        $contactName = htmlentities(str_replace("\n", ', ', ucwords(strtolower($customer->getName()))));
-        $contractNo = $contract->contract_id;
         $customerId = $customer->company_id;
-        $assetId = $asset->asset_id;
-        $planType = $asset->value;
-        $totalDue = $contract->value;
-        $expiryDate = $contract->getExpireDate();
+        $assetId = $asset ? $asset->asset_id : '';
 
         $variables = [
             'Address',
@@ -329,6 +330,7 @@ class TemplateGenerator
             'County',
             'Postcode'
         ];
+
 
         $values = [
             $address,
@@ -350,11 +352,11 @@ class TemplateGenerator
         }
 
         $variablesProperty = [
-            'PropertyAddress',
-            'PropertyAddress2',
-            'PropertyCity',
-            'PropertyCounty',
-            'PropertyPostCode',
+            'SiteAddress',
+            'SiteAddress2',
+            'SiteCity',
+            'SiteCounty',
+            'SitePostCode',
         ];
 
         $valuesProperty = [
@@ -376,15 +378,16 @@ class TemplateGenerator
             $template->setValue($v, $str);
         }
 //        die;
-
+        $template->setValue('MakeModel', $makeModel);
+        $template->setValue('ContractName', $contractName);
+        $template->setValue('ContactName', $contactName);
+        $template->setValue('TotalDue', $totalDue);
+        $template->setValue('ExpiryDate', $expiryDate);
         $template->setValue('ContractNo', $contractNo);
         $template->setValue('CustomerID', $customerId);
         $template->setValue('AssetID', $assetId);
-        $template->setValue('PlanType', $planType);
-        $template->setValue('ContactName', $contactName);
+        $template->setValue('PlanType', $makeModel);
         $template->setValue('TodayDate', $today);
-        $template->setValue('TotalDue', $totalDue);
-        $template->setValue('ExpiryDate', $expiryDate);
 
         $today = new \DateTime();
         $new_file = $customerId . '.' . $type . '.' . $today->format('Y-m-d') . '.docx';

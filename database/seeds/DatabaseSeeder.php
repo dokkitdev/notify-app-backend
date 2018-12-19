@@ -11,21 +11,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+
+
         $append = [
             [
                 'title' => 'Private',
-                'templates' => [[
-                    'term' => 1,
-                    'title' => 'Letter 1',
-                    'tag' => null,
-                    'alias' => 'PRIVATE_1_WEEK',
-                    'html_body' => null,
-                    'html' => null,
-                    'subject' => null,
-                    'docx' => null,
-                    'pdf' => null,
-                    'is_html' => 1,
-                ],
+                'templates' => [
+                    [
+                        'term' => 1,
+                        'title' => 'Letter 1',
+                        'tag' => null,
+                        'alias' => 'PRIVATE_1_WEEK',
+                        'html_body' => null,
+                        'html' => null,
+                        'subject' => null,
+                        'docx' => null,
+                        'pdf' => null,
+                        'is_html' => 1,
+                    ],
                     [
                         'term' => 4,
                         'title' => 'Letter 2',
@@ -58,7 +61,7 @@ class DatabaseSeeder extends Seeder
                     [
                         'term' => null,
                         'title' => 'Letter',
-                        'tag' => 'No Access',
+                        'tag' => 'No Access 1 (Letter)',
                         'alias' => 'HOUSING_NO_ACCESS',
                         'html_body' => null,
                         'html' => null,
@@ -70,7 +73,7 @@ class DatabaseSeeder extends Seeder
                     [
                         'term' => null,
                         'title' => 'Letter',
-                        'tag' => 'First Access',
+                        'tag' => 'No Access 2 (Letter)',
                         'alias' => 'HOUSING_1_ACCESS',
                         'html_body' => null,
                         'html' => null,
@@ -82,7 +85,7 @@ class DatabaseSeeder extends Seeder
                     [
                         'term' => null,
                         'title' => 'Letter',
-                        'tag' => 'Second Access',
+                        'tag' => 'No Access 3 (Letter)',
                         'alias' => 'HOUSING_2_ACCESS',
                         'html_body' => null,
                         'html' => null,
@@ -120,5 +123,46 @@ class DatabaseSeeder extends Seeder
                 $pt->templates()->save($t);
             }
         }
+        \Illuminate\Support\Facades\DB::statement("
+        INSERT INTO users
+(id,
+name,
+email,
+password,
+role,
+active,
+remember_token,
+created_at,
+updated_at)
+VALUES (
+1,
+'Admin',
+'omenpars@gmail.com',
+'$2y$10$0C4/Er6Txp3wxqz34zEVJuIXzW1I5nuAb7sC/ZBTY2jGjRRto/nW.',
+'admin',
+1,
+'6Adou9HLG5lTBPPwLG12qMr1iJ5i6TeWD37JLaFsbv7uRxoBPwcdvEcWr58u',
+'2018-09-13 08:58:52',
+'2018-09-13 08:58:52');
+        ");
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

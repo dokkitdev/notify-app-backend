@@ -9,7 +9,9 @@
 namespace App\Service\Upload;
 
 
+use App\Models\HousingJob;
 use App\Service\simProRequestService;
+use Illuminate\Support\Facades\DB;
 
 class HousingUpload
 {
@@ -26,6 +28,7 @@ class HousingUpload
 
     public function run()
     {
+//        DB::delete('TRUNCATE `n_housing_job`;');
         $result = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/jobs/?display=all');
         if ($result) {
             foreach ($result as $url) {
@@ -53,6 +56,13 @@ class HousingUpload
         if (($job->Stage == 'Progress' || $job->Stage == 'Pending')) {
             dump('parseSite');
             $this->parseSite($job);
+        } else {
+            $housings = HousingJob::where('job_id', '=', $job->ID)->get();
+            if ($housings) {
+                foreach ($housings as $h) {
+                    $h->delete();
+                }
+            }
         }
     }
 
