@@ -44,7 +44,7 @@ class CombinePdfHousingCommand extends Command
             $housing->pdf = $pdf;
             $housing->is_proccessed = true;
             $housing->save();
-//            $sim->uploadAppointment($appointment);
+            $sim->uploadHousing($housing);
             $filled[] = $housing;
         }
         if (count($filled) > 0) {

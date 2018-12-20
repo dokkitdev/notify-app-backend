@@ -120,7 +120,7 @@ class HousingController extends Controller
                         $pdf = $generator->generatePdfFromDocx($docx);
                         $hous->docx = $docx;
                         $hous->pdf = $pdf;
-//                        $sim->uploadAppointment($appointment);
+                        $sim->uploadHousing($hous);
                     }
                     $hous->is_proccessed = true;
                     $hous->save();
