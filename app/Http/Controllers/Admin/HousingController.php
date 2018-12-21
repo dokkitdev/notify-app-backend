@@ -20,7 +20,7 @@ class HousingController extends Controller
         if ($start) {
             $start = \DateTime::createFromFormat('d.m.Y', $start);
         } else {
-            $start = new \DateTime('-1 day');
+            $start = new \DateTime('-4 day');
         }
         $start->setTime(0, 0, 0);
 
@@ -28,7 +28,7 @@ class HousingController extends Controller
         if ($end) {
             $end = \DateTime::createFromFormat('d.m.Y', $end);
         } else {
-            $end = new \DateTime('-4 day');
+            $end = new \DateTime('-1 day');
         }
         $end->setTime(23, 59, 59);
 
