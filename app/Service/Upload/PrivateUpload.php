@@ -93,6 +93,9 @@ class PrivateUpload
 
     public function addCreateCompanyAndParseContracts($company, $contracts, $is_company)
     {
+        if ($company->ID == 11514) {
+            return;
+        }
         $this->customer = Customer::create([
             'company_name' => $company->CompanyName ?? null,
             'first_name' => $company->GivenName ?? null,

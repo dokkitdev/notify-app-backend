@@ -251,8 +251,15 @@ class TemplateGenerator
         set_time_limit(0);
 
         $week1 = new \DateTime('+1 week');
+        $week1Minus = clone $week1;
+        $week1Minus->modify('-2 day');
         $week4 = new \DateTime('+4 week');
+        $week4Minus = clone $week4;
+        $week4Minus->modify('-2 day');
         $week8 = new \DateTime('+8 week');
+        $week8Minus = clone $week8;
+        $week8Minus->modify('-2 day');
+
         $end_date = $contract->getEndDate();
         if (!$end_date) {
             return false;

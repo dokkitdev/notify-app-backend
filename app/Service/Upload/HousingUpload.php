@@ -100,7 +100,7 @@ class HousingUpload
         }
 
         $costCenterId = $job->Sections[0]->CostCenters[0]->ID ?? null;
-        $schedule = $this->simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Type=job&Reference=' . $job->ID . '-' . $costCenterId . '&date=' . $this->yesterday);
+        $schedule = $this->simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Type=job&Reference=' . $job->ID . '-' . $costCenterId . '&Date=' . $this->yesterday);
         if (sizeOf($schedule) < 1) {
             return;
         }

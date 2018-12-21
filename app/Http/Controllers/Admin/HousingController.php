@@ -28,7 +28,7 @@ class HousingController extends Controller
         if ($end) {
             $end = \DateTime::createFromFormat('d.m.Y', $end);
         } else {
-            $end = new \DateTime('-1 day');
+            $end = new \DateTime('-4 day');
         }
         $end->setTime(23, 59, 59);
 

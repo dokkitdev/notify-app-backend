@@ -28,7 +28,11 @@ class PrivateController extends Controller
             ->where(function ($query) use ($week1, $week4, $week8) {
                 $query
                     ->where(function ($query) use ($week1) {
+                        $week1Minus2Day = clone $week1;
+                        $week1Minus2Day->modify('-2 day');
                         $query
+                            ->where('end_date', '>=', $week1Minus2Day->format('Y-m-d 00:00:00'))
+                            ->Where('end_date', '<=', $week1->format('Y-m-d 23:59:59'))
                             ->where('end_date', 'LIKE', '%' . $week1->format('Y-m-d') . '%')
                             ->where(function ($query) {
                                 $query->where('is_processed_1', '<>', 1)
@@ -36,16 +40,22 @@ class PrivateController extends Controller
                             });
                     })
                     ->orWhere(function ($query) use ($week4) {
+                        $week4Minus2Day = clone $week4;
+                        $week4Minus2Day->modify('-2 day');
                         $query
-                            ->where('end_date', 'LIKE', '%' . $week4->format('Y-m-d') . '%')
+                            ->where('end_date', '>=', $week4Minus2Day->format('Y-m-d 00:00:00'))
+                            ->Where('end_date', '<=', $week4->format('Y-m-d 23:59:59'))
                             ->where(function ($query) {
                                 $query->where('is_processed_4', '<>', 1)
                                     ->orWhere('is_processed_4', '=', null);
                             });
                     })
                     ->orWhere(function ($query) use ($week8) {
+                        $week8Minus2Day = clone $week8;
+                        $week8Minus2Day->modify('-2 day');
                         $query
-                            ->where('end_date', 'LIKE', '%' . $week8->format('Y-m-d') . '%')
+                            ->where('end_date', '>=', $week8Minus2Day->format('Y-m-d 00:00:00'))
+                            ->Where('end_date', '<=', $week8->format('Y-m-d 23:59:59'))
                             ->where(function ($query) {
                                 $query->where('is_processed_8', '<>', 1)
                                     ->orWhere('is_processed_8', '=', null);
