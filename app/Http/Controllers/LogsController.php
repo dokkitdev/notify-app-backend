@@ -9,18 +9,20 @@ use Illuminate\Support\Facades\Storage;
 
 class LogsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $title = 'System Logs';
         $srv = new LogService();
         $data = $srv->getStandardReport();
 
-        $logs = Logs::orderBy('created_at', 'desc')->get();
+        $limit = $request->get('limit') ?? 20;
+        $logs = Logs::orderBy('created_at', 'desc')->paginate($limit);
 
         return view('tpl.logs.index', [
             'data' => $data,
             'title' => $title,
             'logs' => $logs,
+            'limit' => $limit
         ])->with('title', $title);
     }
 

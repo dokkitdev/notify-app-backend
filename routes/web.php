@@ -50,6 +50,9 @@ Route::group(['middleware' => ['CheckAdmin']], function () {
         Route::get('/clear', 'Admin\\AppointmentsController@clearDublicates');
     });
 
+    Route::get('/dashboard', 'DashboardController@getDashboard')->name('dashboard');
+
+
 
     Route::group(['prefix' => '/housing'], function () {
         Route::get('/', 'Admin\\HousingController@index')->name('housing.all');
