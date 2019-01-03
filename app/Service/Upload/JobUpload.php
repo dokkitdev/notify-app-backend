@@ -150,7 +150,7 @@ FROM appointments');
 
 
         $begin = new \DateTime('+2 day');
-        $end = new \DateTime('+17 day');
+        $end = new \DateTime('+19 day');
 
         $interval = \DateInterval::createFromDateString('1 day');
         $period = new \DatePeriod($begin, $interval, $end);
@@ -171,6 +171,7 @@ FROM appointments');
 
             /** Clear duplicates for day */
             $result = DB::select('SELECT job_id, min(send_date) as mtime FROM appointments WHERE send_date > \'' . $sDate . '\' AND send_date < \'' . $eDate . '\' GROUP BY job_id HAVING COUNT(*) > 1 ');
+            dump($sDate . ' ' . $eDate);
             dump($result);
             foreach ($result as $r) {
                 $finded = DB::select('SELECT id FROM appointments WHERE job_id = :job and send_date = :send_date AND  send_date > \' ' . $sDate . '\' AND send_date < \'' . $eDate . '\'  LIMIT 1', [
