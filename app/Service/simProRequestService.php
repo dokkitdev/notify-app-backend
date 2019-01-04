@@ -204,11 +204,11 @@ class simProRequestService
         dump('upload');
         $today = new \DateTime();
         $pdf_folder = Config::get('constants.storage_pdf');
-        if (!is_file($pdf_folder .'/' . $a->pdf)) {
+        if (!is_file($pdf_folder . '/' . $a->pdf)) {
             return;
         }
         $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $a->pdf));
-        $file_name = $a->job_id . '.appointment.'. $today->format('Y-m-d') . '.pdf';
+        $file_name = $a->job_id . '.appointment.' . $today->format('Y-m-d') . '.pdf';
         $res = $this->patchRequest('POST', '/api/v1.0/companies/0/jobs/' . $a->job_id . '/attachments/files/',
             [
                 'Filename' => $file_name,
@@ -219,14 +219,20 @@ class simProRequestService
         );
     }
 
-    function uploadHousing(HousingJob $h) {
+    function uploadHousing(HousingJob $h)
+    {
         $today = new \DateTime();
         $pdf_folder = Config::get('constants.storage_pdf');
-        if (!is_file($pdf_folder .'/' . $h->pdf)) {
+        if (!is_file($pdf_folder . '/' . $h->pdf)) {
             return;
         }
         $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $h->pdf));
-        $file_name = $h->job_id . '.appointment.'. $today->format('Y-m-d') . '.pdf';
+        $tag = $h->tags;
+        $tag = str_replace("(Letter)", '', $tag);
+        $tag = strtolower($tag);
+        $tag = trim($tag);
+        $tag = str_replace(' ', '-', $tag);
+        $file_name = $h->job_id . '.' . $tag . '.' . $today->format('Y-m-d') . '.pdf';
         $res = $this->patchRequest('POST', '/api/v1.0/companies/0/jobs/' . $h->job_id . '/attachments/files/',
             [
                 'Filename' => $file_name,

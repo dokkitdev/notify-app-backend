@@ -38,23 +38,25 @@
                             class="fas fa-info"></i></th>
                 <th class="header">Contract ID</th>
                 <th class="header">End date</th>
+                <th class="header">Type</th>
                 <th class="header">Customer</th>
                 <th class="header">Asset</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            @foreach($contracts as $contract)
+            @foreach($customers as $customer)
                 <tr>
                     <td>
-                        <input type="checkbox" name="private[]" value="{!! $contract->id !!}">
+                        <input type="checkbox" name="private[]" value="{!! $customer->id !!}">
                     </td>
-                    <td>{!! $contract->contract_id !!}</td>
-                    <td>{!! $contract->getEndDateYmd() !!}</td>
-                    <td>{!! $contract->customer->getName() !!}</td>
-                    <td>{!! $contract->asset ? $contract->asset->value : 'Heating Equipment' !!}</td>
+                    <td>{!! implode(', ', $customer->contract_numbers) !!}</td>
+                    <td>{!! $customer->end_date !!}</td>
+                    <td>{!! $customer->type !!}</td>
+                    <td>{!! $customer->getName() !!}</td>
+                    <td>{!! implode(', ', $customer->assets_filtered) !!}</td>
                     <td>
-                        <a href="{!! route('private.view', ['id' => $contract->id]) !!}">View</a>
+                        <a href="{!! route('private.view', ['id' => $customer->id]) !!}">View</a>
                     </td>
                 </tr>
             @endforeach
@@ -67,7 +69,7 @@
         <input type="text" name="end">
     </form>
     <div class="form-group  clearfix">
-        {{ $contracts->links('admin.pagination.default', [
+        {{ $customers->links('admin.pagination.default', [
             'limit' => $limit,
             'start' => '',
             'end' => ''
