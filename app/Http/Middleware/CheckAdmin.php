@@ -20,7 +20,7 @@ class checkAdmin
             return redirect('/admin/login');
         }
         if(Auth::user()->role!=='admin'){
-            return redirect('/profile/info');
+            return redirect('/');
         }
 
         return $next($request);
