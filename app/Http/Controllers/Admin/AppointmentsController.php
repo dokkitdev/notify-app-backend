@@ -34,7 +34,7 @@ class AppointmentsController extends Controller
             $query->where('is_proccessed', '<>', 1)
                 ->orWhere('is_proccessed', '=', null);
         })
-            ->where('send_date', '>', (new \DateTime('+2 day'))->format('Y-m-d'))
+            ->where('send_date', '>', (new \DateTime('+4 day'))->format('Y-m-d'))
             ->orderBy('send_date', 'ASC')
             ->paginate($limit);
 

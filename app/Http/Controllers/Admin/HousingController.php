@@ -20,7 +20,7 @@ class HousingController extends Controller
         if ($start) {
             $start = \DateTime::createFromFormat('d.m.Y', $start);
         } else {
-            $start = new \DateTime('-1 day');
+            $start = new \DateTime('-4 day');
         }
         $start->setTime(0, 0, 0);
 
@@ -120,7 +120,7 @@ class HousingController extends Controller
                         $pdf = $generator->generatePdfFromDocx($docx);
                         $hous->docx = $docx;
                         $hous->pdf = $pdf;
-//                        $sim->uploadAppointment($appointment);
+                        $sim->uploadHousing($hous);
                     }
                     $hous->is_proccessed = true;
                     $hous->save();

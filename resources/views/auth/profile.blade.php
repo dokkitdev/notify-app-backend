@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-
     <div class="container">
 
         @foreach ($errors->all() as $error)
@@ -18,7 +17,11 @@
             </div>
             <div class="form-group">
                 {!! Form::label('newpass', 'New password') !!}
-                {!! Form::text('newpass','',['class'=>'form-control']) !!}
+                {!! Form::text('newpass', session('newPass'),['class'=>'form-control']) !!}
+            </div>
+            <div class="form-group">
+                {!! Form::label('repeatpass', 'Repeat password') !!}
+                {!! Form::text('repeatpass', session('repeatPass'),['class'=>'form-control']) !!}
             </div>
             {!! Form::submit('Update', ['class'=>'btn btn-primary float-right']) !!}
             <div class="clearfix"></div>

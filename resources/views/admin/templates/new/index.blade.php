@@ -21,8 +21,10 @@
                         <td>
                             <form>
                                 @csrf
-                                <a class="btn btn-primary" href="{{ route('templates.edit', ['id' => $t->id]) }}"
-                                   title="Edit template"><i class="fas fa-pen"></i></a>
+                                @if ($t->is_html)
+                                    <a class="btn btn-primary" href="{{ route('templates.edit', ['id' => $t->id]) }}"
+                                       title="Edit template"><i class="fas fa-pen"></i></a>
+                                @endif
                                 <input type="file" name="file" class="d-none" accept=".docx"/>
                                 <input type="hidden" name="alias" value="{!! $t->alias !!}">
                                 <a href="#" style="margin: 0 20px;" class="upload-file"><i class="fas fa-upload"></i>

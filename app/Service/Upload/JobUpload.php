@@ -29,8 +29,8 @@ class JobUpload
     public function run()
     {
         DB::delete('DELETE FROM appointments WHERE id > 0;');
-        $begin = new \DateTime('+2 day');
-        $end = new \DateTime('+17 day');
+        $begin = new \DateTime('+4 day');
+        $end = new \DateTime('+19 day');
 
         $interval = \DateInterval::createFromDateString('1 day');
         $period = new \DatePeriod($begin, $interval, $end);

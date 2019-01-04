@@ -56,7 +56,14 @@
 
         </tbody>
     </table>
-
+    <div class="form-group  clearfix">
+        {{ $logs->links('admin.pagination.default', [
+            'limit' => $limit,
+            'start' => '',
+            'end' => ''
+        ]
+        ) }}
+    </div>
 
 @endsection
 

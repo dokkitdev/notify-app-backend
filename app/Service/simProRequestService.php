@@ -10,6 +10,7 @@ namespace App\Service;
 
 
 use App\Appointment;
+use App\Models\HousingJob;
 use App\Settings;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Config;
@@ -203,6 +204,9 @@ class simProRequestService
         dump('upload');
         $today = new \DateTime();
         $pdf_folder = Config::get('constants.storage_pdf');
+        if (!is_file($pdf_folder .'/' . $a->pdf)) {
+            return;
+        }
         $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $a->pdf));
         $file_name = $a->job_id . '.appointment.'. $today->format('Y-m-d') . '.pdf';
         $res = $this->patchRequest('POST', '/api/v1.0/companies/0/jobs/' . $a->job_id . '/attachments/files/',
@@ -213,7 +217,24 @@ class simProRequestService
                 'Email' => false,
             ]
         );
-        dump($res);
+    }
+
+    function uploadHousing(HousingJob $h) {
+        $today = new \DateTime();
+        $pdf_folder = Config::get('constants.storage_pdf');
+        if (!is_file($pdf_folder .'/' . $h->pdf)) {
+            return;
+        }
+        $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $h->pdf));
+        $file_name = $h->job_id . '.appointment.'. $today->format('Y-m-d') . '.pdf';
+        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/jobs/' . $h->job_id . '/attachments/files/',
+            [
+                'Filename' => $file_name,
+                'Base64Data' => $b64Doc,
+                'Public' => true,
+                'Email' => false,
+            ]
+        );
     }
 
     public function getAccessToken()
