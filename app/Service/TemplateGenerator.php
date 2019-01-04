@@ -9,6 +9,7 @@
 namespace App\Service;
 
 use App\Models\Contract;
+use App\Models\Customer;
 use App\Models\HousingJob;
 use App\Templates;
 use CloudConvert\Api;
@@ -240,6 +241,198 @@ class TemplateGenerator
 
         $template->saveAs($docx_folder . '/' . $new_file);
         return $new_file;
+    }
+
+    public function fillPrivateByCustomer(Customer $customer)
+    {
+        $week1 = new \DateTime('+1 week');
+        $week4 = new \DateTime('+4 week');
+        $week8 = new \DateTime('+8 week');
+        $week1Minus2Day = (clone $week1)->modify('-2 day')->format('Y-m-d 00:00:00');
+        $week4Minus2Day = (clone $week4)->modify('-2 day')->format('Y-m-d 00:00:00');
+        $week8Minus2Day = (clone $week8)->modify('-2 day')->format('Y-m-d 00:00:00');
+        $week1 = $week1->format('Y-m-d 23:59:59');
+        $week4 = $week4->format('Y-m-d 23:59:59');
+        $week8 = $week8->format('Y-m-d 23:59:59');
+
+        $contractNum = [];
+        $assets = [];
+        $assets_id = [];
+        $site = null;
+        foreach ($customer->contracts as $contract) {
+            $temp_end = $contract->end_date;
+            $is_processed_1 = $contract->is_processed_1;
+            $is_processed_4 = $contract->is_processed_4;
+            $is_processed_8 = $contract->is_processed_8;
+            if (
+                ($temp_end >= $week1Minus2Day && $temp_end <= $week1 && $is_processed_1 === null)
+                OR ($temp_end >= $week4Minus2Day && $temp_end <= $week4 && $is_processed_4 === null)
+                OR ($temp_end >= $week8Minus2Day && $temp_end <= $week8 && $is_processed_8 === null)
+            ) {
+                $end_date = $contract->end_date;
+                $contractNum[] = $contract->id;
+                foreach ($contract->assets as $asset) {
+                    $assets[] = $asset->value;
+                    $assets_id[] = $asset->id;
+                    $site = $asset->site()->first() ?: $site;
+                }
+            }
+        }
+        if (count($assets) < 1) {
+            $assets[] = 'Heating Equipment';
+        }
+       $end_date = \DateTime::createFromFormat('Y-m-d H:i:s', $end_date)->format('Y-m-d');
+
+        if ($end_date >= $week1Minus2Day && $end_date <= $week1) {
+            $template = Templates::where('alias', '=', Templates::PRIVATE_1_WEEK)->first();
+            $type = '1wk';
+        } else if ($week4Minus2Day && $end_date <= $week4) {
+            $template = Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first();
+            $type = '4wks';
+        } else if ($week8Minus2Day && $end_date <= $week8) {
+            $template = Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first();
+            $type = '8wks';
+        } else {
+            return false;
+        }
+        $docx = $template->docx;
+        if (!$docx) {
+            return false;
+        }
+
+
+        $docx_folder = Config::get('constants.storage_docx');
+        $file = $docx_folder . '/' . $docx;
+        if (!is_file($file)) {
+            return false;
+        }
+
+        $template = new \PhpOffice\PhpWord\TemplateProcessor($file);
+        $today = new \DateTime();
+        $month = $today->format('F');
+        $year = $today->format('Y');
+        $day = ltrim($today->format('d'), '0');
+        if ($day % 10 == 1 && $day != 11) {
+            $day .= 'st';
+        } else if ($day % 10 == 2 && $day != 12) {
+            $day .= 'nd';
+        } else if ($day % 10 == 3 && $day != 13) {
+            $day .= 'rd';
+        } else {
+            $day .= 'th';
+        }
+        $today = $day . ' ' . $month . ' ' . $year;
+
+
+        $address = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->address)))));
+        $address2 = '';
+        $city = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->city)))));
+        $state = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->state)))));
+        $postcode = htmlspecialchars((str_replace("\n", ', ', strtoupper($customer->postal_code))));
+
+        $addressProperty = htmlspecialchars(str_replace("\n", ', ', ucwords(strtolower($site ? $site->address : ''))));
+        $address2Property = '';
+        $cityProperty = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($site ? $site->city : '')))));
+        $stateProperty = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($site ? $site->state : '')))));
+        $postcodeProperty = htmlspecialchars((str_replace("\n", ', ', strtoupper($site ? $site->postal_code : ''))));
+
+        $contractNo = htmlspecialchars($contract->contract_no);
+        $contactName = htmlspecialchars(str_replace("\n", ', ', ucwords(strtolower($customer->getName()))));
+        $totalDue = htmlspecialchars($contract->value);
+        $expiryDate = htmlspecialchars($contract->getExpireDate());
+        $contractName = htmlspecialchars($contract->name);
+
+        $customerId = $customer->company_id;
+        $assetId = implode(', ', $assets_id);
+        $makeModel = implode(', ', array_unique($assets));
+
+
+        $variables = [
+            'Address',
+            'Address2',
+            'City',
+            'County',
+            'Postcode'
+        ];
+
+
+        $values = [
+            $address,
+            $address2,
+            $city,
+            $state,
+            $postcode,
+        ];
+
+        foreach ($variables as $v) {
+            $str = '';
+            while (($value = array_shift($values)) !== null) {
+                if (strlen($value) > 0) {
+                    $str = $value;
+                    break;
+                }
+            }
+            $template->setValue($v, $str);
+        }
+
+        $variablesProperty = [
+            'SiteAddress',
+            'SiteAddress2',
+            'SiteCity',
+            'SiteCounty',
+            'SitePostCode',
+        ];
+
+        $valuesProperty = [
+            $addressProperty,
+            $address2Property,
+            $cityProperty,
+            $stateProperty,
+            $postcodeProperty,
+        ];
+
+        foreach ($variablesProperty as $v) {
+            $str = '';
+            while (($value = array_shift($valuesProperty)) !== null) {
+                if (strlen($value) > 0) {
+                    $str = $value;
+                    break;
+                }
+            }
+            $template->setValue($v, $str);
+        }
+//        die;
+        $template->setValue('MakeModel', $makeModel);
+        $template->setValue('ContractName', $contractName);
+        $template->setValue('ContactName', $contactName);
+        $template->setValue('TotalDue', $totalDue);
+        $template->setValue('ExpiryDate', $expiryDate);
+        $template->setValue('ContractNo', $contractNo);
+        $template->setValue('CustomerID', $customerId);
+        $template->setValue('AssetID', $assetId);
+        $template->setValue('PlanType', $makeModel);
+        $template->setValue('TodayDate', $today);
+
+        $today = new \DateTime();
+        $new_file = $customerId . '.' . $type . '.' . $today->format('Y-m-d') . '.docx';
+
+        if ($contract->docx) {
+            $old_file = $docx_folder . '/' . $contract->docx;
+            if (file_exists($old_file)) {
+                unlink($old_file);
+            }
+        }
+        if ($contract->pdf) {
+            $pdf_folder = Config::get('constants.storage_pdf');
+            $old_file = $pdf_folder . '/' . $contract->pdf;
+            if (file_exists($old_file)) {
+                unlink($old_file);
+            }
+        }
+
+        $template->saveAs($docx_folder . '/' . $new_file);
+        return $new_file;
+
     }
 
     public function fillPrivateTemplate(Contract $contract)
