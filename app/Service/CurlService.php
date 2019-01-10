@@ -16,7 +16,7 @@ class CurlService
 
     public function getMethod($url, $params = null)
     {
-        dump(self::API_URL . $url . '?access_token=' . $this->token);
+//        dump(self::API_URL . $url . '?access_token=' . $this->token);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );

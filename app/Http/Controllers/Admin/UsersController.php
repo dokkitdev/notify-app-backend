@@ -78,6 +78,7 @@ class UsersController extends Controller
                 ]
             ])->render();
             Sender::send($create->email, 'Registration email', $view);
+            die;
         }
 
         return redirect('admin/users')->with('error', $message);

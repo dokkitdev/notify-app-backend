@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Logs;
 use App\Models\Contract;
 use App\Models\Customer;
+use App\Service\Sender\Sender;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
 use App\Templates;
@@ -14,6 +15,34 @@ use Illuminate\Support\Facades\DB;
 
 class PrivateController extends Controller
 {
+    private function append($array, $contract, $type)
+    {
+        $end_date = \DateTime::createFromFormat('Y-m-d H:i:s', $contract->end_date);
+        $end_date = $end_date->format('Y-m-d');
+        if (!array_key_exists($end_date, $array)) {
+            $array[$end_date] = [
+                'count' => 0,
+                'id' => [],
+                'assets' => [],
+                'type' => $type,
+            ];
+        }
+        $array[$end_date]['count']++;
+        if (trim($contract->contract_no)) {
+            $array[$end_date]['id'][] = $contract->contract_no;
+        }
+        foreach ($contract->assets as $asset) {
+            if (trim($asset->value)) {
+                $array[$end_date]['assets'][] = $asset->value;
+            }
+        }
+        if (count($array[$end_date]['assets']) === 0) {
+            $array[$end_date]['assets'][] = 'Heating Equipment';
+        }
+        $array[$end_date]['assets'] = array_unique($array[$end_date]['assets']);
+        return $array;
+    }
+
     public function index(Request $request)
     {
         $limit = $request->get('limit') ?? 20;
@@ -53,104 +82,47 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
 
         $i = 0;
         foreach ($customers as $c) {
-            $contractNum = [];
-            $assets = [];
+            $weekContracts = [];
             foreach ($c->contracts as $contract) {
                 $temp_end = $contract->end_date;
+
                 $is_processed_1 = $contract->is_processed_1;
                 $is_processed_4 = $contract->is_processed_4;
                 $is_processed_8 = $contract->is_processed_8;
-                if (
-                    ($temp_end >= $week1Minus2Day && $temp_end <= $week1 && $is_processed_1 === null)
-                    OR ($temp_end >= $week4Minus2Day && $temp_end <= $week4 && $is_processed_4 === null)
-                    OR ($temp_end >= $week8Minus2Day && $temp_end <= $week8 && $is_processed_8 === null)
-                ) {
-                    $end_date = $contract->end_date;
-                    $contractNum[] = $contract->id;
-                    foreach ($contract->assets as $asset) {
-                        $assets[] = $asset->value;
-                    }
+
+                if ($temp_end >= $week1Minus2Day && $temp_end <= $week1 && $is_processed_1 === null) {
+                    $weekContracts = $this->append($weekContracts, $contract, '1 wk');
+                } else if ($temp_end >= $week4Minus2Day && $temp_end <= $week4 && $is_processed_4 === null) {
+                    $weekContracts = $this->append($weekContracts, $contract, '4 wks');
+                } else if ($temp_end >= $week8Minus2Day && $temp_end <= $week8 && $is_processed_8 === null) {
+                    $weekContracts = $this->append($weekContracts, $contract, '8 wks');
                 }
             }
-            if (count($assets) < 1) {
-                $assets[] = 'Heating Equipment';
-            }
-            $c->assets_filtered = array_unique($assets);
-            $c->contract_numbers = $contractNum;
-            $c->end_date = \DateTime::createFromFormat('Y-m-d H:i:s', $end_date)->format('Y-m-d');
-            $c->type = $end_date >= $week1Minus2Day && $end_date <= $week1 && $is_processed_1 === null ? '1 week'
-                : (
-                    $end_date >= $week4Minus2Day && $end_date <= $week4 && $is_processed_4 === null  ? '4 week'
-                        : (
-                        $end_date >= $week8Minus2Day && $end_date <= $week8 && $is_processed_8 === null ? '8 week' : ''
-                    )
-                );
+            $c->contractsFiltered = $weekContracts;
             $i++;
         }
 
-//        $contracts = Contract::with('customer')
-//            ->with('assets')
-//            ->has('customer')
-////            ->has('assets')
-//            ->where(function ($query) use ($week1, $week4, $week8) {
-//                $query
-//                    ->where(function ($query) use ($week1) {
-//                        $week1Minus2Day = clone $week1;
-//                        $week1Minus2Day->modify('-2 day');
-//                        $query
-//                            ->where('end_date', '>=', $week1Minus2Day->format('Y-m-d 00:00:00'))
-//                            ->Where('end_date', '<=', $week1->format('Y-m-d 23:59:59'))
-//                            ->where('end_date', 'LIKE', '%' . $week1->format('Y-m-d') . '%')
-//                            ->where(function ($query) {
-//                                $query->where('is_processed_1', '<>', 1)
-//                                    ->orWhere('is_processed_1', '=', null);
-//                            });
-//                    })
-//                    ->orWhere(function ($query) use ($week4) {
-//                        $week4Minus2Day = clone $week4;
-//                        $week4Minus2Day->modify('-2 day');
-//                        $query
-//                            ->where('end_date', '>=', $week4Minus2Day->format('Y-m-d 00:00:00'))
-//                            ->Where('end_date', '<=', $week4->format('Y-m-d 23:59:59'))
-//                            ->where(function ($query) {
-//                                $query->where('is_processed_4', '<>', 1)
-//                                    ->orWhere('is_processed_4', '=', null);
-//                            });
-//                    })
-//                    ->orWhere(function ($query) use ($week8) {
-//                        $week8Minus2Day = clone $week8;
-//                        $week8Minus2Day->modify('-2 day');
-//                        $query
-//                            ->where('end_date', '>=', $week8Minus2Day->format('Y-m-d 00:00:00'))
-//                            ->Where('end_date', '<=', $week8->format('Y-m-d 23:59:59'))
-//                            ->where(function ($query) {
-//                                $query->where('is_processed_8', '<>', 1)
-//                                    ->orWhere('is_processed_8', '=', null);
-//                            });
-//                    });
-//            })
-//            ->orderBy('end_date', 'ASC')
-//            ->paginate($limit);
-//        foreach ($contracts as $contract) {
-//            $contract->customer = $contract->customer()->first();
-//            $contract->asset = $contract->assets()->first();
-//        }
 
         return view('admin.private.private', [
             'customers' => $customers,
             'limit' => $limit,
+            'week1' => new \DateTime('+1 week'),
+            'week4' => new \DateTime('+4 week'),
+            'week8' => new \DateTime('+8 week'),
         ]);
     }
 
     public function viewPdf($id, Request $request)
     {
         $customer = Customer::find($id);
+        $type = $request->get('type');
+        $date = $request->get('date');
         if (!$customer) {
             return redirect()->route('private.all');
         }
 
         $generator = new TemplateGenerator();
-        $docx = $generator->fillPrivateByCustomer($customer);
+        $docx = $generator->fillPrivateByCustomer($customer, $type, $date);
         if (!$docx) {
             return redirect()->route('private.all');
         }
@@ -166,51 +138,65 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
 
     public function generate(Request $request)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '512M');
         $data = $request->all();
-        $private = $data['private'] ?? null;
+        $privates = $data['private'] ?? null;
         $filled = [];
+        $templates = [
+            '1 wk' => Templates::where('alias', '=', Templates::PRIVATE_1_WEEK)->first(),
+            '4 wks' => Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first(),
+            '8 wks' => Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first(),
+        ];
+
         $generator = new TemplateGenerator();
         $sim = new simProRequestService();
-        if ($private && is_array($private)) {
-            if (count($private) > 15) {
-                foreach ($private as $h) {
-                    $contract = Contract::find($h);
-                    $contract->setProcess();
-                    $contract->save();
-                    $filled[] = $contract->id;
+        if ($privates && is_array($privates)) {
+            foreach ($privates as $private) {
+                parse_str($private, $output);
+//                    $otput = ['id', 'type', 'date']
+                if (!array_key_exists('id', $output)
+                    || !array_key_exists('type', $output)
+                    || !array_key_exists('date', $output)) {
+                    continue;
+                }
+                $type = $type_origin = $output['type'];
+                if ($type == '1 wk') {
+                    $type = 'is_processed_1';
+                } else if ($type == '4 wks') {
+                    $type = 'is_processed_4';
+                } else if ($type == '8 wks') {
+                    $type = 'is_processed_8';
+                } else {
+                    $type = null;
+                }
+                if (!$type) {
+                    continue;
                 }
 
-                $log = Logs::create([
-                    'customer_type' => 'Private',
-                    'letters_generated' => count($filled),
-                    'email_generated' => 0,
-                ]);
-                $filled = implode(',', $filled);
-                $command = 'php ' . base_path() . '/artisan combine:pdf:private ' . $filled . ' ' . $log->id . '  > /dev/null 2>&1 &';
-                $log->command = $command;
-                $log->save();
-                exec('php ' . base_path() . '/artisan queue:log:start > /dev/null 2>&1 &');
-                return redirect()->back()->with([
-                    'ok' => 'Your letters are being processed and will appear in the logs page shortly.',
-                ]);
-            } else {
-                foreach ($private as $h) {
-                    $contract = Contract::find($h);
-                    /** Проверка на существование */
-                    if (!$contract) {
-                        unset($contract);
-                        continue;
-                    }
-                    if (!$contract->is_proccessed) {
-                        $docx = $generator->fillPrivateTemplate($contract);
-                        $pdf = $generator->generatePdfFromDocx($docx);
-                        $contract->docx = $docx;
-                        $contract->pdf = $pdf;
-//                        $sim->uploadAppointment($appointment);
-                    }
-                    $contract->setProcess();
+                $customer = Customer::find($output['id']);
+                if (!$customer) {
+                    continue;
+                }
+                $contracts = Contract::where('customer_id', '=', $output['id'])
+                    ->where('end_date', 'LIKE', $output['date'] . '%')
+                    ->where($type, '=', null)
+                    ->get();
+
+                $docx = $generator->fillPrivateByCustomer($customer, $type_origin, $output['date']);
+                $pdf = $generator->generatePdfFromDocx($docx);
+                if ($customer->email && $templates[$type_origin] && $templates[$type_origin]->html_body) {
+                    $html = $generator->fillPrivateEmailByCustomer($customer,$type_origin, $output['date'], $templates[$type_origin]->html_body);
+                    Sender::send('info@dokkit.co.uk', 'Private letter', $html);
+                }
+                $filled[] = [
+                    'pdf' => $pdf,
+                    'page' => '1-2'
+                ];
+
+                foreach ($contracts as $contract) {
+                    $contract->{$type} = true;
                     $contract->save();
-                    $filled[] = $contract;
                 }
             }
         }
