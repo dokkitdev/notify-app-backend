@@ -21,6 +21,7 @@ class Contract extends Model
         'name',
         'contract_no',
         'end_date',
+        'start_date',
         'value',
         'is_processed_1',
         'is_processed_4',

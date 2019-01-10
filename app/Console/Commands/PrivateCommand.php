@@ -26,3 +26,5 @@ class PrivateCommand extends Command
     }
 
 }
+
+
