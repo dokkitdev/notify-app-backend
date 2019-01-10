@@ -247,7 +247,7 @@ class TemplateGenerator
         return $new_file;
     }
 
-    public function fillPrivateByCustomer(Customer $customer)
+    public function fillPrivateByCustomer(Customer $customer, $type, $date)
     {
         $week1 = new \DateTime('+1 week');
         $week4 = new \DateTime('+4 week');
@@ -263,17 +263,24 @@ class TemplateGenerator
         $assets = [];
         $assets_id = [];
         $site = null;
+        $startDate = $date . ' 00:00:00';
+        $endDate = $date . ' 23:59:59';
         foreach ($customer->contracts as $contract) {
             $temp_end = $contract->end_date;
-            $is_processed_1 = $contract->is_processed_1;
-            $is_processed_4 = $contract->is_processed_4;
-            $is_processed_8 = $contract->is_processed_8;
-            if (
-                ($temp_end >= $week1Minus2Day && $temp_end <= $week1 && $is_processed_1 === null)
-                OR ($temp_end >= $week4Minus2Day && $temp_end <= $week4 && $is_processed_4 === null)
-                OR ($temp_end >= $week8Minus2Day && $temp_end <= $week8 && $is_processed_8 === null)
-            ) {
-                $end_date = $contract->end_date;
+
+            if ($type == '1 wk') {
+                $isValid = $contract->is_processed_1;
+            } else if ($type == '4 wks') {
+                $isValid = $contract->is_processed_4;
+            } else if ($type == '8 wks') {
+                $isValid = $contract->is_processed_8;
+            } else {
+                continue;
+            }
+
+
+            if ($temp_end >= $startDate && $temp_end <= $endDate && !$isValid) {
+                $end_date = $temp_end;
                 $contractNum[] = $contract->id;
                 foreach ($contract->assets as $asset) {
                     $assets[] = $asset->value;
@@ -285,7 +292,10 @@ class TemplateGenerator
         if (count($assets) < 1) {
             $assets[] = 'Heating Equipment';
         }
-       $end_date = \DateTime::createFromFormat('Y-m-d H:i:s', $end_date)->format('Y-m-d');
+        if (!isset($end_date)) {
+            return;
+        }
+        $end_date = \DateTime::createFromFormat('Y-m-d H:i:s', $end_date)->format('Y-m-d');
 
         if ($end_date >= $week1Minus2Day && $end_date <= $week1) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_1_WEEK)->first();
@@ -437,6 +447,155 @@ class TemplateGenerator
         $template->saveAs($docx_folder . '/' . $new_file);
         return $new_file;
 
+    }
+
+
+    public function fillPrivateEmailByCustomer(Customer $customer, $type, $date, $html)
+    {
+        $week1 = new \DateTime('+1 week');
+        $week4 = new \DateTime('+4 week');
+        $week8 = new \DateTime('+8 week');
+
+        $contractNum = [];
+        $assets = [];
+        $assets_id = [];
+        $site = null;
+        $startDate = $date . ' 00:00:00';
+        $endDate = $date . ' 23:59:59';
+        foreach ($customer->contracts as $contract) {
+            $temp_end = $contract->end_date;
+
+            if ($type == '1 wk') {
+                $isValid = $contract->is_processed_1;
+            } else if ($type == '4 wks') {
+                $isValid = $contract->is_processed_4;
+            } else if ($type == '8 wks') {
+                $isValid = $contract->is_processed_8;
+            } else {
+                continue;
+            }
+
+
+            if ($temp_end >= $startDate && $temp_end <= $endDate && !$isValid) {
+                $end_date = $temp_end;
+                $contractNum[] = $contract->id;
+                foreach ($contract->assets as $asset) {
+                    $assets[] = $asset->value;
+                    $assets_id[] = $asset->id;
+                    $site = $asset->site()->first() ?: $site;
+                }
+            }
+        }
+        if (count($assets) < 1) {
+            $assets[] = 'Heating Equipment';
+        }
+
+        $today = new \DateTime();
+        $month = $today->format('F');
+        $year = $today->format('Y');
+        $day = ltrim($today->format('d'), '0');
+        if ($day % 10 == 1 && $day != 11) {
+            $day .= 'st';
+        } else if ($day % 10 == 2 && $day != 12) {
+            $day .= 'nd';
+        } else if ($day % 10 == 3 && $day != 13) {
+            $day .= 'rd';
+        } else {
+            $day .= 'th';
+        }
+        $today = $day . ' ' . $month . ' ' . $year;
+
+
+        $address = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->address)))));
+        $address2 = '';
+        $city = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->city)))));
+        $state = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->state)))));
+        $postcode = htmlspecialchars((str_replace("\n", ', ', strtoupper($customer->postal_code))));
+
+        $addressProperty = htmlspecialchars(str_replace("\n", ', ', ucwords(strtolower($site ? $site->address : ''))));
+        $address2Property = '';
+        $cityProperty = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($site ? $site->city : '')))));
+        $stateProperty = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($site ? $site->state : '')))));
+        $postcodeProperty = htmlspecialchars((str_replace("\n", ', ', strtoupper($site ? $site->postal_code : ''))));
+
+        $contractNo = htmlspecialchars($contract->contract_no);
+        $contactName = htmlspecialchars(str_replace("\n", ', ', ucwords(strtolower($customer->getName()))));
+        $totalDue = htmlspecialchars($contract->value);
+        $expiryDate = htmlspecialchars($contract->getExpireDate());
+        $contractName = htmlspecialchars($contract->name);
+
+        $customerId = $customer->company_id;
+        $assetId = implode(', ', $assets_id);
+        $makeModel = implode(', ', array_unique($assets));
+
+
+        $variables = [
+            '${Address}',
+            '${Address2}',
+            '${City}',
+            '${County}',
+            '${Postcode}'
+        ];
+
+
+        $values = [
+            $address,
+            $address2,
+            $city,
+            $state,
+            $postcode,
+        ];
+
+        foreach ($variables as $v) {
+            $str = '';
+            while (($value = array_shift($values)) !== null) {
+                if (strlen($value) > 0) {
+                    $str = $value;
+                    break;
+                }
+            }
+            $html = str_replace($v, $str, $html);
+        }
+
+        $variablesProperty = [
+            '${SiteAddress}',
+            '${SiteAddress2}',
+            '${SiteCity}',
+            '${SiteCounty}',
+            '${SitePostCode}',
+        ];
+
+        $valuesProperty = [
+            $addressProperty,
+            $address2Property,
+            $cityProperty,
+            $stateProperty,
+            $postcodeProperty,
+        ];
+
+        foreach ($variablesProperty as $v) {
+            $str = '';
+            while (($value = array_shift($valuesProperty)) !== null) {
+                if (strlen($value) > 0) {
+                    $str = $value;
+                    break;
+                }
+            }
+            $html = str_replace($v, $str, $html);
+        }
+
+        $html = str_replace('${MakeModel}', $makeModel, $html);
+        $html = str_replace('${ContractName}', $contractName, $html);
+        $html = str_replace('${ContactName}', $contactName, $html);
+        $html = str_replace('${TotalDue}', $totalDue, $html);
+        $html = str_replace('${ExpiryDate}', $expiryDate, $html);
+        $html = str_replace('${ContractNo}', $contractNo, $html);
+        $html = str_replace('${CustomerID}', $customerId, $html);
+        $html = str_replace('${AssetID}', $assetId, $html);
+        $html = str_replace('${PlanType}', $makeModel, $html);
+        $html = str_replace('${TodayDate}', $today, $html);
+
+        return $html;
     }
 
     public function fillPrivateTemplate(Contract $contract)
@@ -644,6 +803,10 @@ class TemplateGenerator
             } else if ($pdf instanceof Contract) {
                 $file = $pdf_folder . $pdf->pdf;
                 $pages = '1-2';
+                $name = 'private';
+            } else if (is_array($pdf)) {
+                $file = $pdf_folder . $pdf['pdf'];
+                $pages = $pdf['page'];
                 $name = 'private';
             } else {
                 $file = $pdf_folder . $pdf;

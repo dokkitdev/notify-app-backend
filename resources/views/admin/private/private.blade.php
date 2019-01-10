@@ -46,19 +46,29 @@
             </thead>
             <tbody>
             @foreach($customers as $customer)
-                <tr>
-                    <td>
-                        <input type="checkbox" name="private[]" value="{!! $customer->id !!}">
-                    </td>
-                    <td>{!! implode(', ', $customer->contract_numbers) !!}</td>
-                    <td>{!! $customer->end_date !!}</td>
-                    <td>{!! $customer->type !!}</td>
-                    <td>{!! $customer->getName() !!}</td>
-                    <td>{!! implode(', ', $customer->assets_filtered) !!}</td>
-                    <td>
-                        <a href="{!! route('private.view', ['id' => $customer->id]) !!}">View</a>
-                    </td>
-                </tr>
+                @foreach($customer->contractsFiltered as $key => $contract)
+                    @if($contract['count'] > 0)
+                        <tr>
+                            <td><input type="checkbox" name="private[]" value="id={!! $customer->id !!}&type={!! $contract['type'] !!}&date={!! $key !!}"></td>
+                            <td>{{ implode(', ', $contract['id'])  }}</td>
+                            <td>{{ $key }}</td>
+                            <td>{{ $contract['type'] }}</td>
+                            <td>{{$customer->getName()}}</td>
+                            <td>{{ implode(', ', $contract['assets']) }}</td>
+                            <td><a href="{!! route('private.view', ['id' => $customer->id, 'type' => $contract['type'], 'date' => $key]) !!}">View</a></td>
+                        </tr>
+                    @endif
+                @endforeach
+                {{----}}
+                {{--</td>--}}
+                {{--<td>{!! implode(', ', $customer->contract_numbers) !!}</td>--}}
+                {{--<td>{!! $customer->end_date !!}</td>--}}
+                {{--<td>{!! $customer->type !!}</td>--}}
+                {{--<td>{!! $customer->getName() !!}</td>--}}
+                {{--<td>{!! implode(', ', $customer->assets_filtered) !!}</td>--}}
+                {{--<td>--}}
+                {{--<a href="{!! route('private.view', ['id' => $customer->id]) !!}">View</a>--}}
+                {{--</td>--}}
             @endforeach
             </tbody>
         </table>
