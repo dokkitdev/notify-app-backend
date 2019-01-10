@@ -262,6 +262,7 @@ class TemplateGenerator
         $contractNum = [];
         $assets = [];
         $assets_id = [];
+        $dates = [];
         $site = null;
         $startDate = $date . ' 00:00:00';
         $endDate = $date . ' 23:59:59';
@@ -282,15 +283,12 @@ class TemplateGenerator
             if ($temp_end >= $startDate && $temp_end <= $endDate && !$isValid) {
                 $end_date = $temp_end;
                 $contractNum[] = $contract->id;
-                foreach ($contract->assets as $asset) {
-                    $assets[] = $asset->value;
-                    $assets_id[] = $asset->id;
-                    $site = $asset->site()->first() ?: $site;
-                }
+                $assets[] = $contract->name;
+                $eD = $contract->end_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->end_date)->format('d/m/Y') : '';
+                $sD = $contract->start_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->start_date)->format('d/m/Y') : '';
+                $contract_dates = $sD . ' -  ' . $eD;
+                $dates[] = trim(trim($contract_dates, ' '), '-');
             }
-        }
-        if (count($assets) < 1) {
-            $assets[] = 'Heating Equipment';
         }
         if (!isset($end_date)) {
             return;
@@ -358,8 +356,9 @@ class TemplateGenerator
 
         $customerId = $customer->company_id;
         $assetId = implode(', ', $assets_id);
-        $makeModel = implode(', ', array_unique($assets));
+        $makeModel = implode('</w:t><w:br/><w:t>', array_unique($assets));
 
+        $dates = implode('</w:t><w:br/><w:t>', $dates);
 
         $variables = [
             'Address',
@@ -417,7 +416,8 @@ class TemplateGenerator
         }
 //        die;
         $template->setValue('MakeModel', $makeModel);
-        $template->setValue('ContractName', $contractName);
+        $template->setValue('ContractDates', $dates);
+        $template->setValue('ContractName', $makeModel);
         $template->setValue('ContactName', $contactName);
         $template->setValue('TotalDue', $totalDue);
         $template->setValue('ExpiryDate', $expiryDate);

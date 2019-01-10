@@ -173,6 +173,7 @@ class PrivateUpload
                     'name' => $contract_info->Name ?? null,
                     'contract_no' => $contract_info->ContractNo ?? null,
                     'end_date' => $contract_info->EndDate ? \DateTime::createFromFormat('Y-m-d', $contract_info->EndDate) : null,
+                    'start_date' => $contract_info->StartDate ? \DateTime::createFromFormat('Y-m-d', $contract_info->StartDate) : null,
                     'value' => $contract_info->Value ?? null,
                 ]);
             }
