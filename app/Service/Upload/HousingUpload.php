@@ -112,46 +112,52 @@ class HousingUpload
     public function createHousing($site, $job, $tag_selected, $schedule)
     {
         $housingJob = \App\Models\HousingJob::where('job_id', '=', $job->ID)->get()->first();
+        $scheduleDate = $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null;
+
         $schedule = array_shift($schedule);
         if ($housingJob) {
-            $housingJob->job_id = $job->ID;
-            $housingJob->company_name = $job->Customer->CompanyName;
-            $housingJob->due_date = $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null;
-            $housingJob->tags = $tag_selected;
-            $housingJob->stage = $job->Stage;
-            $housingJob->job_name = $job->Sections[0]->CostCenters[0]->Name ?? $housingJob->job_name;
-            $housingJob->site_id = $site->ID;
-            $housingJob->address = $site->Address->Address ?? $housingJob->address;
-            $housingJob->city = $site->Address->City ?? $housingJob->city;
-            $housingJob->state = $site->Address->State ?? $housingJob->state;
-            $housingJob->postal_code = $site->Address->PostalCode ?? $housingJob->postal_code;
-            $housingJob->given_name = $site->PrimaryContact->GivenName ?? $housingJob->given_name;
-            $housingJob->family_name = $site->PrimaryContact->FamilyName ?? $housingJob->family_name;
-            $housingJob->email = $site->PrimaryContact->Email ?? $housingJob->email;
-            $housingJob->work_phone = $site->PrimaryContact->WorkPhone ?? $housingJob->work_phone;
-            $housingJob->cell_phone = $site->PrimaryContact->CellPhone ?? $housingJob->cell_phone;
-            $housingJob->schedule_date = $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null;
-            $housingJob->save();
+            if ($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) {
+                $housingJob->job_id = $job->ID;
+                $housingJob->company_name = $job->Customer->CompanyName;
+                $housingJob->due_date = $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null;
+                $housingJob->tags = $tag_selected;
+                $housingJob->stage = $job->Stage;
+                $housingJob->job_name = $job->Sections[0]->CostCenters[0]->Name ?? $housingJob->job_name;
+                $housingJob->site_id = $site->ID;
+                $housingJob->address = $site->Address->Address ?? $housingJob->address;
+                $housingJob->city = $site->Address->City ?? $housingJob->city;
+                $housingJob->state = $site->Address->State ?? $housingJob->state;
+                $housingJob->postal_code = $site->Address->PostalCode ?? $housingJob->postal_code;
+                $housingJob->given_name = $site->PrimaryContact->GivenName ?? $housingJob->given_name;
+                $housingJob->family_name = $site->PrimaryContact->FamilyName ?? $housingJob->family_name;
+                $housingJob->email = $site->PrimaryContact->Email ?? $housingJob->email;
+                $housingJob->work_phone = $site->PrimaryContact->WorkPhone ?? $housingJob->work_phone;
+                $housingJob->cell_phone = $site->PrimaryContact->CellPhone ?? $housingJob->cell_phone;
+                $housingJob->schedule_date = $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null;
+                $housingJob->save();
+            }
         } else {
-            $housingJob = \App\Models\HousingJob::create([
-                'job_id' => $job->ID,
-                'company_name' => $job->Customer->CompanyName,
-                'due_date' => $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null,
-                'tags' => $tag_selected,
-                'stage' => $job->Stage,
-                'job_name' => $job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null,
-                'site_id' => $site->ID,
-                'address' => $site->Address->Address ?? null,
-                'city' => $site->Address->City ?? null,
-                'state' => $site->Address->State ?? null,
-                'postal_code' => $site->Address->PostalCode ?? null,
-                'given_name' => $site->PrimaryContact->GivenName ?? null,
-                'family_name' => $site->PrimaryContact->FamilyName ?? null,
-                'email' => $site->PrimaryContact->Email ?? null,
-                'work_phone' => $site->PrimaryContact->WorkPhone ?? null,
-                'cell_phone' => $site->PrimaryContact->CellPhone ?? null,
-                'schedule_date' => $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null,
-            ]);
+            if ($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) {
+                $housingJob = \App\Models\HousingJob::create([
+                    'job_id' => $job->ID,
+                    'company_name' => $job->Customer->CompanyName,
+                    'due_date' => $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null,
+                    'tags' => $tag_selected,
+                    'stage' => $job->Stage,
+                    'job_name' => $job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null,
+                    'site_id' => $site->ID,
+                    'address' => $site->Address->Address ?? null,
+                    'city' => $site->Address->City ?? null,
+                    'state' => $site->Address->State ?? null,
+                    'postal_code' => $site->Address->PostalCode ?? null,
+                    'given_name' => $site->PrimaryContact->GivenName ?? null,
+                    'family_name' => $site->PrimaryContact->FamilyName ?? null,
+                    'email' => $site->PrimaryContact->Email ?? null,
+                    'work_phone' => $site->PrimaryContact->WorkPhone ?? null,
+                    'cell_phone' => $site->PrimaryContact->CellPhone ?? null,
+                    'schedule_date' => $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null,
+                ]);
+            }
         }
     }
 
