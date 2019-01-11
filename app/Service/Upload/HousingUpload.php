@@ -114,8 +114,8 @@ class HousingUpload
         $housingJob = \App\Models\HousingJob::where('job_id', '=', $job->ID)->get()->first();
 
         $schedule = array_shift($schedule);
+        $scheduleDate = $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null;
         if ($housingJob) {
-            $scheduleDate = $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null;
             if ($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) {
                 $housingJob->job_id = $job->ID;
                 $housingJob->company_name = $job->Customer->CompanyName;
