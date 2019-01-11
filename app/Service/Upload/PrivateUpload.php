@@ -33,6 +33,7 @@ class PrivateUpload
     {
         DB::delete('TRUNCATE `n_customers`;');
         $pages = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/customers/companies/');
+        dump($pages);
         if ($pages) {
             foreach ($pages as $url) {
                 dump('parse page by url');
@@ -85,7 +86,7 @@ class PrivateUpload
         $contracts = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/' . $company->ID . '/contracts/');
         if (sizeof($contracts) > 0) {
             dump('addCreateCompanyAndParseContracts');
-            $this->addCreateCompanyAndParseContracts($company, $contracts,$is_company);
+            $this->addCreateCompanyAndParseContracts($company, $contracts, $is_company);
         } else {
             dump('zero');
         }
@@ -114,43 +115,49 @@ class PrivateUpload
     }
 
 
-
     public function run()
     {
         DB::delete('TRUNCATE `n_assets`;');
         DB::delete('TRUNCATE `n_contracts`;');
         DB::delete('TRUNCATE `n_sites`;');
-
+        dump('start');
         $customers = Customer::all();
 //        dump($customers);
         foreach ($customers as $customer) {
             $this->customer = $customer;
             if ($customer->is_company) {
                 $company = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/companies/' . $customer->company_id);
+                dump($company);
                 if ($company) {
                     $contracts = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/' . $company->ID . '/contracts/');
                     if (sizeof($contracts) > 0) {
                         foreach ($contracts as $contract) {
                             $this->addParseContract($company, $contract);
                         }
+                    } else {
+                        dump('contract < 0');
                     }
+                } else {
+                    dump('not company');
                 }
             } else {
                 $company = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/individuals/' . $customer->company_id);
+                dump($company);
                 if ($company) {
                     $contracts = $this->simpro->getRequest('get', '/api/v1.0/companies/0/customers/' . $company->ID . '/contracts/');
                     if (sizeof($contracts) > 0) {
                         foreach ($contracts as $contract) {
                             $this->addParseContract($company, $contract);
                         }
+                    } else {
+                        dump('contract < 0');
                     }
+                } else {
+                    dump('not company');
                 }
             }
         }
     }
-
-
-
 
 
     public function addParseContract($company, $contract_info)

@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\Log;
 class simProRequestService
 {
     private $token = 'e929be7849b90e553082e592552739082c7614ab';
-    const API_URL = 'https://blueflamecornwallltd.simprosuite.com';
+    const API_URL = 'https://blueflamecornwallltd.simprocloud.com';
+
 
     public function __construct()
     {
@@ -32,6 +33,7 @@ class simProRequestService
         $this->getToken();
         $client = new Client();
         try {
+            dump($url . ((strpos($url, '?') != false) ? '&' : '?') . 'access_token=' . $this->token);
             $res = $client->request($method, $url . ((strpos($url, '?') != false) ? '&' : '?') . 'access_token=' . $this->token, $data);
             if ((int)$res->getStatusCode() == 200 || (int)$res->getStatusCode() == 201 || (int)$res->getStatusCode() == 204) {
                 return $res;
@@ -78,6 +80,7 @@ class simProRequestService
 
     public function getRequest($method, $url)
     {
+
         $res = $this->request($method, self::API_URL . $url,
             ['headers' => [
                 'Accept' => 'application/json', #todo required
