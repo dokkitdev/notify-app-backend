@@ -27,6 +27,7 @@ class AppointmentsController extends Controller
 {
     public function index(Request $request)
     {
+//	phpinfo();die;
         $limit = $request->get('limit') ?? 20;
 
 
@@ -60,7 +61,7 @@ class AppointmentsController extends Controller
         $generator = new TemplateGenerator();
         $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
         $pdf = $generator->generatePdfFromDocx($docx);
-        $appointment->docx = $docx;
+	$appointment->docx = $docx;
         $appointment->pdf = $pdf;
         $appointment->save();
 
