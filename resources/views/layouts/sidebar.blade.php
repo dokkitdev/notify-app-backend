@@ -7,7 +7,7 @@
         </a>
     </li>
     <li class="nav-item {!! Route::current()->getName() == 'private.all' ? 'active' : '' !!}">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="{{ route('private.all') }}">
             <i class="fas fa-fw fa-folder"></i>
             <span>Private Contracts</span>
         </a>

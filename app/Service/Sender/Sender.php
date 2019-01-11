@@ -17,7 +17,7 @@ class Sender
     private static $instance;
     /** @var \SendGrid */
     public $send_grid;
-    const FROM = 'salesteam@blueflamegas.co.uk';
+    const FROM = 'salesteam@blueflameheat.co.uk';
 
     private function __construct()
     {

@@ -201,7 +201,7 @@ class simProRequestService
 
     function uploadAppointment(Appointment $a)
     {
-        dump('upload');
+//        dump('upload');
         $today = new \DateTime();
         $pdf_folder = Config::get('constants.storage_pdf');
         if (!is_file($pdf_folder . '/' . $a->pdf)) {
