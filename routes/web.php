@@ -9,7 +9,7 @@ Route::get('/importJobs/{id}', 'ImportJobsController@index');
 Route::get('/collectData/{id}', 'CollectDataController@index');
 /* CRON routes end*/
 
-Route::any('/', 'Auth\LoginController@showLoginForm')->name('c');
+Route::any('/', 'Auth\LoginController@showLoginForm')->name('login');
 Route::group(['middleware' => ['CheckAdmin']], function () {
     Route::get('/admin/index', ['uses' => 'Admin\MainController@index', 'as' => 'main.index']);
 
