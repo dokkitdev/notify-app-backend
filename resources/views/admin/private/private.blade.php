@@ -37,6 +37,7 @@
                             title="Select entries that should be processed"
                             class="fas fa-info"></i></th>
                 <th class="header">Contract ID</th>
+                <th class="header">Customer ID</th>
                 <th class="header">End date</th>
                 <th class="header">Type</th>
                 <th class="header">Customer</th>
@@ -51,6 +52,7 @@
                         <tr>
                             <td><input type="checkbox" name="private[]" value="id={!! $customer->id !!}&type={!! $contract['type'] !!}&date={!! $key !!}"></td>
                             <td>{{ implode(', ', $contract['id'])  }}</td>
+                            <td>{{ $customer['company_id'] }}</td>
                             <td>{{ $key }}</td>
                             <td>{{ $contract['type'] }}</td>
                             <td>{{$customer->getName()}}</td>
