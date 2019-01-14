@@ -21,8 +21,8 @@ class TemplateGenerator
 {
     public function fillAppoinmentLetterFromDocxTemplate($docx, Appointment $appointment = null)
     {
-	
-	
+
+
         set_time_limit(0);
         $docx_folder = Config::get('constants.storage_docx');
         $file = $docx_folder . '/' . $docx;
@@ -282,12 +282,12 @@ class TemplateGenerator
 
             if ($temp_end >= $startDate && $temp_end <= $endDate && !$isValid) {
                 $end_date = $temp_end;
-                $contractNum[] = $contract->id;
-                $assets[] = $contract->name;
+                $contractNum[] = ($contract->id);
+                $assets[] = htmlspecialchars($contract->name);
                 $eD = $contract->end_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->end_date)->format('d/m/Y') : '';
                 $sD = $contract->start_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->start_date)->format('d/m/Y') : '';
                 $contract_dates = $sD . ' -  ' . $eD;
-                $dates[] = trim(trim($contract_dates, ' '), '-');
+                $dates[] = htmlspecialchars(trim(trim($contract_dates, ' '), '-'));
             }
         }
         if (!isset($end_date)) {
@@ -297,13 +297,10 @@ class TemplateGenerator
 
         if ($end_date >= $week1Minus2Day && $end_date <= $week1) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_1_WEEK)->first();
-            $type = '1wk';
         } else if ($week4Minus2Day && $end_date <= $week4) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first();
-            $type = '4wks';
         } else if ($week8Minus2Day && $end_date <= $week8) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first();
-            $type = '8wks';
         } else {
             return false;
         }
@@ -354,7 +351,7 @@ class TemplateGenerator
         $expiryDate = htmlspecialchars($contract->getExpireDate());
         $contractName = htmlspecialchars($contract->name);
 
-        $customerId = $customer->company_id;
+        $customerId = htmlspecialchars($customer->company_id);
         $assetId = implode(', ', $assets_id);
         $makeModel = implode('</w:t><w:br/><w:t>', array_unique($assets));
 
@@ -428,7 +425,7 @@ class TemplateGenerator
         $template->setValue('TodayDate', $today);
 
         $today = new \DateTime();
-        $new_file = $customerId . '.' . $type . '.' . $today->format('Y-m-d') . '.docx';
+        $new_file = $customerId . '.' . str_replace(' ', '.', $type) . '.' . $today->format('Y-m-d') . '.docx';
 
         if ($contract->docx) {
             $old_file = $docx_folder . '/' . $contract->docx;
