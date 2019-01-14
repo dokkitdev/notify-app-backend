@@ -29,7 +29,7 @@
 @section('content')
     <form action="{{ route('private.generate') }}" method="post" id="private-form">
         @csrf
-        <h2>Private Letters</h2>
+        <h2>Private Contract Letters</h2>
         <table id="private-table" class="tablesorter" style="width: 100%">
             <thead>
             <tr>
@@ -40,7 +40,7 @@
                 <th class="header">End date</th>
                 <th class="header">Type</th>
                 <th class="header">Customer</th>
-                <th class="header">Is email</th>
+                <th class="header">Email?</th>
                 <th></th>
             </tr>
             </thead>

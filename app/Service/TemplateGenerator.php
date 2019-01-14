@@ -182,7 +182,7 @@ class TemplateGenerator
         $serviceType = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->job_name)))));
         $first_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->given_name)))));
         $family_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->family_name)))));
-        $due_date = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->getDueDateWithDay())))));
+        $due_date = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->getScheduleDateWithDay())))));
         $company_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->company_name)))));
         $contactName = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->siteContact())))));
         $contactPhone = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->getContactPhone())))));
@@ -220,7 +220,7 @@ class TemplateGenerator
         $template->setValue('JobNumber', $housing->job_id);
         $template->setValue('SiteContact', $siteContact);
         $template->setValue('ServiceType', $serviceType);
-        $template->setValue('DueDate', $yesterday);
+        $template->setValue('DueDate', $due_date);
         $template->setValue('HousingCompany', $company_name);
         $template->setValue('ContactName', $contactName);
         $template->setValue('ContactPhone', $contactPhone);

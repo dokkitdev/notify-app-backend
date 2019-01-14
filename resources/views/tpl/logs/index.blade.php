@@ -32,12 +32,12 @@
                         {{$log->letters_generated ?: 0}}
                     @endif
                 </td>
-                <td>{{$log->emails_generated ?: 0}}</td>
+                <td>{{$log->email_generated ?: 0}}</td>
                 <td>
                     @if ($log->pdf)
                         <a target="_blank"
                            href="javascript: w=window.open('{!! url('storage/pdf/' . $log->pdf) !!}'); w.print(); "
-                           title="Download PDF template">View</a>
+                           title="Download PDF template">Letters</a>
                     @endif
                     @if ($log->emails)
                         <a href="{{route('logs.emails', ['id' => $log->id])}}" target="_blank">

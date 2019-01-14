@@ -208,7 +208,7 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
                     $html = $generator->fillPrivateEmailByCustomer($customer, $type_origin, $output['date'], $templates[$type_origin]->html_body);
 //
                     $emails[] = $html;
-                    Sender::send('info@dokkit.co.uk', 'Private letter', $html);
+                    Sender::send('info@dokkit.co.uk', 'Contract Renewal Notice', $html);
                 } else {
                     $docx = $generator->fillPrivateByCustomer($customer, $type_origin, $output['date']);
                     $pdf = $generator->generatePdfFromDocx($docx);
@@ -216,6 +216,9 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
                         'pdf' => $pdf,
                         'page' => '1-2'
                     ];
+                    if ($pdf) {
+                        $sim->uploadPrivate($customer, $pdf);
+                    }
                 }
 
 
@@ -246,7 +249,7 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
 
 
             return redirect()->back()->with([
-                'ok' => 'Private Letters has been successfull generated.',
+                'ok' => 'Private Contract Letters/Emails have been successfully generated.',
                 'merged' => $merged,
             ]);
         }
