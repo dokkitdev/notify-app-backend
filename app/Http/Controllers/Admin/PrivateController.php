@@ -206,9 +206,9 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
 
                 if ($customer->email && $templates[$type_origin] && $templates[$type_origin]->html_body) {
                     $html = $generator->fillPrivateEmailByCustomer($customer, $type_origin, $output['date'], $templates[$type_origin]->html_body);
-//                    info@dokkit.co.uk
+//
                     $emails[] = $html;
-                    Sender::send('vitaliy.s.roslov@gmail.com', 'Private letter', $html);
+                    Sender::send('info@dokkit.co.uk', 'Private letter', $html);
                 } else {
                     $docx = $generator->fillPrivateByCustomer($customer, $type_origin, $output['date']);
                     $pdf = $generator->generatePdfFromDocx($docx);
