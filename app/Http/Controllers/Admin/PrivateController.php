@@ -12,6 +12,7 @@ use App\Service\TemplateGenerator;
 use App\Templates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class PrivateController extends Controller
 {
@@ -114,14 +115,29 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
 
     public function viewPdf($id, Request $request)
     {
+
         $customer = Customer::find($id);
         $type = $request->get('type');
         $date = $request->get('date');
         if (!$customer) {
             return redirect()->route('private.all');
         }
-
         $generator = new TemplateGenerator();
+        if ($customer->email) {
+            $templates = [
+                '1 wk' => Templates::where('alias', '=', Templates::PRIVATE_1_WEEK)->first(),
+                '4 wks' => Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first(),
+                '8 wks' => Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first(),
+            ];
+            $html = $generator->fillPrivateEmailByCustomer($customer, $type, $date, $templates[$type]->html_body);
+
+            return view('admin.private.email_view', [
+                'htmls' => [
+                    $html
+                ]
+            ]);
+        }
+        $pdf_folder = \Illuminate\Support\Facades\Config::get('constants.storage_pdf');
         $docx = $generator->fillPrivateByCustomer($customer, $type, $date);
         if (!$docx) {
             return redirect()->route('private.all');
@@ -131,7 +147,6 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
         $customer->pdf = $pdf;
         $customer->save();
 
-        $pdf_folder = \Illuminate\Support\Facades\Config::get('constants.storage_pdf');
 
         return response()->file($pdf_folder . '/' . $customer->pdf);
     }
@@ -143,12 +158,17 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
         $data = $request->all();
         $privates = $data['private'] ?? null;
         $filled = [];
+        $emails = [];
         $templates = [
             '1 wk' => Templates::where('alias', '=', Templates::PRIVATE_1_WEEK)->first(),
             '4 wks' => Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first(),
             '8 wks' => Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first(),
         ];
-
+//
+//
+//
+//
+//
         $generator = new TemplateGenerator();
         $sim = new simProRequestService();
         if ($privates && is_array($privates)) {
@@ -183,16 +203,21 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
                     ->where($type, '=', null)
                     ->get();
 
-                $docx = $generator->fillPrivateByCustomer($customer, $type_origin, $output['date']);
-                $pdf = $generator->generatePdfFromDocx($docx);
+
                 if ($customer->email && $templates[$type_origin] && $templates[$type_origin]->html_body) {
-                    $html = $generator->fillPrivateEmailByCustomer($customer,$type_origin, $output['date'], $templates[$type_origin]->html_body);
-                    Sender::send('info@dokkit.co.uk', 'Private letter', $html);
+                    $html = $generator->fillPrivateEmailByCustomer($customer, $type_origin, $output['date'], $templates[$type_origin]->html_body);
+//                    info@dokkit.co.uk
+                    $emails[] = $html;
+                    Sender::send('vitaliy.s.roslov@gmail.com', 'Private letter', $html);
+                } else {
+                    $docx = $generator->fillPrivateByCustomer($customer, $type_origin, $output['date']);
+                    $pdf = $generator->generatePdfFromDocx($docx);
+                    $filled[] = [
+                        'pdf' => $pdf,
+                        'page' => '1-2'
+                    ];
                 }
-                $filled[] = [
-                    'pdf' => $pdf,
-                    'page' => '1-2'
-                ];
+
 
                 foreach ($contracts as $contract) {
                     $contract->{$type} = true;
@@ -201,14 +226,24 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
             }
         }
 
-        if (count($filled) > 0) {
+        if (count($filled) > 0 || count($emails) > 0) {
             $merged = $generator->mergePdfs($filled);
-            Logs::create([
+            $log = Logs::create([
                 'customer_type' => 'Private',
                 'letters_generated' => count($filled),
-                'email_generated' => 0,
+                'email_generated' => count($emails),
                 'pdf' => $merged
             ]);
+
+            if (count($emails) > 0) {
+//                base64_encode(gzcompress($letterBody, 9));
+//                gzuncompress(base64_encode(gzcompress(base64_decode($this->letterBody));
+                $log->emails = base64_encode(gzcompress(view('admin.private.email_view', [
+                    'htmls' => $emails
+                ])->render()));
+                $log->save();
+            }
+
 
             return redirect()->back()->with([
                 'ok' => 'Private Letters has been successfull generated.',

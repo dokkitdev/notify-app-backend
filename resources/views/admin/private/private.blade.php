@@ -36,12 +36,11 @@
                 <th class="col checkbox-th"><input type="checkbox"> <i
                             title="Select entries that should be processed"
                             class="fas fa-info"></i></th>
-                <th class="header">Contract ID</th>
                 <th class="header">Customer ID</th>
                 <th class="header">End date</th>
                 <th class="header">Type</th>
                 <th class="header">Customer</th>
-                <th class="header">Asset</th>
+                <th class="header">Is email</th>
                 <th></th>
             </tr>
             </thead>
@@ -51,12 +50,11 @@
                     @if($contract['count'] > 0)
                         <tr>
                             <td><input type="checkbox" name="private[]" value="id={!! $customer->id !!}&type={!! $contract['type'] !!}&date={!! $key !!}"></td>
-                            <td>{{ implode(', ', $contract['id'])  }}</td>
                             <td>{{ $customer['company_id'] }}</td>
                             <td>{{ $key }}</td>
                             <td>{{ $contract['type'] }}</td>
                             <td>{{$customer->getName()}}</td>
-                            <td>{{ implode(', ', $contract['assets']) }}</td>
+                            <td>{{ $customer->email ? 'Yes' : 'No' }}</td>
                             <td><a href="{!! route('private.view', ['id' => $customer->id, 'type' => $contract['type'], 'date' => $key]) !!}">View</a></td>
                         </tr>
                     @endif
@@ -108,7 +106,6 @@
                 widgets: ['zebra'],
                 headers: {
                     0: {sorter: false},
-                    5: {sorter: false},
                     6: {sorter: false},
                 }
             });

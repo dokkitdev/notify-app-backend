@@ -43,4 +43,16 @@ class LogsController extends Controller
         }
         return response()->view('errors.main', [], 500);
     }
+
+    public function showEmails($id)
+    {
+        $log = Logs::find($id);
+        if (!$log || !$log->emails) {
+            return redirect()->back();
+        }
+
+        return view('tpl.logs.emails', [
+            'html' => gzuncompress(base64_decode($log->emails))
+        ]);
+    }
 }

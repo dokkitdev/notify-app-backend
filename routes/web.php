@@ -40,6 +40,9 @@ Route::group(['middleware' => ['CheckAdmin']], function () {
         Route::put('/{id}/edit', 'Template\\TemplateController@putTemplate')->name('templates.edit');
         Route::post('/upload_docx', 'Template\\TemplateController@uploadDocx')->name('templates.upload_docx');
     });
+    Route::get('/logs/{id}', 'LogsController@showEmails')->name('logs.emails');
+
+
 
     Route::group(['prefix' => '/appointments'], function () {
         Route::get('/', 'Admin\\AppointmentsController@index')->name('appointments.all');

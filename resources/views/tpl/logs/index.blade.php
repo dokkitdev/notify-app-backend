@@ -39,6 +39,11 @@
                            href="javascript: w=window.open('{!! url('storage/pdf/' . $log->pdf) !!}'); w.print(); "
                            title="Download PDF template">View</a>
                     @endif
+                    @if ($log->emails)
+                        <a href="{{route('logs.emails', ['id' => $log->id])}}" target="_blank">
+                            Emails
+                        </a>
+                    @endif
                 </td>
             </tr>
         @endforeach
