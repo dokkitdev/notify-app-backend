@@ -34,7 +34,6 @@ class simProRequestService
         $this->getToken();
         $client = new Client();
         try {
-            dump($url . ((strpos($url, '?') != false) ? '&' : '?') . 'access_token=' . $this->token);
             $res = $client->request($method, $url . ((strpos($url, '?') != false) ? '&' : '?') . 'access_token=' . $this->token, $data);
             if ((int)$res->getStatusCode() == 200 || (int)$res->getStatusCode() == 201 || (int)$res->getStatusCode() == 204) {
                 return $res;
@@ -256,16 +255,11 @@ class simProRequestService
             return;
         }
         $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $pdf));
-        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/employees/' . $customer->company_id . '/attachments/files/',
-            [
-                "Folder" => 3,
+        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/customers/' . $customer->company_id . '/attachments/files/', [
                 'Filename' => $pdf,
                 'Base64Data' => $b64Doc,
-                'Public' => true,
-                'Email' => false,
             ]
         );
-        dump($res);
     }
 
     public function getAccessToken()
