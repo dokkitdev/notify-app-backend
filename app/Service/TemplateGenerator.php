@@ -19,11 +19,14 @@ use LynX39\LaraPdfMerger\PdfManage;
 
 class TemplateGenerator
 {
-    public function fillAppoinmentLetterFromDocxTemplate($docx, Appointment $appointment)
+    public function fillAppoinmentLetterFromDocxTemplate($docx, Appointment $appointment = null)
     {
+
+
         set_time_limit(0);
         $docx_folder = Config::get('constants.storage_docx');
         $file = $docx_folder . '/' . $docx;
+
         if (!is_file($file)) {
             return false;
         }
@@ -114,6 +117,7 @@ class TemplateGenerator
         }
 
         $template->saveAs($docx_folder . '/' . $new_file);
+
         return $new_file;
     }
 
@@ -178,7 +182,7 @@ class TemplateGenerator
         $serviceType = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->job_name)))));
         $first_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->given_name)))));
         $family_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->family_name)))));
-        $due_date = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->getDueDateWithDay())))));
+        $due_date = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->getScheduleDateWithDay())))));
         $company_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->company_name)))));
         $contactName = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->siteContact())))));
         $contactPhone = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->getContactPhone())))));
@@ -216,7 +220,7 @@ class TemplateGenerator
         $template->setValue('JobNumber', $housing->job_id);
         $template->setValue('SiteContact', $siteContact);
         $template->setValue('ServiceType', $serviceType);
-        $template->setValue('DueDate', $yesterday);
+        $template->setValue('DueDate', $due_date);
         $template->setValue('HousingCompany', $company_name);
         $template->setValue('ContactName', $contactName);
         $template->setValue('ContactPhone', $contactPhone);
@@ -277,13 +281,13 @@ class TemplateGenerator
 
 
             if ($temp_end >= $startDate && $temp_end <= $endDate && !$isValid) {
-                $end_date = $temp_end;
-                $contractNum[] = $contract->id;
-                $assets[] = $contract->name;
+                $end_date = $temp_end ?: $endDate;
+                $contractNum[] = ($contract->contract_no);
+                $assets[] = htmlspecialchars($contract->name);
                 $eD = $contract->end_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->end_date)->format('d/m/Y') : '';
                 $sD = $contract->start_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->start_date)->format('d/m/Y') : '';
                 $contract_dates = $sD . ' -  ' . $eD;
-                $dates[] = trim(trim($contract_dates, ' '), '-');
+                $dates[] = htmlspecialchars(trim(trim($contract_dates, ' '), '-'));
             }
         }
         if (!isset($end_date)) {
@@ -293,13 +297,10 @@ class TemplateGenerator
 
         if ($end_date >= $week1Minus2Day && $end_date <= $week1) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_1_WEEK)->first();
-            $type = '1wk';
         } else if ($week4Minus2Day && $end_date <= $week4) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first();
-            $type = '4wks';
         } else if ($week8Minus2Day && $end_date <= $week8) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first();
-            $type = '8wks';
         } else {
             return false;
         }
@@ -344,13 +345,13 @@ class TemplateGenerator
         $stateProperty = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($site ? $site->state : '')))));
         $postcodeProperty = htmlspecialchars((str_replace("\n", ', ', strtoupper($site ? $site->postal_code : ''))));
 
-        $contractNo = htmlspecialchars($contract->contract_no);
+        $contractNo = implode(' ', array_unique($contractNum));
         $contactName = htmlspecialchars(str_replace("\n", ', ', ucwords(strtolower($customer->getName()))));
         $totalDue = htmlspecialchars($contract->value);
         $expiryDate = htmlspecialchars($contract->getExpireDate());
         $contractName = htmlspecialchars($contract->name);
 
-        $customerId = $customer->company_id;
+        $customerId = htmlspecialchars($customer->company_id);
         $assetId = implode(', ', $assets_id);
         $makeModel = implode('</w:t><w:br/><w:t>', array_unique($assets));
 
@@ -424,7 +425,7 @@ class TemplateGenerator
         $template->setValue('TodayDate', $today);
 
         $today = new \DateTime();
-        $new_file = $customerId . '.' . $type . '.' . $today->format('Y-m-d') . '.docx';
+        $new_file = $customerId . '.' . str_replace(' ', '.', $type) . '.' . $today->format('Y-m-d') . '.docx';
 
         if ($contract->docx) {
             $old_file = $docx_folder . '/' . $contract->docx;
@@ -455,6 +456,7 @@ class TemplateGenerator
         $contractNum = [];
         $assets = [];
         $assets_id = [];
+        $dates = [];
         $site = null;
         $startDate = $date . ' 00:00:00';
         $endDate = $date . ' 23:59:59';
@@ -471,19 +473,15 @@ class TemplateGenerator
                 continue;
             }
 
-
             if ($temp_end >= $startDate && $temp_end <= $endDate && !$isValid) {
                 $end_date = $temp_end;
-                $contractNum[] = $contract->id;
-                foreach ($contract->assets as $asset) {
-                    $assets[] = $asset->value;
-                    $assets_id[] = $asset->id;
-                    $site = $asset->site()->first() ?: $site;
-                }
+                $contractNum[] = ($contract->contract_no);
+                $assets[] = htmlspecialchars($contract->name);
+                $eD = $contract->end_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->end_date)->format('d/m/Y') : '';
+                $sD = $contract->start_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->start_date)->format('d/m/Y') : '';
+                $contract_dates = $sD . ' -  ' . $eD;
+                $dates[] = htmlspecialchars(trim(trim($contract_dates, ' '), '-'));
             }
-        }
-        if (count($assets) < 1) {
-            $assets[] = 'Heating Equipment';
         }
 
         $today = new \DateTime();
@@ -501,7 +499,6 @@ class TemplateGenerator
         }
         $today = $day . ' ' . $month . ' ' . $year;
 
-
         $address = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->address)))));
         $address2 = '';
         $city = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->city)))));
@@ -514,15 +511,17 @@ class TemplateGenerator
         $stateProperty = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($site ? $site->state : '')))));
         $postcodeProperty = htmlspecialchars((str_replace("\n", ', ', strtoupper($site ? $site->postal_code : ''))));
 
-        $contractNo = htmlspecialchars($contract->contract_no);
+        $contractNo = implode(' ', array_unique($contractNum));
         $contactName = htmlspecialchars(str_replace("\n", ', ', ucwords(strtolower($customer->getName()))));
         $totalDue = htmlspecialchars($contract->value);
         $expiryDate = htmlspecialchars($contract->getExpireDate());
         $contractName = htmlspecialchars($contract->name);
 
-        $customerId = $customer->company_id;
+        $customerId = htmlspecialchars($customer->company_id);
         $assetId = implode(', ', $assets_id);
-        $makeModel = implode(', ', array_unique($assets));
+        $makeModel = implode('<br>', array_unique($assets));
+
+        $dates = implode('<br>', $dates);
 
 
         $variables = [
@@ -581,7 +580,8 @@ class TemplateGenerator
         }
 
         $html = str_replace('${MakeModel}', $makeModel, $html);
-        $html = str_replace('${ContractName}', $contractName, $html);
+        $html = str_replace('${ContractName}', $makeModel, $html);
+        $html = str_replace('${ContractDates}', $dates, $html);
         $html = str_replace('${ContactName}', $contactName, $html);
         $html = str_replace('${TotalDue}', $totalDue, $html);
         $html = str_replace('${ExpiryDate}', $expiryDate, $html);
@@ -668,7 +668,7 @@ class TemplateGenerator
         $stateProperty = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($site ? $site->state : '')))));
         $postcodeProperty = htmlspecialchars((str_replace("\n", ', ', strtoupper($site ? $site->postal_code : ''))));
 
-        $contractNo = htmlspecialchars($contract->contract_no);
+        $contractNo = implode(' ', array_unique($con));
         $makeModel = htmlspecialchars($asset ? $asset->value : 'Heating Equipment');
         $contactName = htmlspecialchars(str_replace("\n", ', ', ucwords(strtolower($customer->getName()))));
         $totalDue = htmlspecialchars($contract->value);

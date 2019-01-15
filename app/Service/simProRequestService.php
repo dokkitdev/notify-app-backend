@@ -10,6 +10,7 @@ namespace App\Service;
 
 
 use App\Appointment;
+use App\Models\Customer;
 use App\Models\HousingJob;
 use App\Settings;
 use GuzzleHttp\Client;
@@ -244,6 +245,27 @@ class simProRequestService
                 'Email' => false,
             ]
         );
+    }
+
+
+    function uploadPrivate(Customer $customer, $pdf)
+    {
+//        /api/v1.0/companies/0/employees/123/attachments/files/
+        $pdf_folder = Config::get('constants.storage_pdf');
+        if (!is_file($pdf_folder . '/' . $pdf)) {
+            return;
+        }
+        $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $pdf));
+        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/employees/' . $customer->company_id . '/attachments/files/',
+            [
+                "Folder" => 3,
+                'Filename' => $pdf,
+                'Base64Data' => $b64Doc,
+                'Public' => true,
+                'Email' => false,
+            ]
+        );
+        dump($res);
     }
 
     public function getAccessToken()
