@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Logs;
 use App\Models\Contract;
 use App\Models\Customer;
+use App\Models\ProcessedPrivate;
 use App\Service\Sender\Sender;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
@@ -225,6 +226,12 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
                 foreach ($contracts as $contract) {
                     $contract->{$type} = true;
                     $contract->save();
+
+                    $processed_private = ProcessedPrivate::create([
+                        'contract' => $contract->contract_id,
+                        'end_date' => $output['date'],
+                        'type' => $type_origin,
+                    ]);
                 }
             }
         }
