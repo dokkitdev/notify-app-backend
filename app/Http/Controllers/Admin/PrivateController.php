@@ -7,6 +7,7 @@ use App\Logs;
 use App\Models\Contract;
 use App\Models\Customer;
 use App\Models\ProcessedPrivate;
+use App\Service\PrivateUploader;
 use App\Service\Sender\Sender;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
@@ -47,6 +48,9 @@ class PrivateController extends Controller
 
     public function index(Request $request)
     {
+
+
+
         $limit = $request->get('limit') ?? 20;
 
         $week1 = new \DateTime('+1 week');

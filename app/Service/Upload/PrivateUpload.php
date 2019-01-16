@@ -157,6 +157,7 @@ class PrivateUpload
                 }
             }
         }
+        $this->clearDuplicates();
     }
 
 
@@ -267,6 +268,31 @@ class PrivateUpload
         $contract->save();
 
 
+    }
+
+    public function clearDuplicates()
+    {
+        $contracts = Contract::all();
+        foreach ($contracts as $c) {
+            $processed = ProcessedPrivate::where('contract', '=', $c->contract_id)->get();
+            if (count($processed) > 0) {
+                $end_date = \DateTime::createFromFormat('Y-m-d H:i:s', $c->end_date);
+                if ($end_date) {
+                    foreach ($processed as $p) {
+                        if ($p->end_date == $end_date->format('Y-m-d')) {
+                            if ('1 wk' == $p->type) {
+                                $c->is_processed_1 = 1;
+                            } else if ($p->type == '4 wks') {
+                                $c->is_processed_4 = 1;
+                            } else if ($p->type == '8 wks') {
+                                $c->is_processed_8 = 1;
+                            }
+                            $c->save();
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }
