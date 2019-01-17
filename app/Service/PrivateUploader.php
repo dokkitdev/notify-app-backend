@@ -13,6 +13,7 @@ use App\Appointment;
 use App\Models\Asset;
 use App\Models\Contract;
 use App\Models\Customer;
+use App\Models\ProcessedPrivate;
 use App\Models\Site;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\DB;
@@ -287,4 +288,6 @@ class PrivateUploader
 
 
     }
+
+
 }
