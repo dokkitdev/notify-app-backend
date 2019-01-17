@@ -39,6 +39,8 @@ class QueueStarterCommand extends Command
             ->first();
         if ($log) {
             if ($log->command) {
+                $log->is_started = 1;
+                $log->save();
                 exec($log->command);
             } else {
                 $log->is_finished = 1;
