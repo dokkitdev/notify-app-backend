@@ -27,6 +27,9 @@ class CombinePdfAppointmentCommand extends Command
         set_time_limit(0);
         $log = $this->argument('log');
         $log = Logs::find($log);
+        if ($log->is_started) {
+            return;
+        }
         $log->is_started = 1;
         $log->is_finished = 0;
         $log->save();
