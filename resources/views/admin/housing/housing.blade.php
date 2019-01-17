@@ -143,6 +143,8 @@
         //     $('[name="end"]').val(picker.endDate.format('DD.MM.YYYY'));
         //     $('#filter-form').submit();
         // });
-
+        $('form').submit(function(e) {
+            $('input[type="submit"]').attr('disabled', 'disabled');
+        });
     </script>
 @endsection

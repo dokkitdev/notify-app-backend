@@ -135,5 +135,9 @@
                 tr.removeClass('checked');
             }
         }
+
+        $('form').submit(function(e) {
+            $('input[type="submit"]').attr('disabled', 'disabled');
+        });
     </script>
 @endsection
