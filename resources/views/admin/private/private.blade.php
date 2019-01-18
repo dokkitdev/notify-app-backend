@@ -55,7 +55,7 @@
                             <td>{{ $contract['type'] }}</td>
                             <td>{{$customer->getName()}}</td>
                             <td>{{ $customer->email ? 'Yes' : 'No' }}</td>
-                            <td><a href="{!! route('private.view', ['id' => $customer->id, 'type' => $contract['type'], 'date' => $key]) !!}">View</a></td>
+                            <td><a target="_blank" href="{!! route('private.view', ['id' => $customer->id, 'type' => $contract['type'], 'date' => $key]) !!}">View</a></td>
                         </tr>
                     @endif
                 @endforeach
