@@ -45,9 +45,9 @@ class Sender
         );
         try {
             $response = $instance->send_grid->send($email);
-            print $response->statusCode() . "\n";
-            print_r($response->headers());
-            print $response->body() . "\n";
+//            print $response->statusCode() . "\n";
+//            print_r($response->headers());
+//            print $response->body() . "\n";
         } catch (\Exception $e) {
             echo 'Caught exception: ' . $e->getMessage() . "\n";
         }
