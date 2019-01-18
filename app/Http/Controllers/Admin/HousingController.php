@@ -103,7 +103,7 @@ class HousingController extends Controller
                 $command = 'php ' . base_path() . '/artisan combine:pdf:housing ' . $filled . ' ' . $log->id . '  > /dev/null 2>&1 &';
                 $log->command = $command;
                 $log->save();
-                exec('php ' . base_path() . '/artisan queue:log:start > /dev/null 2>&1 &');
+//                exec('php ' . base_path() . '/artisan queue:log:start > /dev/null 2>&1 &');
                 return redirect()->back()->with([
                     'ok' => 'Your letters are being processed and will appear in the logs page shortly.',
                 ]);

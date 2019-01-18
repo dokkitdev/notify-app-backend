@@ -213,7 +213,10 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
                     $html = $generator->fillPrivateEmailByCustomer($customer, $type_origin, $output['date'], $templates[$type_origin]->html_body);
 //
                     $emails[] = $html;
-                    Sender::send('info@dokkit.co.uk', 'Contract Renewal Notice', $html);
+                    if (filter_var($customer->email, FILTER_VALIDATE_EMAIL)) {
+                        Sender::send($customer->email, 'Contract Renewal Notice', $html);
+                    }
+
                 } else {
                     $docx = $generator->fillPrivateByCustomer($customer, $type_origin, $output['date']);
                     $pdf = $generator->generatePdfFromDocx($docx);
