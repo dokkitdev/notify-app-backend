@@ -819,4 +819,46 @@ class TemplateGenerator
         return $new_file;
     }
 
+    public function mergeProvidedPdfs($pdf_names = [])
+    {
+        if (count($pdf_names) == 0) {
+            return false;
+        }
+
+        $pdf_folder = Config::get('constants.storage_pdf') . '/';
+        $pdf_merger = new PdfManage();
+        $name = 'report.';
+        foreach ($pdf_names as $pdf) {
+            $file = $pdf_folder . $pdf;
+            $pdf_merger->addPDF($file);
+        }
+
+        $today = new \DateTime();
+        $new_file = $name . $today->format('Y-m-d.H-i-s') . '.pdf';
+        $pdf_merger->merge('file', $pdf_folder . $new_file);
+        return $new_file;
+    }
+
+    public function removeProvidedPdfs($pdf_names = [])
+    {
+        $pdf_folder = Config::get('constants.storage_pdf') . '/';
+        foreach ($pdf_names as $pdf) {
+            $file = $pdf_folder . $pdf;
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+    }
+
+    public function removeProvidedHtmls($html_names = [])
+    {
+        $html_folder = Config::get('constants.storage_html') . '/';
+        foreach ($html_names as $html) {
+            $file = $html_folder . $html;
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+    }
+
 }

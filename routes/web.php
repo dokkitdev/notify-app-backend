@@ -53,6 +53,17 @@ Route::group(['middleware' => ['CheckAdmin']], function () {
         Route::get('/clear', 'Admin\\AppointmentsController@clearDublicates');
     });
 
+    Route::group(['prefix' => '/report'], function () {
+        Route::get('/', 'Admin\\ReportController@index')->name('report.all');
+        Route::get('/report', 'Admin\\ReportController@report')->name('report.email');
+    });
+    Route::group(['prefix' => '/reports'], function () {
+        Route::get('/', 'Admin\\ReportController@indexReports')->name('reports.all');
+        Route::post('/generate', 'Admin\\ReportController@generateReports')->name('reports.generate');
+
+    });
+
+
     Route::get('/dashboard', 'DashboardController@getDashboard')->name('dashboard');
 
 

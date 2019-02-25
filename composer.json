@@ -20,7 +20,8 @@
         "lynx39/lara-pdf-merger": "^1.0",
         "pda/pheanstalk": "~3.0",
         "phpoffice/phpword": "^0.15.0",
-        "sendgrid/sendgrid": "^7.2"
+        "sendgrid/sendgrid": "^7.2",
+        "spipu/html2pdf": "^5.2"
     },
     "require-dev": {
         "filp/whoops": "^2.0",
