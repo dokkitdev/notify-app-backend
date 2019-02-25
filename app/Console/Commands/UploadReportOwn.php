@@ -128,15 +128,16 @@ class UploadReportOwn extends Command
         ])->render();
 
         $date = new \DateTime();
-        $unique_name = 'report.' . $date->format('Y-m-d-H:i:s') . '.html';
+        $unique_name = 'report.' . $date->format('Y-m-d-H-i-s') . '.html';
         file_put_contents($html_folder . '/' . $unique_name, $content);
-        exec('/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $html_folder . '/' . $unique_name . ' --outdir ' . $pdf_folder);
+//        exec('/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $html_folder . '/' . $unique_name . ' --outdir ' . $pdf_folder);
+        exec('libreoffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $html_folder . '/' . $unique_name . ' --outdir ' . $pdf_folder);
+
         $log->pdf = str_replace('html', 'pdf', $unique_name);
         $log->is_finished = 1;
         $log->is_started = 0;
         $log->save();
 //        unlink($html_folder . '/' . $unique_name);
-//        exec('libreoffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $file . ' --outdir ' . $pdf_folder);
     }
 
 }
