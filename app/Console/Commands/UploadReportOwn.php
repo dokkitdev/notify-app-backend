@@ -58,9 +58,9 @@ class UploadReportOwn extends Command
         $date = $this->argument('date');
         $log = $this->argument('log');
         $log = Logs::find($log);
-        $begin_at = new \DateTime();
+        $begin_at = new \DateTime('+1 day');
         $begin_at->setTime(0, 0, 0, 0);
-        $end_at = new \DateTime();
+        $end_at = new \DateTime('+1 day');
         if ($date == 3) {
             $end_at->modify('+2 day');
         }
