@@ -54,7 +54,6 @@ class UploadReportOwn extends Command
      */
     public function handle()
     {
-
         set_time_limit(0);
         $date = $this->argument('date');
         $log = $this->argument('log');
@@ -75,7 +74,6 @@ class UploadReportOwn extends Command
         foreach ($period as $dt) {
             $repotService->runByDate($dt);
         }
-
         $path = __DIR__ . '/../../../public/images/logo.png';
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data = file_get_contents($path);
@@ -109,8 +107,9 @@ class UploadReportOwn extends Command
             $date = $weekday . ', ' . $day . ' ' . $month . ' ' . $year;
             $generate[$date] = [];
             $jobs = DB::table('report_row')
-                ->select('job_id')
+                ->select('job_id', 'engineer')
                 ->groupBy('job_id')
+                ->groupBy('engineer')
                 ->where('job_date', '>=', $dt->format('Y-m-d 00:00:00'))
                 ->where('job_date', '<=', $dt->format('Y-m-d 23:59:59'))
                 ->get();
@@ -119,7 +118,7 @@ class UploadReportOwn extends Command
             foreach ($jobs as $job) {
                 $generate[$date][] = [
                     'job_id' => $job->job_id,
-                    'rows' => ReportRow::where('job_id', '=', $job->job_id)->get()
+                    'rows' => ReportRow::where('job_id', '=', $job->job_id)->where('engineer', '=', $job->engineer)->get()
                 ];
             }
         }

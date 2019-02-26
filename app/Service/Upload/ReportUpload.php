@@ -129,7 +129,7 @@ class ReportUpload
             ->where('job_id', $job->ID)
             ->get();
 
-        if ($reportRow) {
+        if (count($reportRow) < 1) {
             ReportRow::create([
                 'job_id' => $job->ID,
                 'site_name' => $job->Site->Name,
