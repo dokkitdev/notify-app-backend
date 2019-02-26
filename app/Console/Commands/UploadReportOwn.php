@@ -7,6 +7,7 @@ use App\Logs;
 use App\Models\ReportRow;
 use App\Service\HousingUploader;
 use App\Service\Requester;
+use App\Service\Sender\Sender;
 use App\Service\simProRequestService;
 use App\Service\simProService;
 use App\Service\TemplateGenerator;
@@ -137,6 +138,9 @@ class UploadReportOwn extends Command
         $log->is_finished = 1;
         $log->is_started = 0;
         $log->save();
+
+        Sender::send('warehouse@blueflameheat.co.uk', 'Warehouse report', 'Warehouser report', null, $pdf_folder . '/' . $log->pdf, $log->pdf);
+
 //        unlink($html_folder . '/' . $unique_name);
     }
 

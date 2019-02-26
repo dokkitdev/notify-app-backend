@@ -70,22 +70,6 @@ class ReportController extends Controller
         ])->render();
         file_put_contents('testik.html', $content);
 
-//        $unique_name = md5(uniqid('pdf_report', true)) . '.pdf';
-//
-//        $html2pdf = new Html2Pdf('P', 'A4', 'fr');
-//        $html2pdf->setDefaultFont('Arial');
-//        $html2pdf->writeHTML($content);
-//        $html2pdf->output($pdf_folder . '/' . $unique_name, 'F');
-//        $html2pdf->clean();
-//        $pdfs[] = $unique_name;
-//
-//        $generator = new TemplateGenerator();
-//        $merged = $generator->mergeProvidedPdfs($pdfs);
-//        $generator->removeProvidedPdfs($pdfs);
-//
-//        if (file_exists($path)) {
-//            unlink($path);
-//        }
     }
 
 

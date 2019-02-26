@@ -22,7 +22,7 @@
     <li class="nav-item {!! Route::current()->getName() == 'reports.all' ? 'active' : '' !!}">
         <a class="nav-link" href="{{ route('reports.all') }}">
             <i class="fas fa-fw fa-folder"></i>
-            <span>Reports</span>
+            <span>Warehouse</span>
         </a>
     </li>
 
