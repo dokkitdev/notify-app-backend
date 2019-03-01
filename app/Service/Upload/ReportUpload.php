@@ -141,7 +141,8 @@ class ReportUpload
                 'assigned' => $catalog->Quantity->Assigned,
                 'job_date' => $this->currentDate->format('Y-m-d H:i:s'),
             ]);
-        }
+        }   
+
     }
 
 
