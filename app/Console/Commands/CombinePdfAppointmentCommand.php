@@ -32,7 +32,7 @@ class CombinePdfAppointmentCommand extends Command
         $log->save();
         $combined = $this->argument('combined');
         $combined = explode(',', $combined);
-
+	dump('start');
         $template = Templates::where('alias', '=', Templates::APPOINTMENT_LETTER)->first();
         if ($template->html === null) {
             return;
@@ -55,9 +55,13 @@ class CombinePdfAppointmentCommand extends Command
             $sim->uploadAppointment($appointment);
             $filled[] = $appointment->pdf;
         }
+
+	dump($filled);
         if (count($filled) > 0) {
+	dump('merge');
             $merged = $generator->mergePdfs($filled);
-            $log->pdf = $merged;
+           dump('afer');
+		$log->pdf = $merged;
         }
         $log->is_finished = 1;
         $log->save();
