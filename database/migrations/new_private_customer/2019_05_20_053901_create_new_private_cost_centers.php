@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class CreateNewPrivateCostCenters extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('new_private_cost_centers', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->float('ex_tax')->nullable();
+            $table->float('tax')->nullable();
+            $table->float('inc_tax')->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
+            $table->integer('private_customer_id')->nullable();
+            $table->index(['private_customer_id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::drop('new_private_cost_centers');
+    }
+}

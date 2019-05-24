@@ -18,10 +18,10 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Private',
                 'templates' => [
                     [
-                        'term' => 1,
-                        'title' => 'Letter 1',
+                        'term' => 4,
+                        'title' => 'Annual Contracts',
                         'tag' => null,
-                        'alias' => 'PRIVATE_1_WEEK',
+                        'alias' => \App\Templates::PRIVATE_ANNUAL,
                         'html_body' => null,
                         'html' => null,
                         'subject' => null,
@@ -31,9 +31,9 @@ class DatabaseSeeder extends Seeder
                     ],
                     [
                         'term' => 4,
-                        'title' => 'Letter 2',
+                        'title' => 'Monthly Contracts',
                         'tag' => null,
-                        'alias' => 'PRIVATE_4_WEEK',
+                        'alias' => \App\Templates::PRIVATE_DEBIT,
                         'html_body' => null,
                         'html' => null,
                         'subject' => null,
@@ -41,18 +41,7 @@ class DatabaseSeeder extends Seeder
                         'pdf' => null,
                         'is_html' => 1,
                     ],
-                    [
-                        'term' => 8,
-                        'title' => 'Letter 3',
-                        'tag' => null,
-                        'alias' => 'PRIVATE_8_WEEK',
-                        'html_body' => null,
-                        'html' => null,
-                        'subject' => null,
-                        'docx' => null,
-                        'pdf' => null,
-                        'is_html' => 1,
-                    ]
+
                 ]
             ],
             [
@@ -124,9 +113,9 @@ class DatabaseSeeder extends Seeder
             }
         }
         \Illuminate\Support\Facades\DB::statement("
-        INSERT INTO users
+        INSERT IGNORE INTO users
 (id,
-name,
+name, 
 email,
 password,
 role,
@@ -135,7 +124,7 @@ remember_token,
 created_at,
 updated_at)
 VALUES (
-1,
+null,
 'Admin',
 'omenpars@gmail.com',
 '$2y$10$0C4/Er6Txp3wxqz34zEVJuIXzW1I5nuAb7sC/ZBTY2jGjRRto/nW.',

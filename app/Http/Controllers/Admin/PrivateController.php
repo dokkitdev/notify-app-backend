@@ -11,6 +11,7 @@ use App\Service\PrivateUploader;
 use App\Service\Sender\Sender;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
+use App\Service\Upload\NewPrivateUpload;
 use App\Templates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ use Illuminate\View\View;
 
 class PrivateController extends Controller
 {
+
     private function append($array, $contract, $type)
     {
         $end_date = \DateTime::createFromFormat('Y-m-d H:i:s', $contract->end_date);
@@ -111,6 +113,7 @@ OR (con.end_date >= :week3minus AND con.end_date <= :week3 AND con.is_processed_
 
         return view('admin.private.private', [
             'customers' => $customers,
+            'limit' => $limit,
             'limit' => $limit,
             'week1' => new \DateTime('+1 week'),
             'week4' => new \DateTime('+4 week'),

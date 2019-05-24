@@ -16,6 +16,7 @@ use CloudConvert\Api;
 use Illuminate\Support\Facades\Config;
 use App\Appointment;
 use LynX39\LaraPdfMerger\PdfManage;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class TemplateGenerator
 {
@@ -779,6 +780,20 @@ class TemplateGenerator
         return $new_file;
     }
 
+    public static function sGeneratePdfFromDocx($docx)
+    {
+        $docxFolder = Config::get('constants.storage_docx');
+        $pdfFolder = Config::get('constants.storage_pdf');
+        $file = $docxFolder . '/' . $docx;
+        if (!is_file($file)) {
+            return false;
+        }
+        exec('libreoffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $file . ' --outdir ' . $pdfFolder);
+        sleep(1.5);
+        $newFile = substr($docx, 0, -4) . 'pdf';
+        return $newFile;
+    }
+
     public function mergePdfs($pdf_names = [])
     {
         if (count($pdf_names) == 0) {
@@ -817,6 +832,20 @@ class TemplateGenerator
         $new_file = $name . $today->format('Y-m-d.H-i-s') . '.pdf';
         $pdf_merger->merge('file', $pdf_folder . $new_file);
         return $new_file;
+    }
+
+    public static function mergeAllPdfsPages($pdfs, $name)
+    {
+        $pdfFolder = Config::get('constants.storage_pdf') . '/';
+        $pdfMerger = new PdfManage();
+        foreach ($pdfs as $pdf) {
+            $file = $pdfFolder . $pdf;
+            if (file_exists($file)) {
+                $pdfMerger->addPDF($file);
+            }
+        }
+        $pdfMerger->merge('file', $pdfFolder . $name);
+        return $name;
     }
 
     public function mergeProvidedPdfs($pdf_names = [])
@@ -858,6 +887,26 @@ class TemplateGenerator
             if (file_exists($file)) {
                 unlink($file);
             }
+        }
+    }
+
+
+    public static function getCorrectString($string)
+    {
+        return htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($string)))));
+    }
+
+    public static function fillValuesIfExistWithLimit(TemplateProcessor $templateProcessor, $variables, $values, $limit = 1)
+    {
+        foreach ($variables as $v) {
+            $str = '';
+            while (($value = array_shift($values)) !== null) {
+                if (strlen($value) > 0) {
+                    $str = $value;
+                    break;
+                }
+            }
+            $templateProcessor->setValue($v, $str, $limit);
         }
     }
 
