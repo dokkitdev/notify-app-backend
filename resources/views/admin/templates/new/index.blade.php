@@ -15,16 +15,16 @@
                 @foreach ($parent->templates as $t)
                     <tr>
                         <td>{!! $t->title !!} {!! $t->tag !!}</td>
-                        @if ($t->term !== null)
-                            <td>{!! $t->term !!} {!! $t->term > 1 ? 'weeks' : 'week' !!}</td>
-                        @endif
+                        {{--@if ($t->term !== null)--}}
+                            {{--<td>{!! $t->term !!} {!! $t->term > 1 ? 'weeks' : 'week' !!}</td>--}}
+                        {{--@endif--}}
                         <td>
                             <form>
                                 @csrf
-                                @if ($t->is_html)
-                                    <a class="btn btn-primary" href="{{ route('templates.edit', ['id' => $t->id]) }}"
-                                       title="Edit template"><i class="fas fa-pen"></i></a>
-                                @endif
+                                {{--@if ($t->is_html)--}}
+                                    {{--<a class="btn btn-primary" href="{{ route('templates.edit', ['id' => $t->id]) }}"--}}
+                                       {{--title="Edit template"><i class="fas fa-pen"></i></a>--}}
+                                {{--@endif--}}
                                 <input type="file" name="file" class="d-none" accept=".docx"/>
                                 <input type="hidden" name="alias" value="{!! $t->alias !!}">
                                 <a href="#" style="margin: 0 20px;" class="upload-file"><i class="fas fa-upload"></i>
