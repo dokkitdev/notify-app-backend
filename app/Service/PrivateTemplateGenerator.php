@@ -185,7 +185,7 @@ class PrivateTemplateGenerator
             $address2,
             TemplateGenerator::getCorrectString($city),
             TemplateGenerator::getCorrectString($county),
-            TemplateGenerator::getCorrectString($postCode)
+            TemplateGenerator::getCorrectStringUppercased($postCode)
         ];
 
         TemplateGenerator::fillValuesIfExistWithLimit(
@@ -224,7 +224,7 @@ class PrivateTemplateGenerator
             $address2,
             TemplateGenerator::getCorrectString($city),
             TemplateGenerator::getCorrectString($county),
-            TemplateGenerator::getCorrectString($postCode)
+            TemplateGenerator::getCorrectStringUppercased($postCode)
         ];
 
         TemplateGenerator::fillValuesIfExistWithLimit(

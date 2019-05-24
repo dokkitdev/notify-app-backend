@@ -896,6 +896,10 @@ class TemplateGenerator
         return htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($string)))));
     }
 
+    public static function getCorrectStringUppercased($string) {
+        return strtoupper(self::getCorrectString($string));
+    }
+
     public static function fillValuesIfExistWithLimit(TemplateProcessor $templateProcessor, $variables, $values, $limit = 1)
     {
         foreach ($variables as $v) {
