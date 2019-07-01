@@ -118,6 +118,7 @@ class HousingUpload
         if ($housingJob) {
             if ($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) {
                 $housingJob->job_id = $job->ID;
+                $housingJob->order_no = $job->OrderNo;
                 $housingJob->company_name = $job->Customer->CompanyName;
                 $housingJob->due_date = $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null;
                 if ($housingJob->tags != $tag_selected) {
@@ -143,6 +144,7 @@ class HousingUpload
             if ($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) {
                 $housingJob = \App\Models\HousingJob::create([
                     'job_id' => $job->ID,
+                    'order_no' => $job->OrderNo,
                     'company_name' => $job->Customer->CompanyName,
                     'due_date' => $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null,
                     'tags' => $tag_selected,
