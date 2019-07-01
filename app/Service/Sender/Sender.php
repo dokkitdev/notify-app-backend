@@ -11,6 +11,7 @@ namespace App\Service\Sender;
 
 use Aws\Credentials\CredentialProvider;
 use Aws\Ses\SesClient;
+use SendGrid\Mail\Attachment;
 
 class Sender
 {
@@ -32,7 +33,7 @@ class Sender
         return self::$instance;
     }
 
-    public static function send($to, $subject = 'Sales', $html, $from = null)
+    public static function send($to, $subject = 'Sales', $html, $from = null, $attachment = null, $attachmentName = 'file.pdf')
     {
         $instance = self::init();
         $from = $from ?: self::FROM;
@@ -43,8 +44,20 @@ class Sender
         $email->addContent(
             "text/html", $html
         );
+        if ($attachment) {
+            if (file_exists($attachment)) {
+                dump('with attachment');
+                $att1 = new Attachment();
+                $att1->setContent(file_get_contents($attachment));
+                $att1->setType("application/pdf");
+                $att1->setFilename($attachmentName);
+                $att1->setDisposition("attachment");
+                $email->addAttachment($att1);
+            }
+        }
         try {
             $response = $instance->send_grid->send($email);
+            dump($response);
 //            print $response->statusCode() . "\n";
 //            print_r($response->headers());
 //            print $response->body() . "\n";

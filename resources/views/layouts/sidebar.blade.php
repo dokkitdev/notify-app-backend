@@ -6,11 +6,10 @@
             <span>Dashboard</span>
         </a>
     </li>
-    <li class="nav-item {!! Route::current()->getName() == 'private.all' ? 'active' : '' !!}">
-        <a class="nav-link" href="{{ route('private.all') }}"> 
-            {{--{{ route('private.all') }}--}}
+    <li class="nav-item {!! Route::current()->getName() == 'appointments.all' ? 'active' : '' !!}">
+        <a class="nav-link" href="{{ route('appointments.all') }}">
             <i class="fas fa-fw fa-folder"></i>
-            <span>Private Contracts</span>
+            <span>Appointment Letters</span>
         </a>
     </li>
     <li class="nav-item {!! Route::current()->getName() == 'housing.all' ? 'active' : '' !!}">
@@ -19,11 +18,17 @@
             <span>Housing Customers</span>
         </a>
     </li>
-
-    <li class="nav-item {!! Route::current()->getName() == 'appointments.all' ? 'active' : '' !!}">
-        <a class="nav-link" href="{{ route('appointments.all') }}">
+    <li class="nav-item {!! Route::current()->getName() == 'private.all' ? 'active' : '' !!}">
+        <a class="nav-link" href="{{ route('private.all') }}">
+            {{----}}
             <i class="fas fa-fw fa-folder"></i>
-            <span>Appointment Letters</span>
+            <span>Private Contracts</span>
+        </a>
+    </li>
+    <li class="nav-item {!! Route::current()->getName() == 'reports.all' ? 'active' : '' !!}">
+        <a class="nav-link" href="{{ route('reports.all') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Warehouse</span>
         </a>
     </li>
     @if(Auth::user()->role=='admin')
