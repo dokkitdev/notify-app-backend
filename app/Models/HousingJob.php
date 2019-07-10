@@ -9,6 +9,7 @@
 namespace App\Models;
 
 
+use App\Templates;
 use Illuminate\Database\Eloquent\Model;
 
 class HousingJob extends Model
@@ -128,7 +129,7 @@ class HousingJob extends Model
 
     public function isLivewest()
     {
-        return $this->customer_id == 11851;
+        return $this->customer_id == 11851 && $this->tags == Templates::HOUSING_1_ACCESS;
     }
 
 }
