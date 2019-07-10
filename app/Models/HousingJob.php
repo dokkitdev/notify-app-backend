@@ -9,6 +9,7 @@
 namespace App\Models;
 
 
+use App\Service\Upload\HousingUpload;
 use App\Templates;
 use Illuminate\Database\Eloquent\Model;
 
@@ -129,7 +130,7 @@ class HousingJob extends Model
 
     public function isLivewest()
     {
-        return $this->customer_id == 11851 && $this->tags == Templates::HOUSING_1_ACCESS;
+        return $this->customer_id == 11851 && $this->tags == HousingUpload::TAG_NO_ACCESSS_2;
     }
 
 }
