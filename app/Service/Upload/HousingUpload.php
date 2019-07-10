@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\DB;
 
 class HousingUpload
 {
+    const TAG_NO_ACCESSS_1 = 'No Access 1 (Letter)';
+    const TAG_NO_ACCESSS_2 = 'No Access 2 (Letter)';
+    const TAG_NO_ACCESSS_3 = 'No Access 3 (Letter)';
+
     /** @var simProRequestService */
     private $simpro;
 
@@ -52,7 +56,6 @@ class HousingUpload
     public function parseJob($job_info)
     {
         $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_info->ID . '?display=all');
-        dump($job->Stage);
         if (($job->Stage == 'Progress' || $job->Stage == 'Pending')) {
             dump('parseSite');
             $this->parseSite($job);
@@ -76,9 +79,9 @@ class HousingUpload
         }
         $tag_selected = null;
         foreach ($job->Tags as $tags) {
-            if ($tags->Name == 'No Access 3 (Letter)'
-                || $tags->Name == 'No Access 2 (Letter)'
-                || $tags->Name == 'No Access 1 (Letter)') {
+            if ($tags->Name == self::TAG_NO_ACCESSS_3
+                || $tags->Name == self::TAG_NO_ACCESSS_2
+                || $tags->Name == self::TAG_NO_ACCESSS_1) {
                 if (!$tag_selected) {
                     $tag_selected = $tags->Name;
                 } else {
@@ -94,11 +97,20 @@ class HousingUpload
                 }
             }
         }
+
         if (!$tag_selected) {
             dump('noo tag selected');
             return;
         }
 
+        if ($tag_selected == self::TAG_NO_ACCESSS_2 && $job->Customer->ID == 11851) {
+            $site = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/' . $site_id);
+            $housingJob = \App\Models\HousingJob::where('job_id', '=', $job->ID)->get()->first();
+            $schedule = new \stdClass();
+            $schedule->Date = $housingJob ? $housingJob->schedule_date : Date('Y-m-d');
+            $this->createHousing($site, $job, $tag_selected, $schedule);
+            return;
+        }
         $costCenterId = $job->Sections[0]->CostCenters[0]->ID ?? null;
         $schedule = $this->simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Type=job&Reference=' . $job->ID . '-' . $costCenterId . '&Date=' . $this->yesterday);
         if (sizeOf($schedule) < 1) {
@@ -120,7 +132,7 @@ class HousingUpload
                 $housingJob->job_id = $job->ID;
                 $housingJob->order_no = $job->OrderNo;
                 $housingJob->company_name = $job->Customer->CompanyName;
-                $housingJob->due_date = $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? null) : null;
+                $housingJob->due_date = $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? $housingJob->due_date) : $housingJob->due_date;
                 if ($housingJob->tags != $tag_selected) {
                     $housingJob->is_proccessed = null;
                 }
@@ -137,7 +149,8 @@ class HousingUpload
                 $housingJob->email = $site->PrimaryContact->Email ?? $housingJob->email;
                 $housingJob->work_phone = $site->PrimaryContact->WorkPhone ?? $housingJob->work_phone;
                 $housingJob->cell_phone = $site->PrimaryContact->CellPhone ?? $housingJob->cell_phone;
-                $housingJob->schedule_date = $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null;
+                $housingJob->schedule_date = $scheduleDate;
+                $housingJob->customer_id = $job->Customer->ID;
                 $housingJob->save();
             }
         } else {
@@ -160,7 +173,8 @@ class HousingUpload
                     'email' => $site->PrimaryContact->Email ?? null,
                     'work_phone' => $site->PrimaryContact->WorkPhone ?? null,
                     'cell_phone' => $site->PrimaryContact->CellPhone ?? null,
-                    'schedule_date' => $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null,
+                    'schedule_date' => $scheduleDate,
+                    'customer_id' => $job->Customer->ID
                 ]);
             }
         }

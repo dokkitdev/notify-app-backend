@@ -87,10 +87,10 @@ class PrivateTemplateGenerator
 
     public function fillDebitInfo(TemplateProcessor $templateProcessor, $customer)
     {
-        $templateProcessor->setValue('PayersName', $customer->payer_account_name);
-        $templateProcessor->setValue('PayersReference', $customer->payer_reference);
-        $templateProcessor->setValue('DDPaymentPeriod', $customer->period);
-        $templateProcessor->setValue('DDPaymentDate', $customer->getDirectDate());
+        $templateProcessor->setValue('PayersName', TemplateGenerator::getCorrectString($customer->payer_account_name));
+        $templateProcessor->setValue('PayersReference', TemplateGenerator::getCorrectString($customer->payer_reference));
+        $templateProcessor->setValue('DDPaymentPeriod', TemplateGenerator::getCorrectString($customer->period));
+        $templateProcessor->setValue('DDPaymentDate', TemplateGenerator::getCorrectString($customer->getDirectDate()));
     }
 
 

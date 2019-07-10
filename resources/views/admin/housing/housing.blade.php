@@ -57,7 +57,7 @@
                     <td>{{$a->job_id}}</td>
                     <td>{{$a->getScheduleDate()}}</td>
                     <td>{{$a->job_name}}</td>
-                    <td>{{$a->tags}}</td>
+                        <td>{{$a->isLivewest() ? 'Letter No Access 2 (Livewest Properties)' : $a->tags}} </td>
                     <td>
                         @if( $templates[$a->tags]->docx)
                             <a href="{{ route('housing.view', ['id' => $a->id]) }}"

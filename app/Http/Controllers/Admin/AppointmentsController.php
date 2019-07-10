@@ -63,7 +63,7 @@ class AppointmentsController extends Controller
         $docx = $generator->fillAppoinmentLetterFromDocxTemplate($template->docx, $appointment);
 
         $pdf = $generator->generatePdfFromDocx($docx);
-	$appointment->docx = $docx;
+	    $appointment->docx = $docx;
         $appointment->pdf = $pdf;
         $appointment->save();
 

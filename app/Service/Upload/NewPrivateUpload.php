@@ -17,17 +17,19 @@ class NewPrivateUpload
 
     public function startToParse(): void
     {
-        try {
-            $nextRecurringDate = new \DateTime('+30 day');
-//            $nextRecurringDate = new \DateTime('2020-04-01');
-            $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
-        } catch (\Exception $e) {
-            dump($e->getMessage());
-            exit(1);
-        }
-        $pages = $this->simpro->getRequestPage('get', "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}");
-        foreach ($pages as $page) {
-            $this->parseRecurringPage($page);
+        for ($i = 25; $i < 30; $i++) {
+            try {
+//                $nextRecurringDate = new \DateTime('+30 day');
+                $nextRecurringDate = new \DateTime('+' . $i . ' day');
+                $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
+            } catch (\Exception $e) {
+                dump($e->getMessage());
+                exit(1);
+            }
+            $pages = $this->simpro->getRequestPage('get', "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}");
+            foreach ($pages as $page) {
+                $this->parseRecurringPage($page);
+            }
         }
     }
 

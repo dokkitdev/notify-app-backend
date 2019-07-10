@@ -29,6 +29,7 @@ class Customer extends Model
         'is_company',
         'pdf',
         'docx',
+        'customer_id',
     ];
 
     public function getName()

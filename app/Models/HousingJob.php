@@ -126,4 +126,9 @@ class HousingJob extends Model
         return 'Not Listed';
     }
 
+    public function isLivewest()
+    {
+        return $this->customer_id == 11851;
+    }
+
 }
