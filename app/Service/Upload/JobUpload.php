@@ -100,6 +100,7 @@ class JobUpload
         $jobId = $result_job->ID;
         $workType = $result_job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null;
         $customerId = $result_job->Customer->ID;
+        $companyName = $result_job->Customer->CompanyName;
         $sendDate = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time) ?? null;
 
         $siteId = $site->ID;
@@ -123,6 +124,7 @@ class JobUpload
             'title' => $title,
             'family_name' => $familyName,
             'given_name' => $givenName,
+            'company_name' => $companyName,
             'address' => $address,
             'state' => $state,
             'city' => $city,

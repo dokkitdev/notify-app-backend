@@ -41,6 +41,7 @@
                             title="Select entries that should be processed"
                             class="fas fa-info"></i></th>
                 <th class="header">Job ID</th>
+                <th class="header">Company Name</th>
                 <th class="header">Schedule date</th>
                 <th class="header">Service type</th>
                 <th class="header">Tag</th>
@@ -55,6 +56,7 @@
                                {!! $templates[$a->tags]->docx ? '' : 'disabled' !!} value="{!! $a->id !!}">
                     </td>
                     <td>{{$a->job_id}}</td>
+                    <td>{{$a->company_name}}</td>
                     <td>{{$a->getScheduleDate()}}</td>
                     <td>{{$a->job_name}}</td>
                         <td>{{$a->isLivewest() ? 'Letter No Access 2 (Livewest Properties)' : $a->tags}} </td>
@@ -100,11 +102,9 @@
         $(document).ready(function () {
             $("#housing-table").tablesorter({
                 widgets: ['zebra'],
-                headers: {
-                    0: {sorter: false},
-                    5: {sorter: false},
-                    6: {sorter: false},
-                }
+              headers: {
+                6: {sorter: false},
+              }
             });
             $('body').on('click', '.disabled', e => {
                 e.preventDefault();

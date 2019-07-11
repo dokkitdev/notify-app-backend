@@ -41,6 +41,7 @@
                             title="Select entries that should be processed"
                             class="fas fa-info"></i></th>
                 <th style="width: 5%;">Job ID</th>
+                <th>Company Name</th>
                 <th>Contact Name</th>
                 <th>Address</th>
                 <th>City</th>
@@ -62,6 +63,7 @@
                         <input type="checkbox" name="appointments[]" value="{!! $a->id !!}">
                     </td>
                     <td>{!! $a->job_id !!}</td>
+                    <td>{!! $a->company_name !!}</td>
                     <td>{!! $a->getContact() !!}</td>
                     <td>{!! $a->getAddress() !!}</td>
                     <td>{!! $a->city !!}</td>
@@ -130,7 +132,7 @@
                 headers: {
                     0: {sorter: false},
                     // 6: {sorter: false},
-                    9: {sorter: false}
+                    10: {sorter: false}
                 }
             });
             $('body').on('click', '.disabled', e => {

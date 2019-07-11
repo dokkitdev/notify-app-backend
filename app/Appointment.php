@@ -12,6 +12,7 @@ class Appointment extends Model
         'title',
         'family_name',
         'given_name',
+        'company_name',
         'address',
         'state',
         'city',
