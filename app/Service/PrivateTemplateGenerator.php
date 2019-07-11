@@ -47,7 +47,7 @@ class PrivateTemplateGenerator
         $recurringDate = \DateTime::createFromFormat('Y-m-d', $recurringDate);
         $recurringDate = Date::prettyFormatting($recurringDate);
 
-        $this
+	$this
             ->fillHeadingCustomerInfo(
                 $templateProcessor,
                 $customer->getName(),
@@ -69,7 +69,6 @@ class PrivateTemplateGenerator
                 $templateProcessor,
                 $customer
             );
-
         $today = new \DateTime();
         $name = $isDebit ? 'Debit' : 'Annual';
         $newFile = $customer->customer_id . '.' . $name . '.' . $today->format('Y-m-d') . '.docx';
@@ -87,10 +86,10 @@ class PrivateTemplateGenerator
 
     public function fillDebitInfo(TemplateProcessor $templateProcessor, $customer)
     {
-        $templateProcessor->setValue('PayersName', $customer->payer_account_name);
-        $templateProcessor->setValue('PayersReference', $customer->payer_reference);
-        $templateProcessor->setValue('DDPaymentPeriod', $customer->period);
-        $templateProcessor->setValue('DDPaymentDate', $customer->getDirectDate());
+	$templateProcessor->setValue('PayersName', TemplateGenerator::getCorrectString($customer->payer_account_name));
+        $templateProcessor->setValue('PayersReference', TemplateGenerator::getCorrectString($customer->payer_reference));
+        $templateProcessor->setValue('DDPaymentPeriod', TemplateGenerator::getCorrectString($customer->period));
+        $templateProcessor->setValue('DDPaymentDate', TemplateGenerator::getCorrectString($customer->getDirectDate()));
     }
 
 
@@ -164,7 +163,6 @@ class PrivateTemplateGenerator
         $postCode
     )
     {
-
         $address = TemplateGenerator::getCorrectString($address);
         $exploded = explode(',', $address);
         $address1 = array_shift($exploded) ?? '';
@@ -205,7 +203,6 @@ class PrivateTemplateGenerator
         $postCode
     )
     {
-
         $address = TemplateGenerator::getCorrectString($address);
         $exploded = explode(',', $address);
         $address1 = array_shift($exploded) ?? '';

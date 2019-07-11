@@ -39,10 +39,9 @@ class ProcessPrivateCommand extends Command
         $log->save();
         $customers = $this->argument('customers');
         $customers = explode(',', $customers);
+	dump($log);
         PrivateService::process($customers, $log);
         $log->is_finished = 1;
         $log->save();
-
-
     }
 }

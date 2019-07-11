@@ -20,10 +20,10 @@ class HousingUpload
 
     private $yesterday;
 
-    public function __construct()
+    public function __construct($yesterday)
     {
         $this->simpro = new simProRequestService();
-        $this->yesterday = (new \DateTime('-1 day'))->format('Y-m-d');
+	$this->yesterday = $yesterday;
     }
 
     public function run()

@@ -54,14 +54,18 @@ class PrivateService
 
     public static function process($customers, $log)
     {
+	dump($customers);
         $pdfs = [];
         foreach ($customers as $customer) {
             $customer = PrivateCustomer::find($customer);
             if (!$customer) {
                 continue;
             }
+	  dump('------- START ------');
             self::generateFilesForCustomer($customer);
             self::setIsProcessed($customer);
+	   dump('------ END   ------');
+	   dump($customer->pdf);
             $pdfs[] = $customer->pdf;
         }
         $today = new \DateTime();
