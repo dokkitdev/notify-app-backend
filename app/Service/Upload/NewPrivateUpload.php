@@ -15,7 +15,7 @@ class NewPrivateUpload
         $this->simpro = new simProRequestService();
     }
 
-    public function startToParse(): void
+ public function startToParse(): void
     {
         for ($i = 25; $i < 30; $i++) {
             try {
@@ -32,7 +32,6 @@ class NewPrivateUpload
             }
         }
     }
-
     public function parseRecurringPage($page): void
     {
         $recurringInvoices = $this->simpro->getRequest('get', $page);

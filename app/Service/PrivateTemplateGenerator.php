@@ -69,7 +69,6 @@ class PrivateTemplateGenerator
                 $templateProcessor,
                 $customer
             );
-
         $today = new \DateTime();
         $name = $isDebit ? 'Debit' : 'Annual';
         $newFile = $customer->customer_id . '.' . $name . '.' . $today->format('Y-m-d') . '.docx';
@@ -164,7 +163,6 @@ class PrivateTemplateGenerator
         $postCode
     )
     {
-
         $address = TemplateGenerator::getCorrectString($address);
         $exploded = explode(',', $address);
         $address1 = array_shift($exploded) ?? '';
@@ -205,7 +203,6 @@ class PrivateTemplateGenerator
         $postCode
     )
     {
-
         $address = TemplateGenerator::getCorrectString($address);
         $exploded = explode(',', $address);
         $address1 = array_shift($exploded) ?? '';

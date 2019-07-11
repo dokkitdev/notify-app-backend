@@ -46,16 +46,8 @@ class UploadHousing extends Command
      */
     public function handle()
     {
-        $date = new \DateTime('2019-07-01');
-        for ($i = 0; $i < 10; $i++) {
-            $date->modify('+' . $i . ' day');
-            $d = $date->format('Y-m-d');
-            (new HousingUpload($d))
-                ->run();
-        }
-//        $yesterday = (new \DateTime('-1 day'))->format('Y-m-d');
-//        (new HousingUpload($yesterday))
-//            ->run();
+        $yesterday = (new \DateTime('-1 day'))->format('Y-m-d');
+        (new HousingUpload($yesterday))
+            ->run();
     }
-
 }
