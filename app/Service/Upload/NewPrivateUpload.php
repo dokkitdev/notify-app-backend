@@ -17,19 +17,16 @@ class NewPrivateUpload
 
  public function startToParse(): void
     {
-        for ($i = 25; $i < 30; $i++) {
-            try {
-//                $nextRecurringDate = new \DateTime('+30 day');
-                $nextRecurringDate = new \DateTime('+' . $i . ' day');
-                $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
-            } catch (\Exception $e) {
-                dump($e->getMessage());
-                exit(1);
-            }
-            $pages = $this->simpro->getRequestPage('get', "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}");
-            foreach ($pages as $page) {
-                $this->parseRecurringPage($page);
-            }
+        try {
+            $nextRecurringDate = new \DateTime('+28 day');
+            $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
+        } catch (\Exception $e) {
+            dump($e->getMessage());
+            exit(1);
+        }
+        $pages = $this->simpro->getRequestPage('get', "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}");
+        foreach ($pages as $page) {
+            $this->parseRecurringPage($page);
         }
     }
     public function parseRecurringPage($page): void
@@ -54,10 +51,13 @@ class NewPrivateUpload
     {
         $recurringInvoiceId = $recurringInvoice->ID;
         $recurringInvoice = $this->simpro->getRequest('get', '/api/v1.0/companies/0/recurringInvoices/' . $recurringInvoiceId);
+        dump('start to parse' . $recurringInvoiceId);
         if (!$recurringInvoice) {
+            dump('no recurring invoice for ' . $recurringInvoiceId);
             return;
         }
         if (!$recurringInvoice->CustomFields) {
+            dump('no custom fields ' . $recurringInvoiceId);
             return;
         }
         $customFieldValues = ['Annual payment', 'Direct Debit'];
@@ -86,6 +86,7 @@ class NewPrivateUpload
             }
         }
         if (!$customFieldValue) {
+            dump('no custom field value for ' . $recurringInvoiceId);
             return;
         }
 
@@ -100,6 +101,7 @@ class NewPrivateUpload
         }
 
         if (!$customer) {
+            dump('no Customer for ' . $recurringInvoiceId);
             return;
         }
 
@@ -110,12 +112,15 @@ class NewPrivateUpload
         $recurringDate = $recurringInvoice->NextRecurringDate ?? null;
         $recurringDate = \DateTime::createFromFormat('Y-m-d', $recurringDate);
         if (!$customerId || !$recurringDate) {
+            dump('no CustomerId or recurring date for ' . $recurringInvoiceId);
             return;
         }
         $countCustomerForProvidedYear = PrivateCustomer::where('customer_id', $customerId)
             ->where('next_recurring_date', 'LIKE', $recurringDate->format('Y') . '%')
             ->count();
+        dump($customerId);
         if ($countCustomerForProvidedYear) {
+            dump('more than one customer for year for ' . $recurringInvoiceId);
             return;
         }
 

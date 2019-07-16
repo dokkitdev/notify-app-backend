@@ -89,7 +89,7 @@ class PrivateTemplateGenerator
         $templateProcessor->setValue('PayersName', TemplateGenerator::getCorrectString($customer->payer_account_name));
         $templateProcessor->setValue('PayersReference', TemplateGenerator::getCorrectString($customer->payer_reference));
         $templateProcessor->setValue('DDPaymentPeriod', TemplateGenerator::getCorrectString($customer->period));
-        $templateProcessor->setValue('DDPaymentDate', TemplateGenerator::getCorrectString($customer->getDirectDate()));
+        $templateProcessor->setValue('DDPaymentDate', TemplateGenerator::getCorrectStringWithoutUcwords($customer->getDirectDate()));
     }
 
 

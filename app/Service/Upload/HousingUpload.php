@@ -56,6 +56,10 @@ class HousingUpload
     public function parseJob($job_info)
     {
         $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_info->ID . '?display=all');
+        if ($job && $job->Customer->ID != 11514 && $job->Customer->ID != 11851) {
+            dump("Customer id not in (11514, 11851) " . $job->Customer->ID);
+            return;
+        }
         if (($job->Stage == 'Progress' || $job->Stage == 'Pending')) {
             dump('parseSite');
             $this->parseSite($job);
@@ -108,7 +112,8 @@ class HousingUpload
             $housingJob = \App\Models\HousingJob::where('job_id', '=', $job->ID)->get()->first();
             $schedule = new \stdClass();
             $schedule->Date = $housingJob ? $housingJob->schedule_date : Date('Y-m-d');
-            $this->createHousing($site, $job, $tag_selected, $schedule);
+            $schedule->Is11851 = true;
+            $this->createHousing($site, $job, $tag_selected, [$schedule]);
             return;
         }
         $costCenterId = $job->Sections[0]->CostCenters[0]->ID ?? null;
@@ -124,11 +129,11 @@ class HousingUpload
     public function createHousing($site, $job, $tag_selected, $schedule)
     {
         $housingJob = \App\Models\HousingJob::where('job_id', '=', $job->ID)->get()->first();
-
         $schedule = array_shift($schedule);
+        dump($job->ID . ' need to add');
         $scheduleDate = $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null;
         if ($housingJob) {
-            if ($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) {
+            if (($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) || !empty($schedule->Is11851)) {
                 $housingJob->job_id = $job->ID;
                 $housingJob->order_no = $job->OrderNo;
                 $housingJob->company_name = $job->Customer->CompanyName;
@@ -154,7 +159,7 @@ class HousingUpload
                 $housingJob->save();
             }
         } else {
-            if ($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) {
+            if (($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) || !empty($schedule->Is11851)) {
                 $housingJob = \App\Models\HousingJob::create([
                     'job_id' => $job->ID,
                     'order_no' => $job->OrderNo,

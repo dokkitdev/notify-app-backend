@@ -896,6 +896,11 @@ class TemplateGenerator
         return htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($string)))));
     }
 
+    public static function getCorrectStringWithoutUcwords($string)
+    {
+        return htmlspecialchars((str_replace("\n", ', ', strtolower($string))));
+    }
+
     public static function getCorrectStringUppercased($string) {
         return strtoupper(self::getCorrectString($string));
     }
