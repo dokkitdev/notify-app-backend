@@ -18,7 +18,8 @@ class NewPrivateUpload
  public function startToParse(): void
     {
         try {
-            $nextRecurringDate = new \DateTime('+27 day');
+            $nextRecurringDate = \DateTime::createFromFormat('Y-m-d','2019-08-15');
+//            $nextRecurringDate = new \DateTime('+27 day');
             $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
         } catch (\Exception $e) {
             dump($e->getMessage());
