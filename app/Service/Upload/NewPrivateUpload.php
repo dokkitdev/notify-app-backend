@@ -18,7 +18,7 @@ class NewPrivateUpload
  public function startToParse(): void
     {
         try {
-            $nextRecurringDate = new \DateTime('+28 day');
+            $nextRecurringDate = new \DateTime('+27 day');
             $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
         } catch (\Exception $e) {
             dump($e->getMessage());
@@ -46,6 +46,7 @@ class NewPrivateUpload
     private $payerReference;
     private $payerAccountName;
     private $directDate;
+    private $month;
 
     public function processRecurringInvoice($recurringInvoice): void
     {
@@ -84,6 +85,10 @@ class NewPrivateUpload
             if ($customField->CustomField->ID === 7) {
                 $this->payerAccountName = $customField->Value;
             }
+
+            if ($customField->CustomField->ID === 8) {
+                $this->month = $customField->Value;
+            }
         }
         if (!$customFieldValue) {
             dump('no custom field value for ' . $recurringInvoiceId);
@@ -116,11 +121,11 @@ class NewPrivateUpload
             return;
         }
         $countCustomerForProvidedYear = PrivateCustomer::where('customer_id', $customerId)
+            ->where('recurring_invoice_id', $recurringInvoiceId ?: 0)
             ->where('next_recurring_date', 'LIKE', $recurringDate->format('Y') . '%')
             ->count();
-        dump($customerId);
         if ($countCustomerForProvidedYear) {
-            dump('more than one customer for year for ' . $recurringInvoiceId);
+            dump('This recurring invoice for customer already exist ' . $recurringInvoiceId);
             return;
         }
 
@@ -146,6 +151,7 @@ class NewPrivateUpload
             'payer_reference' => $this->payerReference,
             'payer_account_name' => $this->payerAccountName,
             'direct_date' => $this->directDate,
+            'direct_month' => $this->month,
             'type' => $customFieldValue,
             'is_processed'=> false,
         ]);

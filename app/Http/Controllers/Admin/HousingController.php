@@ -38,8 +38,15 @@ class HousingController extends Controller
                 $query->where('is_proccessed', '<>', 1)
                     ->orWhere('is_proccessed', '=', null);
             })
-            ->where('schedule_date', '>=', $start    )
-            ->where('schedule_date', '<=', $end)
+            ->where(function ($query) use ($start, $end) {
+                $query->where(function ($query) use ($start, $end) {
+                    $query->where('schedule_date', '>=', $start)
+                        ->where('schedule_date', '<=', $end);
+                })->orWhere(function ($query) {
+                    $query->where('customer_id', '=', 11851)
+                        ->where('tags', '=', 'No Access 2 (Letter)');
+                });
+            })
             ->orderBy('due_date', 'ASC')
             ->paginate($limit);
 

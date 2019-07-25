@@ -120,10 +120,10 @@ class PrivateTemplateGenerator
             $prebuilds = $costCenter->prebuilds()->get();
             foreach ($prebuilds as $prebuild) {
                 $prebuildsValues['name'][] = TemplateGenerator::getCorrectString($prebuild->name);
-                $prebuildsValues['qty'][] = TemplateGenerator::getCorrectString($prebuild->qty);
-                $prebuildsValues['ex_tax'][] = TemplateGenerator::getCorrectString($prebuild->ex_tax);
-                $prebuildsValues['inc_tax'][] = TemplateGenerator::getCorrectString($prebuild->inc_tax);
-                $prebuildsValues['tax'][] = TemplateGenerator::getCorrectString($prebuild->inc_tax - $prebuild->ex_tax);
+                $prebuildsValues['qty'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->qty), 2);
+                $prebuildsValues['ex_tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->ex_tax), 2);
+                $prebuildsValues['inc_tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->inc_tax), 2);
+                $prebuildsValues['tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->inc_tax - $prebuild->ex_tax), 2);
                 $prebuildsValues['sum_ex_tax'] += $prebuild->ex_tax;
                 $prebuildsValues['sum_inc_tax'] += $prebuild->inc_tax;
             }
@@ -239,9 +239,9 @@ class PrivateTemplateGenerator
         $templateProcessor->setValue('PrebuildExTax', $prebuilds['ex_tax'], 1);
         $templateProcessor->setValue('PrebuildTax', $prebuilds['tax'], 1);
         $templateProcessor->setValue('PrebuildIncTax', $prebuilds['inc_tax'], 1);
-        $templateProcessor->setValue('TotalExTax', $prebuilds['sum_ex_tax'], 1);
-        $templateProcessor->setValue('TotalIncTax', $prebuilds['sum_inc_tax'], 1);
-        $templateProcessor->setValue('TotalTax', $prebuilds['sum_tax'], 1);
+        $templateProcessor->setValue('TotalExTax', number_format((float)$prebuilds['sum_ex_tax'], 2), 1);
+        $templateProcessor->setValue('TotalIncTax', number_format((float)$prebuilds['sum_inc_tax'], 2), 1);
+        $templateProcessor->setValue('TotalTax', number_format((float)$prebuilds['sum_tax'], 2), 1);
         return $this;
     }
 

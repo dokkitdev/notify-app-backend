@@ -774,7 +774,7 @@ class TemplateGenerator
         if (!is_file($file)) {
             return false;
         }
-        exec('libreoffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $file . ' --outdir ' . $pdf_folder);
+        exec(Config::get('constants.libreoffice') . ' --headless --writer --convert-to pdf:writer_pdf_Export ' . $file . ' --outdir ' . $pdf_folder);
         $new_file = substr($docx, 0, -4) . 'pdf';
 
         return $new_file;
@@ -788,7 +788,7 @@ class TemplateGenerator
         if (!is_file($file)) {
             return false;
         }
-        exec('libreoffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $file . ' --outdir ' . $pdfFolder);
+        shell_exec(Config::get('constants.libreoffice') . ' --headless --writer --convert-to pdf:writer_pdf_Export ' . $file . ' --outdir ' . $pdfFolder);
         sleep(1.5);
         $newFile = substr($docx, 0, -4) . 'pdf';
         return $newFile;

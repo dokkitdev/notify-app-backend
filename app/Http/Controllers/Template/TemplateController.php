@@ -64,7 +64,7 @@ class TemplateController extends Controller
 
                 $docx_file_path = $docx_folder . $docx;
 
-                exec('libreoffice --headless --writer --convert-to pdf ' . $docx_file_path . ' --outdir ' . $pdf_folder);
+                exec(Config::get('constants.libreoffice') . ' --headless --writer --convert-to pdf ' . $docx_file_path . ' --outdir ' . $pdf_folder);
                 $pdf = substr($docx, 0, -4) . 'pdf';
                 $template->pdf = $pdf;
             }
@@ -98,7 +98,7 @@ class TemplateController extends Controller
 
         /** Создаем файл на сервере и конвертируем его в пдф */
         $req['file']->move($docx_folder, $docx);
-        exec('libreoffice --headless --writer --convert-to pdf ' . $docx_file_path . ' --outdir ' . $pdf_folder);
+        exec(Config::get('constants.libreoffice') . ' --headless --writer --convert-to pdf ' . $docx_file_path . ' --outdir ' . $pdf_folder);
         $pdf = substr($docx, 0, -4) . 'pdf';
         $template->pdf = $pdf;
         $template->docx = $docx;

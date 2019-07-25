@@ -262,8 +262,24 @@ class simProRequestService
         );
     }
 
+    function uploadNewPrivate($customer, $pdf) {
+        $pdf_folder = Config::get('constants.storage_pdf');
+        if (!is_file($pdf_folder . '/' . $pdf)) {
+            return;
+        }
+        $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $pdf));
+
+//        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/recurringInvoices/'. $customer->recurring_invoice_id . '/attachments/files/', [
+            $res = $this->patchRequest('POST', '/api/v1.0/companies/0/customers/' . $customer->customer_id . '/attachments/files/', [
+                'Filename' => $pdf,
+                'Base64Data' => $b64Doc,
+            ]
+        );
+    }
+
     public function getAccessToken()
     {
         return $this->token;
     }
 }
+

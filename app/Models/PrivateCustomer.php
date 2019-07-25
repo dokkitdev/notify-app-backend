@@ -70,7 +70,12 @@ class PrivateCustomer extends Model
 
     public function getDirectDate()
     {
+        $nextDate = \DateTime::createFromFormat('Y-m-d', $this->next_recurring_date);
         $directDate = $this->direct_date ?: '1st of';
+        if ($this->direct_month) {
+            return $this->direct_date . ' ' . $this->direct_month . ' ' . $nextDate->format('Y');
+        }
+
         $nextDate = \DateTime::createFromFormat('Y-m-d', $this->next_recurring_date)->modify('+1 month');
         $month = $nextDate->format('F');
         $year = $nextDate->format('Y');

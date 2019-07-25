@@ -32,14 +32,16 @@ class HousingUpload
 
     public function run()
     {
-//        DB::delete('TRUNCATE `n_housing_job`;');
-        $result = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/jobs/?display=all');
+        $result = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/jobs/?Customer.ID=in(11514,11851)&Tags.ID=in(54,55,56)');
         if ($result) {
             foreach ($result as $url) {
                 dump('getPageByUrl');
                 $this->getPageByUrl($url);
             }
         }
+
+//        DB::delete('TRUNCATE `n_housing_job`;');
+
     }
 
     public function getPageByUrl($url)
@@ -111,7 +113,13 @@ class HousingUpload
             $site = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/' . $site_id);
             $housingJob = \App\Models\HousingJob::where('job_id', '=', $job->ID)->get()->first();
             $schedule = new \stdClass();
-            $schedule->Date = $housingJob ? $housingJob->schedule_date : Date('Y-m-d');
+            if ($housingJob) {
+                $date = \DateTime::createFromFormat('Y-m-d H:i:s', $housingJob->schedule_date);
+                $date = $date ? $date->format('Y-m-d') : Date('Y-m-d');
+            } else {
+                return;
+            }
+            $schedule->Date = $date;
             $schedule->Is11851 = true;
             $this->createHousing($site, $job, $tag_selected, [$schedule]);
             return;
@@ -132,6 +140,7 @@ class HousingUpload
         $schedule = array_shift($schedule);
         dump($job->ID . ' need to add');
         $scheduleDate = $schedule->Date ? (\DateTime::createFromFormat('Y-m-d', $schedule->Date) ?? null) : null;
+        dump($schedule->Date);
         if ($housingJob) {
             if (($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) || !empty($schedule->Is11851)) {
                 $housingJob->job_id = $job->ID;

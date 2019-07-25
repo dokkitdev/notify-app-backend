@@ -131,7 +131,7 @@ class UploadReportOwn extends Command
         $unique_name = 'report.' . $date->format('Y-m-d-H-i-s') . '.html';
         file_put_contents($html_folder . '/' . $unique_name, $content);
 //        exec('/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $html_folder . '/' . $unique_name . ' --outdir ' . $pdf_folder);
-        exec('libreoffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $html_folder . '/' . $unique_name . ' --outdir ' . $pdf_folder);
+        exec(Config::get('constants.libreoffice') . ' --headless --writer --convert-to pdf:writer_pdf_Export ' . $html_folder . '/' . $unique_name . ' --outdir ' . $pdf_folder);
 
         $log->pdf = str_replace('html', 'pdf', $unique_name);
         $log->is_finished = 1;
