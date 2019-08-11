@@ -3,24 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Logs;
-use App\Models\Contract;
-use App\Models\Customer;
 use App\Models\PrivateCustomer;
-use App\Models\ProcessedPrivate;
 use App\Service\Exceptions\MessageException;
 use App\Service\PrivateService;
-use App\Service\PrivateTemplateGenerator;
-use App\Service\PrivateUploader;
-use App\Service\Sender\Sender;
-use App\Service\simProRequestService;
-use App\Service\TemplateGenerator;
-use App\Service\Upload\NewPrivateUpload;
-use App\Templates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
 
 class NewPrivateController extends Controller
 {

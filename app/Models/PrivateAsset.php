@@ -11,15 +11,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PrivatePrebuild extends Model
+class PrivateAsset extends Model
 {
-    protected $table = 'new_private_prebuilds';
+    const PREBUILD_TYPE = 1;
+    const CATALOG_TYPE = 2;
+    const ONEOFF_TYPE = 3;
+
+
+    protected $table = 'new_private_assets';
     protected $fillable = [
         'name',
         'qty',
         'ex_tax',
         'inc_tax',
-
+        'type'
     ];
 
     public function customer()

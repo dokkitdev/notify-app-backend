@@ -88,8 +88,8 @@ class PrivateCustomer extends Model
         return $this->hasMany(PrivateCostCenter::class);
     }
 
-    public function prebuilds()
+    public function assets()
     {
-        return $this->hasMany(PrivatePrebuild::class);
+        return $this->hasMany(PrivateAsset::class)->orderBy('type');
     }
 }

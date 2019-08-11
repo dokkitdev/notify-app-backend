@@ -13,12 +13,13 @@ class CreateNewPrivatePrebuilds extends Migration
      */
     public function up()
     {
-        Schema::create('new_private_prebuilds', function (Blueprint $table) {
+        Schema::create('new_private_assets', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->nullable();
             $table->integer('qty')->nullable();
             $table->float('ex_tax')->nullable();
             $table->float('inc_tax')->nullable();
+            $table->integer('type')->nullable();
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
             $table->integer('private_customer_id')->nullable();
@@ -34,6 +35,6 @@ class CreateNewPrivatePrebuilds extends Migration
      */
     public function down()
     {
-        Schema::drop('new_private_prebuilds');
+        Schema::drop('new_private_assets');
     }
 }

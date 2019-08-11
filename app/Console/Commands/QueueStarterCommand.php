@@ -23,23 +23,30 @@ class QueueStarterCommand extends Command
 
     public function handle()
     {
-        $started_logs = Logs::where('is_started', '=', 1)
-        ->where('is_finished', '=', 0)->get();
-        if (count($started_logs) > 0) {
-            echo '1 command is running!';
-            return;
+        $started_log = Logs::where('is_started', '=', 1)
+        ->where('is_finished', '=', 0)->first();
+        if ($started_log) {
+            $fifteen_minutes_ago = new \DateTime('-15 minute');
+            if ($fifteen_minutes_ago < $started_log->updated_at) {
+                echo '1 command is running!';
+                return;
+            }
+            $log = $started_log;
+        } else {
+            $log =  Logs::where('is_started', '=', 0)
+                ->where('is_finished', '=', 0)
+                ->where('command', '<>', null)
+                ->orderBy('created_at', 'ASC')
+                ->take(1)
+                ->get()
+                ->first();
         }
 
-        $log =  Logs::where('is_started', '=', 0)
-            ->where('is_finished', '=', 0)
-            ->where('command', '<>', null)
-            ->orderBy('created_at', 'ASC')
-            ->take(1)
-            ->get()
-            ->first();
+
         if ($log) {
             if ($log->command) {
                 $log->is_started = 1;
+                $log->updated_at = new \DateTime();
                 $log->save();
                 exec($log->command);
             } else {

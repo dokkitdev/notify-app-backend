@@ -117,7 +117,7 @@ class PrivateTemplateGenerator
                 'sum_inc_tax' => 0,
                 'sum_tax' => 0,
             ];
-            $prebuilds = $costCenter->prebuilds()->get();
+            $prebuilds = $costCenter->assets()->get();
             foreach ($prebuilds as $prebuild) {
                 $prebuildsValues['name'][] = TemplateGenerator::getCorrectString($prebuild->name);
                 $prebuildsValues['qty'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->qty), 2);

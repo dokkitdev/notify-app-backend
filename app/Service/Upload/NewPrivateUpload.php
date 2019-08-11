@@ -2,6 +2,7 @@
 
 namespace App\Service\Upload;
 
+use App\Models\PrivateAsset;
 use App\Models\PrivateCustomer;
 use App\Service\simProRequestService;
 
@@ -15,11 +16,10 @@ class NewPrivateUpload
         $this->simpro = new simProRequestService();
     }
 
- public function startToParse(): void
+    public function startToParse(): void
     {
         try {
-            $nextRecurringDate = \DateTime::createFromFormat('Y-m-d','2019-08-15');
-//            $nextRecurringDate = new \DateTime('+27 day');
+            $nextRecurringDate = new \DateTime('+29 day');
             $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
         } catch (\Exception $e) {
             dump($e->getMessage());
@@ -30,6 +30,7 @@ class NewPrivateUpload
             $this->parseRecurringPage($page);
         }
     }
+
     public function parseRecurringPage($page): void
     {
         $recurringInvoices = $this->simpro->getRequest('get', $page);
@@ -217,20 +218,56 @@ class NewPrivateUpload
             'tax' => $costCenter->Total->Tax ?? null,
             'inc_tax' => $costCenter->Total->IncTax ?? null,
         ]);
-
         $sectionId = $section->ID;
         $costCenterId = $costCenter->ID;
+
+        $catalogs = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}/catalogs/");
+        $this->createAssets(
+            $privateCustomer,
+            $cc,
+            $catalogs,
+            PrivateAsset::CATALOG_TYPE,
+            'Catalog'
+        );
+        $offs = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}/oneOffs/");
+        $this->createAssets(
+            $privateCustomer,
+            $cc,
+            $offs,
+            PrivateAsset::ONEOFF_TYPE
+        );
         $preBuilds = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}/prebuilds/");
-        if ($preBuilds) {
-            foreach ($preBuilds as $preBuild) {
-                $p = $privateCustomer->prebuilds()->create([
-                    'name' => $preBuild->Prebuild->Name ?? null,
-                    'qty' => $preBuild->Total->Qty ?? null,
-                    'ex_tax' => $preBuild->Total->Amount->ExTax ?? null,
-                    'inc_tax' => $preBuild->Total->Amount->IncTax ?? null,
-                ]);
-                $cc->prebuilds()->save($p);
+        $this->createAssets(
+            $privateCustomer,
+            $cc,
+            $preBuilds,
+            PrivateAsset::PREBUILD_TYPE
+        );
+    }
+
+    public function createAssets($privateCustomer, $costCenter, $assets, $assetType, $type = 'Prebuild')
+    {
+        if (!($assets && count($assets))) {
+            return;
+        }
+
+
+        foreach ($assets as $asset) {
+
+            if ($assetType === PrivateAsset::ONEOFF_TYPE) {
+                $name = $asset->Description ?? null;
+            } else {
+                $name = $asset->{$type}->Name ?? null;
             }
+
+            $p = $privateCustomer->assets()->create([
+                'name' => $name,
+                'qty' => $asset->Total->Qty ?? null,
+                'ex_tax' => $asset->Total->Amount->ExTax ?? null,
+                'inc_tax' => $asset->Total->Amount->IncTax ?? null,
+                'type' => $assetType
+            ]);
+            $costCenter->assets()->save($p);
         }
     }
 }
