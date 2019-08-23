@@ -18,6 +18,7 @@ class PrivateAsset extends Model
     const ONEOFF_TYPE = 3;
 
 
+
     protected $table = 'new_private_assets';
     protected $fillable = [
         'name',

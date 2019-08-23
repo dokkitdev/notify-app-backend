@@ -191,6 +191,8 @@ class NewPrivateUpload
         $recurringInvoiceId = $recurringInvoice->ID;
         $sectionId = $section->ID;
         $costCenters = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/");
+        dump("/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters");
+        dump($costCenters);die;
         if ($costCenters) {
             foreach ($costCenters as $costCenter) {
                 $this->processCostCenter(

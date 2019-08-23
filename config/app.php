@@ -162,6 +162,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         LynX39\LaraPdfMerger\PdfMergerServiceProvider::class,
+
+        \Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class
     ],
 
     /*

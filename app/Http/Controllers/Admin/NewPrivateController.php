@@ -15,6 +15,8 @@ class NewPrivateController extends Controller
     {
         $limit = $request->get('limit') ?? 20;
         $customers = PrivateCustomer::where('is_processed', false)
+            ->selectRaw('MIN(id) as id')
+            ->addSelect('next_recurring_date', 'customer_id')
             ->where('type', PrivateCustomer::ANNUAL)
             ->groupBy('next_recurring_date')
             ->groupBy('customer_id')
