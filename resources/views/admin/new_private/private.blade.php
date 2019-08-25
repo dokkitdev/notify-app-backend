@@ -69,7 +69,7 @@
                         {{ $customer->customer_id }}
                     </td>
                     <td>
-                        {{ $customer->getName() }}
+                        {{ $customer->getName() }} <b>({{ $customer->recurring_type }})</b>
                     </td>
                     <td>
                         {{ $customer->invoices }}

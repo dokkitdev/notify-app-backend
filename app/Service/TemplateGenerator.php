@@ -901,8 +901,14 @@ class TemplateGenerator
         return htmlspecialchars((str_replace("\n", ', ', strtolower($string))));
     }
 
-    public static function getCorrectStringUppercased($string) {
+    public static function getCorrectStringUppercased($string)
+    {
         return strtoupper(self::getCorrectString($string));
+    }
+
+    public static function getFloatValue($value)
+    {
+        return number_format((float)TemplateGenerator::getCorrectString($value), 2);
     }
 
     public static function fillValuesIfExistWithLimit(TemplateProcessor $templateProcessor, $variables, $values, $limit = 1)

@@ -18,13 +18,16 @@ class NewPrivateUpload
 
     public function startToParse(): void
     {
+
         try {
-            $nextRecurringDate = new \DateTime('+29 day');
-            $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
+            $nextRecurringDate = '2019-09-30';
+//            $nextRecurringDate = new \DateTime('+28 day');
+//            $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
         } catch (\Exception $e) {
             dump($e->getMessage());
             exit(1);
         }
+        dump($nextRecurringDate);
         $pages = $this->simpro->getRequestPage('get', "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}");
         foreach ($pages as $page) {
             $this->parseRecurringPage($page);
@@ -132,6 +135,7 @@ class NewPrivateUpload
         }
 
         $privateCustomer = PrivateCustomer::create([
+            'recurring_type' => $recurringInvoice->Type,
             'recurring_invoice_id' => $recurringInvoice->ID ?? null,
             'next_recurring_date' => $recurringDate->format('Y-m-d'),
             'customer_id' => $customerId,
@@ -155,7 +159,7 @@ class NewPrivateUpload
             'direct_date' => $this->directDate,
             'direct_month' => $this->month,
             'type' => $customFieldValue,
-            'is_processed'=> false,
+            'is_processed' => false,
         ]);
 
 
@@ -191,8 +195,6 @@ class NewPrivateUpload
         $recurringInvoiceId = $recurringInvoice->ID;
         $sectionId = $section->ID;
         $costCenters = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/");
-        dump("/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters");
-        dump($costCenters);die;
         if ($costCenters) {
             foreach ($costCenters as $costCenter) {
                 $this->processCostCenter(
@@ -221,11 +223,13 @@ class NewPrivateUpload
             'inc_tax' => $costCenter->Total->IncTax ?? null,
         ]);
         $sectionId = $section->ID;
+        $sectionName = $section->Name;
         $costCenterId = $costCenter->ID;
-
         $catalogs = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}/catalogs/");
         $this->createAssets(
             $privateCustomer,
+            $sectionId,
+            $sectionName,
             $cc,
             $catalogs,
             PrivateAsset::CATALOG_TYPE,
@@ -234,20 +238,41 @@ class NewPrivateUpload
         $offs = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}/oneOffs/");
         $this->createAssets(
             $privateCustomer,
+            $sectionId,
+            $sectionName,
             $cc,
             $offs,
-            PrivateAsset::ONEOFF_TYPE
+            PrivateAsset::ONEOFF_TYPE,
+            'One Off'
         );
         $preBuilds = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}/prebuilds/");
         $this->createAssets(
             $privateCustomer,
+            $sectionId,
+            $sectionName,
             $cc,
             $preBuilds,
             PrivateAsset::PREBUILD_TYPE
         );
+        $costCenter = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}");
+        dump('offs', $offs, 'catalogs', $catalogs, 'Discount', $costCenter->Totals->Discount);
+        $incTax = $costCenter->Totals->Discount ?? 0;
+        if ($incTax) {
+            $exTax = ceil($incTax * 0.8 * 100) / 100;
+            $asset = $privateCustomer->assets()->create([
+                'section_id' => $sectionId,
+                'section_name' => $sectionName,
+                'name' => 'Discount',
+                'qty' => null,
+                'ex_tax' => $exTax,
+                'inc_tax' => $incTax,
+                'type' => PrivateAsset::DISCOUNT_TYPE
+            ]);
+            $cc->assets()->save($asset);
+        }
     }
 
-    public function createAssets($privateCustomer, $costCenter, $assets, $assetType, $type = 'Prebuild')
+    public function createAssets($privateCustomer, $sectionId, $sectionName, $costCenter, $assets, $assetType, $type = 'Prebuild')
     {
         if (!($assets && count($assets))) {
             return;
@@ -263,6 +288,8 @@ class NewPrivateUpload
             }
 
             $p = $privateCustomer->assets()->create([
+                'section_id' => $sectionId,
+                'section_name' => $sectionName,
                 'name' => $name,
                 'qty' => $asset->Total->Qty ?? null,
                 'ex_tax' => $asset->Total->Amount->ExTax ?? null,

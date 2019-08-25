@@ -16,11 +16,13 @@ class PrivateAsset extends Model
     const PREBUILD_TYPE = 1;
     const CATALOG_TYPE = 2;
     const ONEOFF_TYPE = 3;
-
+    const DISCOUNT_TYPE = 4;
 
 
     protected $table = 'new_private_assets';
     protected $fillable = [
+        'section_id',
+        'section_name',
         'name',
         'qty',
         'ex_tax',

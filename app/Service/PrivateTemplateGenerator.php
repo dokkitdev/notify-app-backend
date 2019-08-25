@@ -4,6 +4,7 @@ namespace App\Service;
 
 
 use App\Helpers\Date;
+use App\Models\PrivateAsset;
 use App\Models\PrivateCostCenter;
 use App\Models\PrivateCustomer;
 use App\Templates;
@@ -28,19 +29,34 @@ class PrivateTemplateGenerator
         $file = $docxFolder . '/' . $docx;
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($file);
 
-        if ($customer->type == PrivateCustomer::DEBIT) {
-            $isDebit = true;
+        $isProject = $customer->recurring_type == PrivateCustomer::PROJECT;
+        $isDebit = $customer->type == PrivateCustomer::DEBIT;
+        if ($isDebit || $isProject) {
             $customers = [$customer];
         } else {
-            $isDebit = false;
             $customers = PrivateCustomer::where('customer_id', $customer->customer_id)
                 ->where('next_recurring_date', $customer->next_recurring_date)
+                ->where('type', PrivateCustomer::ANNUAL)
+                ->where('recurring_type', PrivateCustomer::SERVICE)
                 ->get();
         }
 
-        $countCustomers = count($customers);
-        if ($countCustomers > 0) {
-            $templateProcessor->cloneBlock('CLONE', $countCustomers);
+        if ($isProject) {
+            $templateProcessor->cloneBlock('SITE_BLOCK', 0);
+
+            $costCentersCount = 0;
+            foreach ($customers as $customer) {
+                $costCentersCount += $customer->costCenters()->count();
+            }
+            $templateProcessor->cloneBlock('PROJECT_BLOCK', $costCentersCount);
+            $templateProcessor->cloneBlock('FINALS', 1);
+            $templateProcessor->cloneBlock('PROJECT_TITLE_BLOCK', 1);
+        } else {
+            $templateProcessor->cloneBlock('PROJECT_BLOCK', 0);
+            $templateProcessor->cloneBlock('PROJECT_TITLE_BLOCK', 0);
+            $countCustomers = count($customers);
+            $templateProcessor->cloneBlock('FINALS', $countCustomers > 1 ? 1 : 0);
+            $templateProcessor->cloneBlock('SITE_BLOCK', $countCustomers);
         }
 
         $recurringDate = $customer->next_recurring_date;
@@ -63,7 +79,8 @@ class PrivateTemplateGenerator
             )
             ->fillCostCenterTables(
                 $templateProcessor,
-                $customers
+                $customers,
+                $isProject
             )
             ->fillDebitInfo(
                 $templateProcessor,
@@ -92,56 +109,90 @@ class PrivateTemplateGenerator
         $templateProcessor->setValue('DDPaymentDate', TemplateGenerator::getCorrectStringWithoutUcwords($customer->getDirectDate()));
     }
 
-
-    public function fillCostCenterTables(TemplateProcessor $templateProcessor, $customers)
+    public function fillCostCenterTables(TemplateProcessor $templateProcessor, $customers, $isProject)
     {
+        $finalValues = [
+            'sum_ex_tax' => 0,
+            'sum_inc_tax' => 0,
+            'sum_tax' => 0
+        ];
         /** @var PrivateCustomer $customer */
         foreach ($customers as $customer) {
 
-
             /** @var PrivateCostCenter $costCenter */
-            $costCenter = $customer->costCenters()->first();
-            if (!$costCenter) {
+            $costCenters = $customer->costCenters()->get();
+            if (!count($costCenters)) {
                 continue;
             }
-            $ddaAmount = $costCenter->inc_tax / $customer->getPeriodInteger();
-            $costCenterName = TemplateGenerator::getCorrectString($costCenter->name);
 
-            $prebuildsValues = [
-                'name' => [],
-                'qty' => [],
-                'tax' => [],
-                'ex_tax' => [],
-                'inc_tax' => [],
-                'sum_ex_tax' => 0,
-                'sum_inc_tax' => 0,
-                'sum_tax' => 0,
-            ];
-            $prebuilds = $costCenter->assets()->get();
-            foreach ($prebuilds as $prebuild) {
-                $prebuildsValues['name'][] = TemplateGenerator::getCorrectString($prebuild->name);
-                $prebuildsValues['qty'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->qty), 2);
-                $prebuildsValues['ex_tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->ex_tax), 2);
-                $prebuildsValues['inc_tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->inc_tax), 2);
-                $prebuildsValues['tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->inc_tax - $prebuild->ex_tax), 2);
-                $prebuildsValues['sum_ex_tax'] += $prebuild->ex_tax;
-                $prebuildsValues['sum_inc_tax'] += $prebuild->inc_tax;
+            foreach ($costCenters as $costCenter) {
+                $costCenterName = TemplateGenerator::getCorrectString($costCenter->name);
+                $prebuildsValues = [
+                    'name' => [],
+                    'qty' => [],
+                    'tax' => [],
+                    'ex_tax' => [],
+                    'inc_tax' => [],
+                    'sum_ex_tax' => 0,
+                    'sum_inc_tax' => 0,
+                    'sum_tax' => 0,
+                ];
+                $prebuilds = $costCenter->assets()->get();
+                if ($isProject && count($prebuilds)) {
+                    $firstAsset = $prebuilds->first();
+                    $prebuildsValues['name'][] = $firstAsset['section_name'];
+                    $prebuildsValues['qty'][] = '';
+                    $prebuildsValues['ex_tax'][] = '';
+                    $prebuildsValues['inc_tax'][] = '';
+                    $prebuildsValues['tax'][] = '';
+                }
+                foreach ($prebuilds as $prebuild) {
+                    $isDiscount = $prebuild->type === PrivateAsset::DISCOUNT_TYPE;
+                    $prebuildsValues['name'][] = TemplateGenerator::getCorrectString($prebuild->name);
+                    $prebuildsValues['qty'][] =
+                        !$isDiscount
+                            ? number_format((float)TemplateGenerator::getCorrectString($prebuild->qty), 2)
+                            : '';
+                    $prebuildsValues['ex_tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->ex_tax), 2);
+                    $prebuildsValues['inc_tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->inc_tax), 2);
+                    $prebuildsValues['tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->inc_tax - $prebuild->ex_tax), 2);
+                    $prebuildsValues['sum_ex_tax'] += ($isDiscount ? -1 : 1) * $prebuild->ex_tax;
+                    $prebuildsValues['sum_inc_tax'] += ($isDiscount ? -1 : 1) * $prebuild->inc_tax;
+                }
+                $prebuildsValues['sum_tax'] = $prebuildsValues['sum_inc_tax'] - $prebuildsValues['sum_ex_tax'];
+                $finalValues['sum_ex_tax'] += $prebuildsValues['sum_ex_tax'];
+                $finalValues['sum_inc_tax'] += $prebuildsValues['sum_inc_tax'];
+                $finalValues['sum_tax'] += $prebuildsValues['sum_tax'];
+                $prebuildsValues = array_map(function ($prebuild) {
+                    return is_array($prebuild) ? implode('</w:t><w:br/><w:t>', $prebuild) : $prebuild;
+                }, $prebuildsValues);
+
+                $this
+                    ->fillSiteInfo(
+                        $templateProcessor,
+                        $customer->site_address,
+                        $customer->site_city,
+                        $customer->site_state,
+                        $customer->site_postal_code
+                    )
+                    ->fillPrebuilds($templateProcessor, $prebuildsValues)
+                    ->fillCostCenter($templateProcessor, $costCenterName);
             }
-            $prebuildsValues['sum_tax'] = $prebuildsValues['sum_inc_tax'] - $prebuildsValues['sum_ex_tax'];
-            $prebuildsValues = array_map(function ($prebuild) {
-                return is_array($prebuild) ? implode('</w:t><w:br/><w:t>', $prebuild) : $prebuild;
-            }, $prebuildsValues);
-            $this
-                ->fillSiteInfo(
-                    $templateProcessor,
-                    $customer->site_address,
-                    $customer->site_city,
-                    $customer->site_state,
-                    $customer->site_postal_code
-                )
-                ->fillPrebuilds($templateProcessor, $prebuildsValues)
-                ->fillCostCenter($templateProcessor, $costCenterName, $ddaAmount);
         }
+        $ddaAmount = $finalValues['sum_inc_tax'] / $customer->getPeriodInteger();
+
+        $this
+            ->fillCostCenterFinal($templateProcessor, $finalValues)
+            ->fillDdaAmount($templateProcessor, $ddaAmount);
+
+        return $this;
+    }
+
+    public function fillCostCenterFinal(TemplateProcessor $templateProcessor, $finalValues)
+    {
+        $templateProcessor->setValue('FinalTotalExTax', TemplateGenerator::getFloatValue($finalValues['sum_ex_tax']), 1);
+        $templateProcessor->setValue('FinalTotalTax', TemplateGenerator::getFloatValue($finalValues['sum_tax']), 1);
+        $templateProcessor->setValue('FinalTotalIncTax', TemplateGenerator::getFloatValue($finalValues['sum_inc_tax']), 1);
         return $this;
     }
 
@@ -245,10 +296,16 @@ class PrivateTemplateGenerator
         return $this;
     }
 
-    public function fillCostCenter(TemplateProcessor $templateProcessor, $costCenterName, $ddaAmount)
+    public function fillCostCenter(TemplateProcessor $templateProcessor, $costCenterName)
     {
         $templateProcessor->setValue('CostCenterName', $costCenterName, 1);
-        $templateProcessor->setValue('DDAmount', $ddaAmount);
+        return $this;
+    }
+
+    public function fillDdaAmount(TemplateProcessor $templateProcessor, $ddaAmount)
+    {
+        $templateProcessor->setValue('DDAmount', TemplateGenerator::getFloatValue($ddaAmount));
+        return $this;
     }
 
 }

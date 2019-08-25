@@ -15,6 +15,7 @@ class PrivateCustomer extends Model
 {
     protected $table = 'new_private_customers';
     protected $fillable = [
+        'recurring_type',
         'recurring_invoice_id',
         'next_recurring_date',
         'customer_id',
@@ -43,6 +44,9 @@ class PrivateCustomer extends Model
     ];
     const ANNUAL = 'Annual payment';
     const DEBIT = 'Direct Debit';
+
+    const PROJECT = 'Project';
+    const SERVICE = 'Service';
 
     public function getName()
     {
