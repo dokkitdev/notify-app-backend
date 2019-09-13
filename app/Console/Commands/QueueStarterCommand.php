@@ -23,6 +23,7 @@ class QueueStarterCommand extends Command
 
     public function handle()
     {
+        set_time_limit(0);
         $started_log = Logs::where('is_started', '=', 1)
         ->where('is_finished', '=', 0)->first();
         if ($started_log) {

@@ -24,7 +24,7 @@ class TemplateController extends Controller
     /** Главная страница всех темплейтов */
     public function all()
     {
-        $templateParents = TemplateParent::all();
+        $templateParents = TemplateParent::orderBy('order')->get();
         return view('admin.templates.new.index', [
             'templateParents' => $templateParents,
         ]);

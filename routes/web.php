@@ -52,6 +52,11 @@ Route::group(['middleware' => ['CheckAdmin']], function () {
         Route::get('/import', 'Admin\\AppointmentsController@import')->name('appointments.import');
         Route::get('/clear', 'Admin\\AppointmentsController@clearDublicates');
     });
+    Route::group(['prefix' => '/chl'], function () {
+        Route::get('/', 'Admin\\AppointmentsChlController@index')->name('chl.appointments.all');
+        Route::get('/{id}/view', 'Admin\\AppointmentsChlController@viewPdf')->name('chl.appointments.view');
+        Route::post('/generate', 'Admin\\AppointmentsChlController@generate')->name('chl.appointments.generate');
+    });
 
     Route::group(['prefix' => '/report'], function () {
         Route::get('/', 'Admin\\ReportController@index')->name('report.all');

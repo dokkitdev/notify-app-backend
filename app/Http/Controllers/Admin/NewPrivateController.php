@@ -14,7 +14,7 @@ class NewPrivateController extends Controller
 {
     public function index(Request $request)
     {
-        $limit = $request->get('limit') ?? 20;
+        $limit = $request->get('limit') ?? 10;
         $customers = $this->getCustomers(PrivateCustomer::ANNUAL, $limit);
         foreach ($customers as $customer) {
             $invoices = [];

@@ -103,6 +103,47 @@ class DatabaseSeeder extends Seeder
                     ],
                 ]
             ],
+            [
+                'title' => 'CHL Letters',
+                'templates' => [
+                    [
+                        'term' => null,
+                        'title' => 'Appointment Letter 1',
+                        'tag' => null,
+                        'alias' => 'APPOINTMENT_LETTER_CHL_1',
+                        'html_body' => null,
+                        'html' => null,
+                        'subject' => null,
+                        'docx' => null,
+                        'pdf' => null,
+                        'is_html' => 0,
+                    ],
+                    [
+                        'term' => null,
+                        'title' => 'Appointment Letter 2',
+                        'tag' => null,
+                        'alias' => 'APPOINTMENT_LETTER_CHL_2',
+                        'html_body' => null,
+                        'html' => null,
+                        'subject' => null,
+                        'docx' => null,
+                        'pdf' => null,
+                        'is_html' => 0,
+                    ],
+                    [
+                        'term' => null,
+                        'title' => 'Appointment Letter 3',
+                        'tag' => null,
+                        'alias' => 'APPOINTMENT_LETTER_CHL_3',
+                        'html_body' => null,
+                        'html' => null,
+                        'subject' => null,
+                        'docx' => null,
+                        'pdf' => null,
+                        'is_html' => 0,
+                    ],
+                ]
+            ]
         ];
 
         foreach ($append as $parent_template) {

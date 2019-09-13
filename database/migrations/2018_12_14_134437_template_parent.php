@@ -19,6 +19,7 @@ class TemplateParent extends Migration
             $table->string('alias')->nullable();
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
+            $table->integer('order')->nullable();
         });
     }
 

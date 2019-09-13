@@ -6,6 +6,12 @@
             <span>Dashboard</span>
         </a>
     </li>
+    <li class="nav-item {!! Route::current()->getName() == 'chl.appointments.all' ? 'active' : '' !!}">
+        <a class="nav-link" href="{{ route('chl.appointments.all') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>CHL Letters</span>
+        </a>
+    </li>
     <li class="nav-item {!! Route::current()->getName() == 'appointments.all' ? 'active' : '' !!}">
         <a class="nav-link" href="{{ route('appointments.all') }}">
             <i class="fas fa-fw fa-folder"></i>

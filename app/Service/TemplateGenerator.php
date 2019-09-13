@@ -842,6 +842,8 @@ class TemplateGenerator
             $file = $pdfFolder . $pdf;
             if (file_exists($file)) {
                 $pdfMerger->addPDF($file);
+            } else {
+                dump('no file ' . $file);
             }
         }
         $pdfMerger->merge('file', $pdfFolder . $name);

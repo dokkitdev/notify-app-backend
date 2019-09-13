@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TemplateParent extends Model
 {
     protected $table = 'template_parent';
-    protected $fillable = ['title'];
+    protected $fillable = ['title', 'order'];
 
     public function templates()
     {

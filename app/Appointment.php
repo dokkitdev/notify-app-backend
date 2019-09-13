@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Appointment extends Model
 {
+    const NORMAL_TYPE = 'NORMAL_TYPE';
+    const CHL_TYPE = 'CHL_TYPE';
+
     protected $table = 'appointments';
     protected $fillable = [
         'title',
@@ -27,7 +30,9 @@ class Appointment extends Model
         'pdf',
         'docx',
         'is_proccessed',
-        'customer_id'
+        'customer_id',
+        'type',
+        'letter_type'
     ];
 
     public function getAddress()

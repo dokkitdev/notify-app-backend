@@ -10,9 +10,11 @@ namespace App\Service\Upload;
 
 
 use App\Appointment;
+use App\Jobs\HousingJob;
 use App\Models\AppointmentProcessed;
 use App\Service\simProRequestService;
 use App\Service\simProService;
+use App\Templates;
 use Illuminate\Support\Facades\DB;
 
 class JobUpload
@@ -20,6 +22,8 @@ class JobUpload
 
     /** @var simProRequestService */
     private $simpro;
+
+    const COASTLINE = 11514;
 
     public function __construct()
     {
@@ -71,27 +75,45 @@ class JobUpload
             dump('!$result_job');
             return;
         }
+
         $site_id = $result_job->Site->ID ?? null;
-        if ($site_id) {
-            $this->parseSite($job_scheduler, $result_job, $site_id);
-        } else {
+        if (!$site_id) {
             dump('site_id null');
+            return;
         }
+
+        if ($result_job->Customer->ID == self::COASTLINE) {
+            $tag = $this->selectTag($result_job);
+            $letterType = Templates::APPOINTMENT_LETTER_CHL_1;
+            if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
+                $letterType = Templates::APPOINTMENT_LETTER_CHL_2;
+            } else if ($tag == HousingUpload::TAG_NO_ACCESSS_3) {
+                $letterType = Templates::APPOINTMENT_LETTER_CHL_3;
+            }
+
+            $this->parseSite($job_scheduler, $result_job, $site_id, Appointment::CHL_TYPE, $letterType);
+        } else {
+            $this->parseSite($job_scheduler, $result_job, $site_id);
+        }
+
     }
 
-    public function parseSite($job_scheduler, $result_job, $site_id)
+
+    public
+    function parseSite($job_scheduler, $result_job, $site_id, $type = Appointment::NORMAL_TYPE, $letterType = null)
     {
         dump('parseSite ');
         $site = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/' . $site_id);
         if ($site) {
-            $this->createAppointment($job_scheduler, $result_job, $site);
+            $this->createAppointment($job_scheduler, $result_job, $site, $type, $letterType);
         }
     }
 
     /**
      * Создаем appointment относительно полученных данных
      */
-    public function createAppointment($job_scheduler, $result_job, $site)
+    public
+    function createAppointment($job_scheduler, $result_job, $site, $type = Appointment::NORMAL_TYPE, $letterType = null)
     {
         $date = $job_scheduler->Date;
         $blocks = $job_scheduler->Blocks;
@@ -119,7 +141,7 @@ class JobUpload
             $title = 'The Occupier';
         }
 
-        $appointment = Appointment::create([
+        Appointment::create([
             'customer_id' => $customerId,
             'title' => $title,
             'family_name' => $familyName,
@@ -135,7 +157,9 @@ class JobUpload
             'work_type' => $workType,
             'appointment_id' => $jobSchedule->ID ?? null,
             'site_id' => $siteId,
-            'time' => $time
+            'time' => $time,
+            'type' => $type,
+            'letter_type' => $letterType,
         ]);
     }
 
@@ -199,5 +223,38 @@ FROM appointments');
                 ]);
             }
         }
+    }
+
+
+    public
+    function selectTag($job)
+    {
+        $tag_selected = null;
+        foreach ($job->Tags as $tags) {
+            $tag = $tags->Name;
+            if ($tag == HousingUpload::TAG_NO_ACCESSS_3
+                || $tag == HousingUpload::TAG_NO_ACCESSS_2
+                || $tag == HousingUpload::TAG_NO_ACCESSS_1) {
+
+                if (!$tag_selected) {
+                    $tag_selected = $tag;
+                    continue;
+                }
+
+                if ($tag_selected == HousingUpload::TAG_NO_ACCESSS_3) {
+                    continue;
+                }
+
+                if (
+                    $tag_selected == HousingUpload::TAG_NO_ACCESSS_2
+                    && $tag == HousingUpload::TAG_NO_ACCESSS_3
+                ) {
+                    $tag_selected = $tag;
+                    continue;
+                }
+                $tag_selected = $tag;
+            }
+        }
+        return $tag_selected;
     }
 }

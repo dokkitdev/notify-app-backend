@@ -3,25 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Appointment;
-use App\Http\Requests\UserRequest;
+use App\Http\Controllers\Controller;
 use App\Logs;
-use App\Mail\AdminRegister;
 use App\Models\AppointmentProcessed;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
 use App\Service\Upload\JobUpload;
-use App\Template;
 use App\Templates;
-use App\User;
-use Composer\Config;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 
 class AppointmentsController extends Controller
 {
@@ -35,6 +24,7 @@ class AppointmentsController extends Controller
             $query->where('is_proccessed', '<>', 1)
                 ->orWhere('is_proccessed', '=', null);
         })
+            ->where('type', Appointment::NORMAL_TYPE)
             ->where('send_date', '>', (new \DateTime('+4 day'))->format('Y-m-d'))
             ->orderBy('send_date', 'ASC')
             ->paginate($limit);
