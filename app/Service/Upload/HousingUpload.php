@@ -32,7 +32,7 @@ class HousingUpload
 
     public function run()
     {
-        $result = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/jobs/?Customer.ID=in(11514,11851)&Tags.ID=in(54,55,56)');
+        $result = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/jobs/?Customer.ID=in(11851)&Tags.ID=in(54,55,56)');
         if ($result) {
             foreach ($result as $url) {
                 dump('getPageByUrl');

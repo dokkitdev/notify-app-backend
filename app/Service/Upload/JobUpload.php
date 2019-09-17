@@ -99,8 +99,7 @@ class JobUpload
     }
 
 
-    public
-    function parseSite($job_scheduler, $result_job, $site_id, $type = Appointment::NORMAL_TYPE, $letterType = null)
+    public function parseSite($job_scheduler, $result_job, $site_id, $type = Appointment::NORMAL_TYPE, $letterType = null)
     {
         dump('parseSite ');
         $site = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/' . $site_id);
@@ -112,8 +111,7 @@ class JobUpload
     /**
      * Создаем appointment относительно полученных данных
      */
-    public
-    function createAppointment($job_scheduler, $result_job, $site, $type = Appointment::NORMAL_TYPE, $letterType = null)
+    public function createAppointment($job_scheduler, $result_job, $site, $type = Appointment::NORMAL_TYPE, $letterType = null)
     {
         $date = $job_scheduler->Date;
         $blocks = $job_scheduler->Blocks;
@@ -124,6 +122,7 @@ class JobUpload
         $customerId = $result_job->Customer->ID;
         $companyName = $result_job->Customer->CompanyName;
         $sendDate = \DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time) ?? null;
+        $dueDate = $result_job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $result_job->DueDate) ?? null) : null;
 
         $siteId = $site->ID;
         $address = $site->Address->Address ?? null;
@@ -160,6 +159,7 @@ class JobUpload
             'time' => $time,
             'type' => $type,
             'letter_type' => $letterType,
+            'due_date' => $dueDate
         ]);
     }
 
@@ -170,8 +170,8 @@ class JobUpload
     public function clearDublicates()
     {
 
-        DB::insert('INSERT INTO appointments_logged (job_id, send_date, site_id)
-SELECT job_id, send_date, site_id
+        DB::insert('INSERT INTO appointments_logged (job_id, send_date, site_id, letter_type)
+SELECT job_id, send_date, site_id, letter_type
 FROM appointments');
 
 
@@ -223,11 +223,35 @@ FROM appointments');
                 ]);
             }
         }
+
+        while (1) {
+
+            $totals = DB::select('
+        SELECT job_id, send_date, site_id, letter_type, COUNT(id) as total FROM appointments_logged
+group by job_id, send_date, site_id, letter_type
+HAVING total > 1
+LIMIT 200
+;');
+            if (!count($totals)) {
+                break;
+            }
+            foreach ($totals as $row) {
+
+                DB::delete('DELETE FROM appointments_logged 
+WHERE job_id = :job 
+AND send_date = \'' . $row->send_date . '\' 
+AND site_id = :site_id 
+AND letter_type ' . ($row->letter_type ? ('= \'' . $row->letter_type . '\'') : 'is null') . '
+LIMIT ' . ($row->total - 1) . ';', [
+                    $row->job_id,
+                    $row->site_id,
+                ]);
+            }
+        }
     }
 
 
-    public
-    function selectTag($job)
+    public function selectTag($job)
     {
         $tag_selected = null;
         foreach ($job->Tags as $tags) {

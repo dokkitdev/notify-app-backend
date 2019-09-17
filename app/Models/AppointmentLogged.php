@@ -1,59 +1,18 @@
 <?php
 
-namespace App;
-
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Appointment extends Model
+class AppointmentLogged extends Model
 {
-    const NORMAL_TYPE = 'NORMAL_TYPE';
-    const CHL_TYPE = 'CHL_TYPE';
-
-    protected $table = 'appointments';
+    protected $table = 'appointments_logged';
     protected $fillable = [
-        'title',
-        'family_name',
-        'given_name',
-        'company_name',
-        'address',
-        'state',
-        'city',
-        'country',
-        'postcode',
         'job_id',
         'send_date',
-        'work_type',
-        'appointment_id',
         'site_id',
-        'time',
-        'pdf',
-        'docx',
-        'is_proccessed',
-        'customer_id',
-        'type',
-        'letter_type',
-        'due_date'
+        'letter_type'
     ];
-
-    public function getAddress()
-    {
-        $str = $this->address;
-        $str = str_replace("\r", '', $str);
-        $str = str_replace("\n", ', ', $str);
-        $str = preg_replace('/\s*,\s*/', ', ', $str);
-        return $str;
-    }
-
-
-    public function getContact()
-    {
-
-        if ($this->title && strlen($this->title) > 0) {
-            return $this->title . ' ' . substr($this->given_name, 0, 1) . (strlen($this->given_name) > 0 ? '. ' : '') . $this->family_name;
-        }
-        return $this->given_name . ' ' . $this->family_name;
-    }
 
     public function getFormatedScheduleDate()
     {
@@ -133,4 +92,5 @@ class Appointment extends Model
         $daysToSchedule = $today->diff($date)->d;
         return $daysToSchedule;
     }
+
 }

@@ -59,7 +59,7 @@
                     <td>
                         <input type="checkbox" name="appointments[]" value="{!! $a->id !!}">
                     </td>
-                    <td>{!! $a->job_id !!}</td>
+                    <td>{!! $a->job_id !!} {{$a->letter_type}}</td>
                     <td>{!! $a->company_name !!}</td>
                     <td>{!! $a->getContact() !!}</td>
                     <td>{!! $a->getAddress() !!}</td>

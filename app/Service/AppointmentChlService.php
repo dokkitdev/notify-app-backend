@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Appointment;
 use App\Helpers\Date;
 use App\Logs;
+use App\Models\AppointmentLogged;
 use App\Models\AppointmentProcessed;
 use Illuminate\Support\Facades\Config;
 use App\Templates;
@@ -39,8 +40,85 @@ class AppointmentChlService
         $date = \DateTime::createFromFormat('Y-m-d H:i:s', $date);
 
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($file);
-        $templateProcessor->setValue('Date', Date::prettyFormatting($date));
         $templateProcessor->setValue('Time', $date->format('H:i'));
+
+        $address = TemplateGenerator::getCorrectString($appointment->getAddress());
+        $exploded = explode(',', $address);
+        $address1 = array_shift($exploded) ?? '';
+        $address2 = trim(implode(', ', $exploded));
+        $values = [
+            'Date' => Date::prettyFormatting($date),
+            'Time' => $date->format('H:i'),
+            'TodayDate' => Date::getFormattedToday(),
+            'JobID' => $appointment->job_id,
+            'JobNumber' => $appointment->job_id,
+        ];
+
+
+        foreach ($values as $key => $val) {
+            $templateProcessor->setValue($key, $val);
+        }
+
+        $variables = [
+            'ContactName',
+            'Address',
+            'Address2',
+            'City',
+            'County',
+            'Postcode'
+        ];
+
+        $values = [
+            TemplateGenerator::getCorrectStringUppercased($appointment->getContact()),
+            $address1,
+            $address2,
+            TemplateGenerator::getCorrectString($appointment->city),
+            TemplateGenerator::getCorrectString($appointment->state),
+            TemplateGenerator::getCorrectStringUppercased($appointment->postcode),
+        ];
+
+
+        foreach ($variables as $v) {
+            $str = '';
+            while (($value = array_shift($values)) !== null) {
+                if (strlen($value) > 0) {
+                    $str = $value;
+                    break;
+                }
+            }
+            $templateProcessor->setValue($v, $str);
+        }
+
+        $appointments = [
+            Templates::APPOINTMENT_LETTER_CHL_1 => null,
+            Templates::APPOINTMENT_LETTER_CHL_2 => null,
+            Templates::APPOINTMENT_LETTER_CHL_3 => null,
+        ];
+        foreach ($appointments as $letterType => $val) {
+            if ($appointment->letter_type == $letterType) {
+                $appointments[$letterType] = $appointment;
+                continue;
+            }
+            $appointments[$letterType] = AppointmentLogged::where('job_id', $appointment->job_id)
+                ->where('site_id', $appointment->site_id)
+                ->where('letter_type', $letterType)
+                ->first();
+        }
+        $scheduleDate1 = $scheduleDate2 = $scheduleDate3 = '!NOT FOUND!';
+        if ($ap1 = $appointments[Templates::APPOINTMENT_LETTER_CHL_1]) {
+            $scheduleDate1 = self::getFormattedScheduleDateForChl($appointment, $ap1);
+        }
+        if ($ap2 = $appointments[Templates::APPOINTMENT_LETTER_CHL_2]) {
+            $scheduleDate2 = self::getFormattedScheduleDateForChl($appointment, $ap2);
+        }
+        if ($ap3 = $appointments[Templates::APPOINTMENT_LETTER_CHL_3]) {
+            $scheduleDate3 = self::getFormattedScheduleDateForChl($appointment, $ap3);
+        }
+        $templateProcessor->setValue('ScheduleDate1', $scheduleDate1);
+        $templateProcessor->setValue('ScheduleDate2', $scheduleDate2);
+        $templateProcessor->setValue('ScheduleDate3', $scheduleDate3);
+
+
 
         $today = new \DateTime();
         $name = str_replace(' ', '-', strtolower($template->title));
@@ -59,8 +137,19 @@ class AppointmentChlService
         $source = $docxFolder . '/' . $name;
         $templateProcessor->saveAs($source);
         return $name;
-
     }
+
+    public static function getFormattedScheduleDateForChl($currentAppointment, $letterAppointment)
+    {
+        $scheduleDate = '!NOT FOUND!';
+        if ($letterAppointment == $currentAppointment) {
+            $scheduleDate = $letterAppointment->getFormatedScheduleDate() . ' ' . $letterAppointment->getFormatedScheduleTime();
+        } else {
+            $scheduleDate = $letterAppointment->getFormatedScheduleDate();
+        }
+        return $scheduleDate;
+    }
+
 
     public static function startProcessing($appointments, Logs $log)
     {

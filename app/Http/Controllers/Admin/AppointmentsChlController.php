@@ -8,13 +8,16 @@ use App\Console\Commands\ProcessAppointmentChlCommand;
 use App\Console\Commands\ProcessPrivateCommand;
 use App\Http\Controllers\Controller;
 use App\Logs;
+use App\Models\AppointmentLogged;
 use App\Service\AppointmentChlService;
 use App\Service\Exceptions\MessageException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AppointmentsChlController extends Controller
 {
+
     public function index(Request $request)
     {
         $limit = $request->get('limit') ?? 20;
