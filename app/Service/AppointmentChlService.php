@@ -14,6 +14,16 @@ use App\Templates;
 
 class AppointmentChlService
 {
+    private static $simPro;
+
+    public static function getSimProService()
+    {
+        if (!self::$simPro) {
+            self::$simPro = new simProRequestService();
+        }
+        return self::$simPro;
+    }
+
     public static function generateFilesForAppointment(Appointment $appointment)
     {
         $template = Templates::where('alias', '=', $appointment->letter_type)->first();
@@ -104,7 +114,9 @@ class AppointmentChlService
                 ->where('letter_type', $letterType)
                 ->first();
         }
+        self::getAppointmentLoggedTemplate($appointments, $appointment);
         $scheduleDate1 = $scheduleDate2 = $scheduleDate3 = '!NOT FOUND!';
+        $dueDate = '';
         if ($ap1 = $appointments[Templates::APPOINTMENT_LETTER_CHL_1]) {
             $scheduleDate1 = self::getFormattedScheduleDateForChl($appointment, $ap1);
         }
@@ -113,10 +125,12 @@ class AppointmentChlService
         }
         if ($ap3 = $appointments[Templates::APPOINTMENT_LETTER_CHL_3]) {
             $scheduleDate3 = self::getFormattedScheduleDateForChl($appointment, $ap3);
+            $dueDate = $appointment->getFormatedScheduleDate();
         }
         $templateProcessor->setValue('ScheduleDate1', $scheduleDate1);
         $templateProcessor->setValue('ScheduleDate2', $scheduleDate2);
         $templateProcessor->setValue('ScheduleDate3', $scheduleDate3);
+        $templateProcessor->setValue('DueDate', $dueDate);
 
 
 
@@ -137,6 +151,66 @@ class AppointmentChlService
         $source = $docxFolder . '/' . $name;
         $templateProcessor->saveAs($source);
         return $name;
+    }
+
+
+    public static function getAppointmentLoggedTemplate(&$appointments, Appointment $appointment)
+    {
+        $letterType = $appointment->letter_type;
+
+        $isSecondLetterAlright = $letterType == Templates::APPOINTMENT_LETTER_CHL_2
+            && $appointments[Templates::APPOINTMENT_LETTER_CHL_1] != null;
+
+        $isThirdLetterAlright = $letterType == Templates::APPOINTMENT_LETTER_CHL_3
+            && $appointments[Templates::APPOINTMENT_LETTER_CHL_1] != null
+            && $appointments[Templates::APPOINTMENT_LETTER_CHL_2] != null;
+
+        if (
+            $letterType == Templates::APPOINTMENT_LETTER_CHL_1
+            || $isSecondLetterAlright
+            || $isThirdLetterAlright
+        ) {
+            return;
+        }
+        $simproService = self::getSimProService();
+        $result = $simproService->getRequest('GET', '/api/v1.0/companies/0/schedules/?Date=lt(' . $appointment->getYmd() . ')&Reference=' . $appointment->job_id . '%&Order by=Date');
+        if (!$result || !count($result)) {
+            return;
+        }
+        if ($letterType == Templates::APPOINTMENT_LETTER_CHL_2 && isset($result[0]->Date)) {
+            $log1 = AppointmentLogged::create([
+                'job_id' => $appointment->job_id,
+                'send_date' => $result[0]->Date . ' 00:00:00',
+                'site_id' => $appointment->site_id,
+                'letter_type' => Templates::APPOINTMENT_LETTER_CHL_1,
+            ]);
+            $appointments[Templates::APPOINTMENT_LETTER_CHL_1] = $log1;
+        } else if ($letterType == Templates::APPOINTMENT_LETTER_CHL_3 && count($result) > 0) {
+
+            if ($appointments[Templates::APPOINTMENT_LETTER_CHL_2] == null) {
+                $log2 = AppointmentLogged::create([
+                    'job_id' => $appointment->job_id,
+                    'send_date' => $result[0]->Date . ' 00:00:00',
+                    'site_id' => $appointment->site_id,
+                    'letter_type' => Templates::APPOINTMENT_LETTER_CHL_2,
+                ]);
+                $appointments[Templates::APPOINTMENT_LETTER_CHL_2] = $log2;
+            }
+
+            if ($appointments[Templates::APPOINTMENT_LETTER_CHL_1] == null) {
+                $result = $result = $simproService->getRequest('GET', '/api/v1.0/companies/0/schedules/?Date=lt(' . $appointments[Templates::APPOINTMENT_LETTER_CHL_2]->getYmd() . ')&Reference=' . $appointment->job_id . '%&Order by=Date');
+                if (!$result || !count($result)) {
+                    return;
+                }
+                $log1 = AppointmentLogged::create([
+                    'job_id' => $appointment->job_id,
+                    'send_date' => $result[0]->Date . ' 00:00:00',
+                    'site_id' => $appointment->site_id,
+                    'letter_type' => Templates::APPOINTMENT_LETTER_CHL_1,
+                ]);
+                $appointments[Templates::APPOINTMENT_LETTER_CHL_1] = $log1;
+            }
+        }
     }
 
     public static function getFormattedScheduleDateForChl($currentAppointment, $letterAppointment)

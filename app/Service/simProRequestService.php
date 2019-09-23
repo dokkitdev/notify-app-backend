@@ -33,8 +33,9 @@ class simProRequestService
     {
         $this->getToken();
         $client = new Client();
+        $url = $url . ((strpos($url, '?') != false) ? '&' : '?') . 'access_token=' . $this->token;
         try {
-            $res = $client->request($method, $url . ((strpos($url, '?') != false) ? '&' : '?') . 'access_token=' . $this->token, $data);
+            $res = $client->request($method, $url, $data);
             if ((int)$res->getStatusCode() == 200 || (int)$res->getStatusCode() == 201 || (int)$res->getStatusCode() == 204) {
                 return $res;
             }

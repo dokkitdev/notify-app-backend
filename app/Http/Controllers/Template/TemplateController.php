@@ -6,6 +6,7 @@ use App\Appointment;
 use App\Http\Controllers\Controller;
 use App\Service\JobUploader;
 use App\Service\simProRequestService;
+use App\Template;
 use App\TemplateParent;
 use App\Templates;
 use CloudConvert\Api;
@@ -52,13 +53,9 @@ class TemplateController extends Controller
             $template->html_body = $data['html_body'] ?? $template->html_body;
 
             if (isset($data['file']) && $data['file']) {
-                $html = md5(uniqid('template', true)) . '.html';
                 $docx = md5(uniqid('template', true)) . '.docx';
-
-                $html_folder = Config::get('constants.storage_html');
                 $docx_folder = Config::get('constants.storage_docx') . '/';
                 $pdf_folder = Config::get('constants.storage_pdf');
-
                 $data['file']->move($docx_folder, $docx);
                 $template->docx = $docx;
 
@@ -83,6 +80,7 @@ class TemplateController extends Controller
             return false;
         }
 
+        /** @var Templates $template */
         $template = Templates::where('alias', '=', $req['alias'])->first();
 
         if (!$template) {
@@ -93,7 +91,7 @@ class TemplateController extends Controller
         $pdf_folder = Config::get('constants.storage_pdf');
         $docx_folder = Config::get('constants.storage_docx') . '/';
 
-        $docx = md5(uniqid('template', true)) . '.docx';
+        $docx = $template->getTitleForFile() . '.docx';
         $docx_file_path = $docx_folder . $docx;
 
         /** Создаем файл на сервере и конвертируем его в пдф */

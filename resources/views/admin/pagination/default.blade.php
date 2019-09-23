@@ -11,6 +11,8 @@
         </select>
         <input type="hidden"  name="start" value="{!! $start !!}">
         <input type="hidden" name="end" value="{!! $end !!}">
+        <input type="hidden" name="sort" value="{{ request()->get('sort') }}">
+        <input type="hidden" name="direction" value="{{ request()->get('direction') }}">
     </form>
     <span>
     @php ($start_item = ($paginator->currentPage() - 1) * $paginator->perPage() + 1)
@@ -27,9 +29,11 @@
         {!! $paginator->total() !!}
     </span>
     <a class="pagination-button prev {{ ($paginator->currentPage() == 1) ? 'disabled' : '' }}"
-       href="{{ $paginator->url($paginator->currentPage()-1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}"> < </a>
+       href="{{ $paginator->url($paginator->currentPage()-1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}&sort={{ request()->get('sort') }}&direction={{ request()->get('direction') }}">
+        < </a>
     <a class="pagination-button next {{ ($paginator->currentPage() == $paginator->lastPage()) ? 'disabled' : '' }}"
-       href="{{ $paginator->url($paginator->currentPage()+1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}"> > </a>
+       href="{{ $paginator->url($paginator->currentPage()+1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}&sort={{ request()->get('sort') }}&direction={{ request()->get('direction') }}">
+        > </a>
 </div>
 
 <script>

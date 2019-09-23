@@ -18,6 +18,8 @@ class AppointmentsController extends Controller
     {
 //	phpinfo();die;
         $limit = $request->get('limit') ?? 20;
+        $sort = $request->get('sort') ?: 'send_date';
+        $direction = $request->get('direction') ?: 'asc';
 
 
         $appointments = Appointment::where(function ($query) {
@@ -26,7 +28,7 @@ class AppointmentsController extends Controller
         })
             ->where('type', Appointment::NORMAL_TYPE)
             ->where('send_date', '>', (new \DateTime('+4 day'))->format('Y-m-d'))
-            ->orderBy('send_date', 'ASC')
+            ->orderBy($sort, $direction)
             ->paginate($limit);
 
         $today = new \DateTime();

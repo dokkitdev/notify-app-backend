@@ -40,19 +40,91 @@
                 <th class="col checkbox-th"><input type="checkbox"> <i
                             title="Select entries that should be processed"
                             class="fas fa-info"></i></th>
-                <th style="width: 5%;">Job ID</th>
-                <th>Company Name</th>
-                <th>Contact Name</th>
-                <th>Address</th>
-                <th>City</th>
-                <th style="width: 7%;">Postcode</th>
-                <th style="width: 10%;">
-                    Schedule Date
-                    {{--<i id="filter" class="fas fa-filter cursor-pointer"></i>--}}
-                    <input type="text" class="datepicker hidden-input" id="range">
+                <th style="width: 5%;">
+                    <a href="{{ route('appointments.all') }}?page=1&sort=job_id&direction={{ request()->get('sort') == 'job_id' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Job ID
+                        @if (request()->get('sort') == 'job_id')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
                 </th>
-                <th style="width: 10%;">Schedule time</th>
-                <th>Work type</th>
+                <th>
+                    <a href="{{ route('appointments.all') }}?page=1&sort=company_name&direction={{ request()->get('sort') == 'company_name' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Company Name
+                        @if (request()->get('sort') == 'company_name')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('appointments.all') }}?page=1&sort=given_name&direction={{ request()->get('sort') == 'given_name' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Contact Name
+                        @if (request()->get('sort') == 'given_name')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('appointments.all') }}?page=1&sort=address&direction={{ request()->get('sort') == 'address' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Address
+                        @if (request()->get('sort') == 'address')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('appointments.all') }}?page=1&sort=city&direction={{ request()->get('sort') == 'city' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        City
+                        @if (request()->get('sort') == 'city')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th style="width: 7%;">
+                    <a href="{{ route('appointments.all') }}?page=1&sort=postcode&direction={{ request()->get('sort') == 'postcode' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Postcode
+                        @if (request()->get('sort') == 'postcode')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th style="width: 10%;">
+                    <a href="{{ route('appointments.all') }}?page=1&sort=send_date&direction={{ request()->get('sort') == 'send_date' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Schedule Date
+                        @if (request()->get('sort') == 'send_date')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                    {{--<i id="filter" class="fas fa-filter cursor-pointer"></i>--}}
+                    {{--<input type="text" class="datepicker hidden-input" id="range">--}}
+                </th>
+                <th style="width: 10%;">
+                    Schedule time
+                </th>
+                <th>
+                    <a href="{{ route('appointments.all') }}?page=1&sort=work_type&direction={{ request()->get('sort') == 'work_type' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Work type
+                        @if (request()->get('sort') == 'work_type')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
                 <th class="col" style="width: 9%;"></th>
             </tr>
             </thead>
@@ -127,14 +199,6 @@
     <script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
     <script>
         $(document).ready(function () {
-            $("#appointment-table").tablesorter({
-                widgets: ['zebra'],
-                headers: {
-                    0: {sorter: false},
-                    // 6: {sorter: false},
-                    10: {sorter: false}
-                }
-            });
             $('body').on('click', '.disabled', e => {
                 e.preventDefault();
             })

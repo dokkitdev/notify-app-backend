@@ -9,6 +9,7 @@ use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
 use App\Templates;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 class HousingController extends Controller
 {
@@ -17,6 +18,8 @@ class HousingController extends Controller
         $limit = $request->get('limit') ?? 20;
         $start = $request->get('start') ?? null;
         $end = $request->get('end') ?? null;
+        $sort = $request->get('sort') ?: 'due_date';
+        $direction = $request->get('direction') ?: 'asc';
         if ($start) {
             $start = \DateTime::createFromFormat('d.m.Y', $start);
         } else {
@@ -47,7 +50,7 @@ class HousingController extends Controller
                         ->where('tags', '=', 'No Access 2 (Letter)');
                 });
             })
-            ->orderBy('due_date', 'ASC')
+            ->orderBy($sort, $direction)
             ->paginate($limit);
 
         $templates = [

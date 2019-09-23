@@ -21,13 +21,16 @@ class AppointmentsChlController extends Controller
     public function index(Request $request)
     {
         $limit = $request->get('limit') ?? 20;
+        $sort = $request->get('sort') ?: 'send_date';
+        $direction = $request->get('direction') ?: 'asc';
+
         $appointments = Appointment::where('type', Appointment::CHL_TYPE)
             ->where(function ($query) {
                 $query->where('is_proccessed', '<>', 1)
                     ->orWhere('is_proccessed', '=', null);
             })
             ->where('send_date', '>', (new \DateTime('+4 day'))->format('Y-m-d'))
-            ->orderBy('send_date', 'ASC')
+            ->orderBy($sort, $direction)
             ->paginate($limit);
 
         $today = new \DateTime();

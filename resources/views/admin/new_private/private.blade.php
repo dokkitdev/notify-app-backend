@@ -52,10 +52,46 @@
                 <th class="col checkbox-th"><input type="checkbox"> <i
                             title="Select entries that should be processed"
                             class="fas fa-info"></i></th>
-                <th class="header">Customer ID</th>
-                <th class="header">Customer</th>
-                <th class="header">Recurring Invoice ID</th>
-                <th class="header">Invoice End Date</th>
+                <th>
+                    <a href="{{ route(Route::current()->getAction('as')) }}?page=1&sort=customer_id&direction={{ request()->get('sort') == 'customer_id' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Customer ID
+                        @if (request()->get('sort') == 'customer_id')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route(Route::current()->getAction('as')) }}?page=1&sort=customer_title&direction={{ request()->get('sort') == 'customer_title' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Customer
+                        @if (request()->get('sort') == 'customer_title')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route(Route::current()->getAction('as')) }}?page=1&sort=recurring_invoice_id&direction={{ request()->get('sort') == 'recurring_invoice_id' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Recurring Invoice ID
+                        @if (request()->get('sort') == 'recurring_invoice_id')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route(Route::current()->getAction('as')) }}?page=1&sort=next_recurring_date&direction={{ request()->get('sort') == 'next_recurring_date' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Invoice End Date
+                        @if (request()->get('sort') == 'next_recurring_date')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
                 <th></th>
             </tr>
             </thead>
@@ -115,13 +151,6 @@
     <script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
     <script>
       $(document).ready(function () {
-        $("#private-table").tablesorter({
-          widgets: ['zebra'],
-          headers: {
-            0: {sorter: false},
-            5: {sorter: false},
-          }
-        });
         $('body').on('click', '.disabled', e => {
           e.preventDefault();
         })

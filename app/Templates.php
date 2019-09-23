@@ -29,4 +29,11 @@ class Templates extends Model
     {
         return $this->belongsTo(TemplateParent::class);
     }
+
+    public function getTitleForFile()
+    {
+        $title = $this->title ?: '';
+        $tag = $this->tag ?: '';
+        return strtolower(str_replace(' ', '-', trim($title . ' ' . $tag)));
+    }
 }

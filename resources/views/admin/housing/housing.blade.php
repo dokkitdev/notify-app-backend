@@ -40,11 +40,56 @@
                 <th class="col checkbox-th"><input type="checkbox"> <i
                             title="Select entries that should be processed"
                             class="fas fa-info"></i></th>
-                <th class="header">Job ID</th>
-                <th class="header">Company Name</th>
-                <th class="header">Schedule date</th>
-                <th class="header">Service type</th>
-                <th class="header">Tag</th>
+                <th>
+                    <a href="{{ route('housing.all') }}?page=1&sort=job_id&direction={{ request()->get('sort') == 'job_id' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Job ID
+                        @if (request()->get('sort') == 'job_id')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('housing.all') }}?page=1&sort=company_name&direction={{ request()->get('sort') == 'company_name' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Company Name
+                        @if (request()->get('sort') == 'company_name')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('housing.all') }}?page=1&sort=schedule_date&direction={{ request()->get('sort') == 'schedule_date' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Schedule date
+                        @if (request()->get('sort') == 'schedule_date')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('housing.all') }}?page=1&sort=job_name&direction={{ request()->get('sort') == 'job_name' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Service type
+                        @if (request()->get('sort') == 'job_name')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
+                <th>
+                    <a href="{{ route('housing.all') }}?page=1&sort=tags&direction={{ request()->get('sort') == 'tags' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Tag
+                        @if (request()->get('sort') == 'tags')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
                 <th></th>
             </tr>
             </thead>
@@ -100,12 +145,6 @@
     <script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
     <script>
         $(document).ready(function () {
-            $("#housing-table").tablesorter({
-                widgets: ['zebra'],
-              headers: {
-                6: {sorter: false},
-              }
-            });
             $('body').on('click', '.disabled', e => {
                 e.preventDefault();
             })

@@ -9,13 +9,16 @@ use App\Service\PrivateService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Route;
 
 class NewPrivateController extends Controller
 {
     public function index(Request $request)
     {
         $limit = $request->get('limit') ?? 10;
-        $customers = $this->getCustomers(PrivateCustomer::ANNUAL, $limit);
+        $sort = $request->get('sort') ?: 'id';
+        $direction = $request->get('direction') ?: 'asc';
+        $customers = $this->getCustomers(PrivateCustomer::ANNUAL, $limit, $sort, $direction);
         foreach ($customers as $customer) {
             $invoices = [];
 
@@ -46,7 +49,9 @@ class NewPrivateController extends Controller
     public function debitIndex(Request $request)
     {
         $limit = $request->get('limit') ?? 20;
-        $customers = $this->getCustomers(PrivateCustomer::DEBIT, $limit);
+        $sort = $request->get('sort') ?: 'id';
+        $direction = $request->get('direction') ?: 'asc';
+        $customers = $this->getCustomers(PrivateCustomer::DEBIT, $limit, $sort, $direction);
         foreach ($customers as $customer) {
             $customer->invoices = $customer->recurring_invoice_id;
         }
@@ -57,11 +62,12 @@ class NewPrivateController extends Controller
         ]);
     }
 
-    private function getCustomers($type, $limit)
+    private function getCustomers($type, $limit, $sort = 'id', $direction = 'asc')
     {
         $customers = PrivateCustomer::where('is_processed', false)
             ->select('id', 'customer_id', 'next_recurring_date', 'recurring_type')
             ->where('type', $type)
+            ->orderBy($sort, $direction)
             ->get();
         $filteredCustomers = [];
         if ($type === PrivateCustomer::ANNUAL) {
@@ -97,6 +103,7 @@ class NewPrivateController extends Controller
             }, iterator_to_array($customers));
         }
         return PrivateCustomer::whereIn('id', $ids)
+            ->orderBy($sort, $direction)
             ->paginate($limit);
     }
 
