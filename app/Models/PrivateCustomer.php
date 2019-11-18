@@ -77,6 +77,10 @@ class PrivateCustomer extends Model
         $nextDate = \DateTime::createFromFormat('Y-m-d', $this->next_recurring_date);
         $directDate = $this->direct_date ?: '1st of';
         if ($this->direct_month) {
+            $dateTimeByMonth = \DateTime::createFromFormat('!F', $this->direct_month);
+            if ((int)$dateTimeByMonth->format('m') < (int)$nextDate->format('m')) {
+                $nextDate->modify('+1 year');
+            }
             return $this->direct_date . ' ' . $this->direct_month . ' ' . $nextDate->format('Y');
         }
 

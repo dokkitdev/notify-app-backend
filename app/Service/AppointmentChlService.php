@@ -131,6 +131,7 @@ class AppointmentChlService
         $templateProcessor->setValue('ScheduleDate2', $scheduleDate2);
         $templateProcessor->setValue('ScheduleDate3', $scheduleDate3);
         $templateProcessor->setValue('DueDate', $dueDate);
+        $templateProcessor->setValue('ServiceType', TemplateGenerator::getCorrectString($appointment->work_type));
 
 
 
@@ -238,6 +239,7 @@ class AppointmentChlService
                 'job_id' => $appointment->job_id,
                 'date' => $appointment->send_date,
             ]);
+            self::getSimProService()->uploadAppointmentChl($appointment);
         }
         $today = new \DateTime();
         $file = 'appointments.' . $today->format('Y-m-d.H-i-s') . '.pdf';

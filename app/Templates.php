@@ -34,6 +34,7 @@ class Templates extends Model
     {
         $title = $this->title ?: '';
         $tag = $this->tag ?: '';
-        return strtolower(str_replace(' ', '-', trim($title . ' ' . $tag)));
+        $titleTag = str_replace(['(', ')'], ['',''], $title . ' ' . $tag);
+        return strtolower(str_replace(' ', '-', trim($titleTag)));
     }
 }

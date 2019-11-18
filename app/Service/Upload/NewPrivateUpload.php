@@ -20,9 +20,8 @@ class NewPrivateUpload
     {
 
         try {
-            $nextRecurringDate = '2019-09-30';
-//            $nextRecurringDate = new \DateTime('+28 day');
-//            $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
+            $nextRecurringDate = \DateTime::createFromFormat('Y-m-d', '2019-12-10');
+            $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
         } catch (\Exception $e) {
             dump($e->getMessage());
             exit(1);

@@ -13,6 +13,7 @@ use App\Console\Commands\ProcessPrivateCommand;
 use App\Logs;
 use App\Models\PrivateCustomer;
 use App\Service\Exceptions\MessageException;
+use Illuminate\Support\Facades\Config;
 
 class PrivateService
 {
@@ -30,46 +31,51 @@ class PrivateService
             'letters_generated' => 0,
             'email_generated' => 0,
         ]);
-        if ($countCustomer > 15) {
-            foreach ($customers as $customer) {
-                $customer = PrivateCustomer::find($customer);
-                if (!$customer) {
-                    continue;
-                }
-                self::setIsProcessed($customer);
-            }
-            $log->command = ProcessPrivateCommand::getCommand($customers, $log);
-            $log->save();
-            throw new MessageException([
-                'ok' => 'Your letters are being processed and will appear in the logs page shortly.',
-            ]);
-        }
-
-        $file = self::process($customers, $log);
-        return [
-            'ok' => 'Private Letters has been successfull generated.',
-            'merged' => $file,
-        ];
-    }
-
-    public static function process($customers, $log)
-    {
-	dump($customers);
-        $pdfs = [];
         foreach ($customers as $customer) {
             $customer = PrivateCustomer::find($customer);
             if (!$customer) {
                 continue;
             }
-	  dump('------- START ------');
-            self::generateFilesForCustomer($customer);
             self::setIsProcessed($customer);
-	   dump('------ END   ------');
-	   dump($customer->pdf);
+        }
+        $log->command = ProcessPrivateCommand::getCommand($customers, $log);
+        $log->save();
+        throw new MessageException([
+            'ok' => 'Your letters are being processed and will appear in the logs page shortly.',
+        ]);
+    }
+
+    public static function process($customers, $log)
+    {
+        $pdfFolder = Config::get('constants.storage_pdf') . '/';
+
+        $pdfs = [];
+        $isSuccess = true;
+        foreach ($customers as $customer) {
+            $customer = PrivateCustomer::find($customer);
+            if (!$customer) {
+                continue;
+            }
+            dump('------- START ------');
+            if (!$customer->is_processed || !$customer->pdf) {
+                self::generateFilesForCustomer($customer);
+                self::setIsProcessed($customer);
+            }
+            dump('------ END   ------');
+            $pdf = $customer->pdf;
+            if (!file_exists($pdfFolder . $pdf)) {
+                $customer->pdf = null;
+                $customer->save();
+                $isSuccess = false;
+            }
             $pdfs[] = $customer->pdf;
+        }
+        if (!$isSuccess) {
+            return false;
         }
         $today = new \DateTime();
         $file = 'Privates.' . $today->format('Y-m-d.H-i-s') . '.pdf';
+        dump($pdfs);
         TemplateGenerator::mergeAllPdfsPages($pdfs, $file);
         $log->letters_generated = count($pdfs);
         $log->email_generated = 0;
@@ -94,13 +100,14 @@ class PrivateService
         }
     }
 
+
     static function generateFilesForCustomer($customer)
     {
         $generator = new PrivateTemplateGenerator();
         $docx = $generator->generateDocx($customer);
         $pdf = TemplateGenerator::sGeneratePdfFromDocx($docx);
         $sim = new simProRequestService();
-        $sim->uploadNewPrivate($customer, $pdf);
+//        $sim->uploadNewPrivate($customer, $pdf);
         $customer->docx = $docx;
         $customer->pdf = $pdf;
         $customer->save();

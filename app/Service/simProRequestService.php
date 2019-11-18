@@ -13,6 +13,7 @@ use App\Appointment;
 use App\Models\Customer;
 use App\Models\HousingJob;
 use App\Settings;
+use App\Templates;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -213,6 +214,38 @@ class simProRequestService
         }
         $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $a->pdf));
         $file_name = $a->job_id . '.appointment.' . $today->format('Y-m-d') . '.pdf';
+        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/jobs/' . $a->job_id . '/attachments/files/',
+            [
+                'Filename' => $file_name,
+                'Base64Data' => $b64Doc,
+                'Public' => true,
+                'Email' => false,
+            ]
+        );
+    }
+
+    function uploadAppointmentChl(Appointment $a)
+    {
+        $letter_type = '';
+        switch ($a->letter_type) {
+            case Templates::APPOINTMENT_LETTER_CHL_1:
+                $letter_type = 'appointment';
+                break;
+            case Templates::APPOINTMENT_LETTER_CHL_2:
+                $letter_type = 'no-access-2';
+                break;
+            case Templates::APPOINTMENT_LETTER_CHL_3:
+                $letter_type = 'no-access-3';
+                break;
+        }
+        $today = new \DateTime();
+        $file_name = 'Job#' . $a->job_id . '.' . $letter_type . '.' . $today->format('Y-m-d') . '.pdf';
+
+        $pdf_folder = Config::get('constants.storage_pdf');
+        if (!is_file($pdf_folder . '/' . $a->pdf)) {
+            return;
+        }
+        $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $a->pdf));
         $res = $this->patchRequest('POST', '/api/v1.0/companies/0/jobs/' . $a->job_id . '/attachments/files/',
             [
                 'Filename' => $file_name,
