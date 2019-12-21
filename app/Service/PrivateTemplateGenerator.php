@@ -31,15 +31,8 @@ class PrivateTemplateGenerator
 
         $isProject = $customer->recurring_type == PrivateCustomer::PROJECT;
         $isDebit = $customer->type == PrivateCustomer::DEBIT;
-        if ($isDebit || $isProject) {
-            $customers = [$customer];
-        } else {
-            $customers = PrivateCustomer::where('customer_id', $customer->customer_id)
-                ->where('next_recurring_date', $customer->next_recurring_date)
-                ->where('type', PrivateCustomer::ANNUAL)
-                ->where('recurring_type', PrivateCustomer::SERVICE)
-                ->get();
-        }
+        $customers = [$customer];
+
 
         if ($isProject) {
             $templateProcessor->cloneBlock('SITE_BLOCK', 0);
@@ -138,6 +131,9 @@ class PrivateTemplateGenerator
                     'sum_tax' => 0,
                 ];
                 $prebuilds = $costCenter->assets()->get();
+                $totalPrebuilds = count($prebuilds);
+                $templateProcessor->cloneBlock('PREBUILDS_BLOCK', $totalPrebuilds);
+
                 if ($isProject && count($prebuilds)) {
                     $firstAsset = $prebuilds->first();
                     $prebuildsValues['name'][] = $firstAsset['section_name'];
@@ -147,17 +143,31 @@ class PrivateTemplateGenerator
                     $prebuildsValues['tax'][] = '';
                 }
                 foreach ($prebuilds as $prebuild) {
+                    $prebuildValues = [];
                     $isDiscount = $prebuild->type === PrivateAsset::DISCOUNT_TYPE;
-                    $prebuildsValues['name'][] = TemplateGenerator::getCorrectString($prebuild->name);
-                    $prebuildsValues['qty'][] =
+                    $prebuildsValues['name'][] = $prebuildValues['name'] = TemplateGenerator::getCorrectString(
+                        $prebuild->name
+                    );
+                    $prebuildsValues['qty'][] = $prebuildValues['qty'] =
                         !$isDiscount
                             ? number_format((float)TemplateGenerator::getCorrectString($prebuild->qty), 2)
                             : '';
-                    $prebuildsValues['ex_tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->ex_tax), 2);
-                    $prebuildsValues['inc_tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->inc_tax), 2);
-                    $prebuildsValues['tax'][] = number_format((float)TemplateGenerator::getCorrectString($prebuild->inc_tax - $prebuild->ex_tax), 2);
+                    $prebuildsValues['ex_tax'][] = $prebuildValues['ex_tax'] = number_format(
+                        (float)TemplateGenerator::getCorrectString($prebuild->ex_tax),
+                        2
+                    );
+                    $prebuildsValues['inc_tax'][] = $prebuildValues['inc_tax'] = number_format(
+                        (float)TemplateGenerator::getCorrectString($prebuild->inc_tax),
+                        2
+                    );
+                    $prebuildsValues['tax'][] = $prebuildValues['tax'] = number_format(
+                        (float)TemplateGenerator::getCorrectString($prebuild->inc_tax - $prebuild->ex_tax),
+                        2
+                    );
                     $prebuildsValues['sum_ex_tax'] += ($isDiscount ? -1 : 1) * $prebuild->ex_tax;
                     $prebuildsValues['sum_inc_tax'] += ($isDiscount ? -1 : 1) * $prebuild->inc_tax;
+
+                    $this->fillPrebuildRaw($templateProcessor, $prebuildValues);
                 }
                 $prebuildsValues['sum_tax'] = $prebuildsValues['sum_inc_tax'] - $prebuildsValues['sum_ex_tax'];
                 $finalValues['sum_ex_tax'] += $prebuildsValues['sum_ex_tax'];
@@ -283,13 +293,16 @@ class PrivateTemplateGenerator
         return $this;
     }
 
+    public function fillPrebuildRaw(TemplateProcessor $templateProcessor, $prebuild)
+    {
+        $templateProcessor->setValue('PrebuildName', $prebuild['name'], 1);
+        $templateProcessor->setValue('PrebuildQty', $prebuild['qty'], 1);
+        $templateProcessor->setValue('PrebuildExTax', $prebuild['ex_tax'], 1);
+        $templateProcessor->setValue('PrebuildTax', $prebuild['tax'], 1);
+        $templateProcessor->setValue('PrebuildIncTax', $prebuild['inc_tax'], 1);
+    }
     public function fillPrebuilds(TemplateProcessor $templateProcessor, $prebuilds)
     {
-        $templateProcessor->setValue('PrebuildName', $prebuilds['name'], 1);
-        $templateProcessor->setValue('PrebuildQty', $prebuilds['qty'], 1);
-        $templateProcessor->setValue('PrebuildExTax', $prebuilds['ex_tax'], 1);
-        $templateProcessor->setValue('PrebuildTax', $prebuilds['tax'], 1);
-        $templateProcessor->setValue('PrebuildIncTax', $prebuilds['inc_tax'], 1);
         $templateProcessor->setValue('TotalExTax', number_format((float)$prebuilds['sum_ex_tax'], 2), 1);
         $templateProcessor->setValue('TotalIncTax', number_format((float)$prebuilds['sum_inc_tax'], 2), 1);
         $templateProcessor->setValue('TotalTax', number_format((float)$prebuilds['sum_tax'], 2), 1);

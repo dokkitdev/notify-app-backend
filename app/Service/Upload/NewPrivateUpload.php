@@ -20,7 +20,7 @@ class NewPrivateUpload
     {
 
         try {
-            $nextRecurringDate = \DateTime::createFromFormat('Y-m-d', '2019-12-10');
+            $nextRecurringDate = \DateTime::createFromFormat('Y-m-d', '2020-01-20');
             $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
         } catch (\Exception $e) {
             dump($e->getMessage());
@@ -55,6 +55,7 @@ class NewPrivateUpload
     public function processRecurringInvoice($recurringInvoice): void
     {
         $recurringInvoiceId = $recurringInvoice->ID;
+
         $recurringInvoice = $this->simpro->getRequest('get', '/api/v1.0/companies/0/recurringInvoices/' . $recurringInvoiceId);
         dump('start to parse' . $recurringInvoiceId);
         if (!$recurringInvoice) {

@@ -19,26 +19,6 @@ class NewPrivateController extends Controller
         $sort = $request->get('sort') ?: 'id';
         $direction = $request->get('direction') ?: 'asc';
         $customers = $this->getCustomers(PrivateCustomer::ANNUAL, $limit, $sort, $direction);
-        foreach ($customers as $customer) {
-            $invoices = [];
-
-            if ($customer->recurring_type == PrivateCustomer::SERVICE) {
-                $allCustomers = PrivateCustomer::where('is_processed', false)
-                    ->where('next_recurring_date', $customer->next_recurring_date)
-                    ->where('type', PrivateCustomer::ANNUAL)
-                    ->where('recurring_type', PrivateCustomer::SERVICE)
-                    ->where('customer_id', $customer->customer_id)
-                    ->get();
-                foreach ($allCustomers as $c) {
-                    $invoices[] = $c->recurring_invoice_id;
-                }
-                $invoices = array_unique($invoices);
-                $invoices = implode(',', $invoices);
-                $customer->invoices = $invoices;
-            } else {
-                $customer->invoices = $customer->recurring_invoice_id;
-            }
-        }
         return view('admin.new_private.private', [
             'customers' => $customers,
             'limit' => $limit,
@@ -64,45 +44,8 @@ class NewPrivateController extends Controller
 
     private function getCustomers($type, $limit, $sort = 'id', $direction = 'asc')
     {
-        $customers = PrivateCustomer::where('is_processed', false)
-            ->select('id', 'customer_id', 'next_recurring_date', 'recurring_type')
+        return PrivateCustomer::where('is_processed', false)
             ->where('type', $type)
-            ->orderBy($sort, $direction)
-            ->get();
-        $filteredCustomers = [];
-        if ($type === PrivateCustomer::ANNUAL) {
-            foreach ($customers as $customer) {
-                /**
-                 * @var $id
-                 * @var $customer_id
-                 * @var $next_recurring_date
-                 * @var $recurring_type
-                 */
-                extract($customer->getAttributes());
-                if (!isset($filteredCustomers[$customer_id])) {
-                    $filteredCustomers[$customer_id] = [
-                        PrivateCustomer::PROJECT => [],
-                        PrivateCustomer::SERVICE => null,
-                    ];
-                }
-                if ($recurring_type == PrivateCustomer::PROJECT) {
-                    $filteredCustomers[$customer_id][PrivateCustomer::PROJECT][] = $id;
-                } else if ($filteredCustomers[$customer_id][PrivateCustomer::SERVICE] === null && $recurring_type == PrivateCustomer::SERVICE) {
-                    $filteredCustomers[$customer_id][PrivateCustomer::SERVICE] = $id;
-                }
-            }
-            $ids = [];
-            foreach ($filteredCustomers as $filteredCustomer) {
-                $ids = array_merge($ids, $filteredCustomer[PrivateCustomer::PROJECT]);
-                $ids[] = $filteredCustomer[PrivateCustomer::SERVICE];
-            }
-        } else {
-            $ids = array_map(
-                function ($customer) {
-                return $customer->id;
-            }, iterator_to_array($customers));
-        }
-        return PrivateCustomer::whereIn('id', $ids)
             ->orderBy($sort, $direction)
             ->paginate($limit);
     }
@@ -116,6 +59,7 @@ class NewPrivateController extends Controller
             return redirect()->route('private.all');
         }
         PrivateService::generateFilesForCustomer($customer);
+
         $pdf = $customer->pdf;
         $pdfFolder = Config::get('constants.storage_pdf');
         return response()->file($pdfFolder . '/' . $pdf);

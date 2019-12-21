@@ -108,7 +108,7 @@
                         {{ $customer->getName() }} <b>({{ $customer->recurring_type }})</b>
                     </td>
                     <td>
-                        {{ $customer->invoices }}
+                        {{ $customer->recurring_invoice_id }}
                     </td>
                     <td>
                         {{ $customer->next_recurring_date }}
