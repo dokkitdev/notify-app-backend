@@ -20,7 +20,8 @@ class NewPrivateUpload
     {
 
         try {
-            $nextRecurringDate = \DateTime::createFromFormat('Y-m-d', '2020-01-20');
+
+            $nextRecurringDate = \DateTime::createFromFormat('Y-m-d', '2020-01-03');
             $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
         } catch (\Exception $e) {
             dump($e->getMessage());
