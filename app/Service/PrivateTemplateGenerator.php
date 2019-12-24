@@ -112,7 +112,6 @@ class PrivateTemplateGenerator
         /** @var PrivateCustomer $customer */
         $i = 0;
         foreach ($customers as $customer) {
-
             /** @var PrivateCostCenter $costCenter */
             $costCenters = $customer->costCenters()->get();
             if (!count($costCenters)) {
@@ -133,6 +132,7 @@ class PrivateTemplateGenerator
                 ];
                 $prebuilds = $costCenter->assets()->get();
                 $totalPrebuilds = count($prebuilds);
+
                 $templateProcessor->cloneBlock('PREBUILDS_BLOCK', $totalPrebuilds, 1);
                 $templateProcessor->cloneBlock('PREBUILDS_BLOCK#' . $i, $totalPrebuilds, 1);
                 if ($isProject && count($prebuilds)) {
@@ -153,6 +153,12 @@ class PrivateTemplateGenerator
                         !$isDiscount
                             ? number_format((float)TemplateGenerator::getCorrectString($prebuild->qty), 2)
                             : '';
+                    if ($isDiscount) {
+                        $unit = $prebuild->inc_tax;
+                        $total = floor($unit * 1.2 * 100) / 100;
+                        $prebuild->inc_tax = $total;
+                        $prebuild->ex_tax = $unit;
+                    }
                     $prebuildsValues['ex_tax'][] = $prebuildValues['ex_tax'] = number_format(
                         (float)TemplateGenerator::getCorrectString($prebuild->ex_tax),
                         2
@@ -165,8 +171,9 @@ class PrivateTemplateGenerator
                         (float)TemplateGenerator::getCorrectString($prebuild->inc_tax - $prebuild->ex_tax),
                         2
                     );
+
+                    $prebuildsValues['sum_inc_tax'] += ($isDiscount ? -1 : 1) *  $prebuild->inc_tax;
                     $prebuildsValues['sum_ex_tax'] += ($isDiscount ? -1 : 1) * $prebuild->ex_tax;
-                    $prebuildsValues['sum_inc_tax'] += ($isDiscount ? -1 : 1) * $prebuild->inc_tax;
 
                     $this->fillPrebuildRaw($templateProcessor, $prebuildValues, $i);
                 }

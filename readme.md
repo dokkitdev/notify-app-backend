@@ -647,4 +647,13 @@ for PHP Word start to wok Make changes in vendor
         
                 return substr($this->tempDocumentMainPart, $startPosition, ($endPosition - $startPosition));
             }
+            protected function indexClonedVariables($count, $xmlBlock)
+                {
+                    $results = array();
+                    for ($i = 1; $i <= $count; $i++) {
+                        $results[] = preg_replace('/\$\{(.*?)\}/', '\${\\1#' . $i . '}', $xmlBlock);
+                    }
+                    return $results;
+                }
+
         }
