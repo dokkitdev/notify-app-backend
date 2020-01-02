@@ -18,20 +18,21 @@ class NewPrivateUpload
 
     public function startToParse(): void
     {
-
-        try {
-
-            $nextRecurringDate = \DateTime::createFromFormat('Y-m-d', '2020-01-27');
+        foreach ([
+                     \DateTime::createFromFormat('Y-m-d', '2020-01-29'),
+                     \DateTime::createFromFormat('Y-m-d', '2020-01-28'),
+                     \DateTime::createFromFormat('Y-m-d', '2020-01-27'),
+                 ] as $nextRecurringDate) {
             $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
-        } catch (\Exception $e) {
-            dump($e->getMessage());
-            exit(1);
+            $pages = $this->simpro->getRequestPage(
+                'get',
+                "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}"
+            );
+            foreach ($pages as $page) {
+                $this->parseRecurringPage($page);
+            }
         }
-        dump($nextRecurringDate);
-        $pages = $this->simpro->getRequestPage('get', "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}");
-        foreach ($pages as $page) {
-            $this->parseRecurringPage($page);
-        }
+
     }
 
     public function parseRecurringPage($page): void
@@ -56,7 +57,7 @@ class NewPrivateUpload
     public function processRecurringInvoice($recurringInvoice): void
     {
         $recurringInvoiceId = $recurringInvoice->ID;
-        if ($recurringInvoiceId !== 1623) {
+        if ($recurringInvoiceId !== 1623 || $recurringInvoiceId !== 4153 || $recurringInvoiceId !== 4154) {
             dump('not 1623');
 
             return;
@@ -220,15 +221,18 @@ class NewPrivateUpload
     ): void
     {
         $recurringInvoiceId = $recurringInvoice->ID;
+        $sectionId = $section->ID;
+        $sectionName = $section->Name;
 
         $cc = $privateCustomer->costCenters()->create([
             'name' => $costCenter->CostCenter->Name ?? null,
             'ex_tax' => $costCenter->Total->ExTax ?? null,
             'tax' => $costCenter->Total->Tax ?? null,
             'inc_tax' => $costCenter->Total->IncTax ?? null,
+            'section_id' => $sectionId,
+            'section_name' => $sectionName,
         ]);
-        $sectionId = $section->ID;
-        $sectionName = $section->Name;
+
         $costCenterId = $costCenter->ID;
         $catalogs = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}/catalogs/");
         $this->createAssets(
@@ -263,7 +267,7 @@ class NewPrivateUpload
         dump('offs', $offs, 'catalogs', $catalogs, 'Discount', $costCenter->Totals->Discount);
         $exTax = $costCenter->Totals->Discount ?? 0; //3.02
         if ($exTax) {
-            $incTax  = floor($exTax * 1.2 * 100) / 100;
+            $incTax = $exTax + Round($exTax * 0.2, 2);
             $asset = $privateCustomer->assets()->create([
                 'section_id' => $sectionId,
                 'section_name' => $sectionName,

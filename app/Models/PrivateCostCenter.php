@@ -16,6 +16,8 @@ class PrivateCostCenter extends Model
     protected $table = 'new_private_cost_centers';
     protected $fillable = [
         'name',
+        'section_id',
+        'section_name',
         'ex_tax',
         'tax',
         'inc_tax',

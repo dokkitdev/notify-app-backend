@@ -111,6 +111,7 @@ class PrivateTemplateGenerator
         ];
         /** @var PrivateCustomer $customer */
         $i = 0;
+        $previousSectionId = null;
         foreach ($customers as $customer) {
             /** @var PrivateCostCenter $costCenter */
             $costCenters = $customer->costCenters()->get();
@@ -132,9 +133,23 @@ class PrivateTemplateGenerator
                 ];
                 $prebuilds = $costCenter->assets()->get();
                 $totalPrebuilds = count($prebuilds);
-
+                $isNeedSection = (($previousSectionId === null && $costCenter->section_id !== null)
+                    || $previousSectionId !== $costCenter->section_id) && $customer->recurring_type == PrivateCustomer::PROJECT;
+                if ($isNeedSection) {
+                    $totalPrebuilds++;
+                    $previousSectionId = $costCenter->section_id;
+                }
                 $templateProcessor->cloneBlock('PREBUILDS_BLOCK', $totalPrebuilds, 1);
                 $templateProcessor->cloneBlock('PREBUILDS_BLOCK#' . $i, $totalPrebuilds, 1);
+                if ($isNeedSection) {
+                    $prebuildValues = [];
+                    $prebuildValues['name'] = $costCenter->section_name;
+                    $prebuildValues['qty'] = '';
+                    $prebuildValues['ex_tax'] = '';
+                    $prebuildValues['inc_tax'] = '';
+                    $prebuildValues['tax'] = '';
+                    $this->fillPrebuildRaw($templateProcessor, $prebuildValues, $i);
+                }
                 if ($isProject && count($prebuilds)) {
                     $firstAsset = $prebuilds->first();
                     $prebuildsValues['name'][] = $firstAsset['section_name'];
@@ -153,12 +168,7 @@ class PrivateTemplateGenerator
                         !$isDiscount
                             ? number_format((float)TemplateGenerator::getCorrectString($prebuild->qty), 2)
                             : '';
-                    if ($isDiscount) {
-                        $unit = $prebuild->ex_tax;
-                        $total = floor($unit * 1.2 * 100) / 100;
-                        $prebuild->inc_tax = $total;
-                        $prebuild->ex_tax = $unit;
-                    }
+
                     $prebuildsValues['ex_tax'][] = $prebuildValues['ex_tax'] = number_format(
                         (float)TemplateGenerator::getCorrectString($prebuild->ex_tax),
                         2
