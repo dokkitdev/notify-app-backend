@@ -21,7 +21,7 @@ class NewPrivateUpload
 
         try {
 
-            $nextRecurringDate = \DateTime::createFromFormat('Y-m-d', '2020-01-03');
+            $nextRecurringDate = \DateTime::createFromFormat('Y-m-d', '2020-01-27');
             $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
         } catch (\Exception $e) {
             dump($e->getMessage());
@@ -56,7 +56,11 @@ class NewPrivateUpload
     public function processRecurringInvoice($recurringInvoice): void
     {
         $recurringInvoiceId = $recurringInvoice->ID;
+        if ($recurringInvoiceId !== 1623) {
+            dump('not 1623');
 
+            return;
+        }
         $recurringInvoice = $this->simpro->getRequest('get', '/api/v1.0/companies/0/recurringInvoices/' . $recurringInvoiceId);
         dump('start to parse' . $recurringInvoiceId);
         if (!$recurringInvoice) {
@@ -257,9 +261,9 @@ class NewPrivateUpload
         );
         $costCenter = $this->simpro->getRequest('get', "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}");
         dump('offs', $offs, 'catalogs', $catalogs, 'Discount', $costCenter->Totals->Discount);
-        $incTax = $costCenter->Totals->Discount ?? 0;
-        if ($incTax) {
-            $exTax = ceil($incTax * 0.8 * 100) / 100;
+        $exTax = $costCenter->Totals->Discount ?? 0; //3.02
+        if ($exTax) {
+            $incTax  = floor($exTax * 1.2 * 100) / 100;
             $asset = $privateCustomer->assets()->create([
                 'section_id' => $sectionId,
                 'section_name' => $sectionName,

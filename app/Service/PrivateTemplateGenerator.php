@@ -154,7 +154,7 @@ class PrivateTemplateGenerator
                             ? number_format((float)TemplateGenerator::getCorrectString($prebuild->qty), 2)
                             : '';
                     if ($isDiscount) {
-                        $unit = $prebuild->inc_tax;
+                        $unit = $prebuild->ex_tax;
                         $total = floor($unit * 1.2 * 100) / 100;
                         $prebuild->inc_tax = $total;
                         $prebuild->ex_tax = $unit;
