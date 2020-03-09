@@ -35,6 +35,7 @@ class PrivateCustomer extends Model
         'is_company',
         'period',
         'direct_date',
+        'direct_month',
         'payer_reference',
         'payer_account_name',
         'type',

@@ -37,6 +37,12 @@
             <span>Warehouse</span>
         </a>
     </li>
+    <li class="nav-item {!! Route::current()->getName() == 'parsing_logs.all' ? 'active' : '' !!}">
+        <a class="nav-link" href="{{ route('parsing_logs.all') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Parsing logs</span>
+        </a>
+    </li>
     @if(Auth::user()->role=='admin')
         <li class="nav-item
                         @if(Request::is('admin/template*')||Request::is('admin/housing*'))

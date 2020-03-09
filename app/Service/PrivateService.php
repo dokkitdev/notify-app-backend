@@ -57,10 +57,8 @@ class PrivateService
                 continue;
             }
             dump('------- START ------');
-            if (!$customer->is_processed || !$customer->pdf) {
-                self::generateFilesForCustomer($customer);
-                self::setIsProcessed($customer);
-            }
+            self::generateFilesForCustomer($customer, true);
+            self::setIsProcessed($customer);
             dump('------ END   ------');
             $pdf = $customer->pdf;
             if (!file_exists($pdfFolder . $pdf)) {
@@ -101,13 +99,15 @@ class PrivateService
     }
 
 
-    static function generateFilesForCustomer($customer)
+    static function generateFilesForCustomer($customer, $isUpload = true)
     {
         $generator = new PrivateTemplateGenerator();
         $docx = $generator->generateDocx($customer);
         $pdf = TemplateGenerator::sGeneratePdfFromDocx($docx);
-        $sim = new simProRequestService();
-        $sim->uploadNewPrivate($customer, $pdf);
+        if ($isUpload) {
+            $sim = new simProRequestService();
+            $sim->uploadNewPrivate($customer, $pdf);
+        }
         $customer->docx = $docx;
         $customer->pdf = $pdf;
         $customer->save();

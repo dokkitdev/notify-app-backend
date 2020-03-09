@@ -2,7 +2,7 @@
 /* test routes start*/
 Route::get('/1', 'TestController@index');
 /* test routes end*/
- 
+
 /* CRON routes start*/
 Route::get('/importCustomers/{id}', 'ImportCustomersController@index');
 Route::get('/importJobs/{id}', 'ImportJobsController@index');
@@ -78,6 +78,13 @@ Route::group(['middleware' => ['CheckAdmin']], function () {
         Route::get('/{id}/view', 'Admin\\HousingController@viewPdf')->name('housing.view');
         Route::post('/generate', 'Admin\\HousingController@generate')->name('housing.generate');
         Route::get('/import', 'Admin\\HousingController@import')->name('housing.import');
+    });
+
+    Route::group(['prefix' => '/parsing-logs'], function () {
+        Route::get('/', 'Admin\\ParsingLogsController@index')->name('parsing_logs.all');
+//        Route::get('/{id}/view', 'Admin\\HousingController@viewPdf')->name('housing.view');
+//        Route::post('/generate', 'Admin\\HousingController@generate')->name('housing.generate');
+//        Route::get('/import', 'Admin\\HousingController@import')->name('housing.import');
     });
 
     Route::group(['prefix' => '/private'], function () {

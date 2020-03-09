@@ -58,7 +58,7 @@ class NewPrivateController extends Controller
         if (!$customer) {
             return redirect()->route('private.all');
         }
-        PrivateService::generateFilesForCustomer($customer);
+        PrivateService::generateFilesForCustomer($customer, false);
 
         $pdf = $customer->pdf;
         $pdfFolder = Config::get('constants.storage_pdf');

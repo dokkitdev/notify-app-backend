@@ -9,6 +9,7 @@
 namespace App\Service\Upload;
 
 
+use App\Models\ParsingLog;
 use App\Models\ReportRow;
 use App\Service\simProRequestService;
 
@@ -16,6 +17,11 @@ class ReportUpload
 {
     /** @var simProRequestService */
     private $simpro;
+
+    private $totalCount = 0;
+    private $totalSuccess = 0;
+    private $reasons = [];
+    private $ids = [];
 
     public function __construct()
     {
@@ -27,11 +33,24 @@ class ReportUpload
     {
         $todayDate = new \DateTime('-2 day');
         $this->currentDate = new \DateTime();
-
         $schedulesUrls = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/schedules/?Type=job&Date=' . $todayDate->format('Y-m-d'));
+        $this->totalCount = $this->simpro->result_count;
+        $this->totalSuccess = 0;
+        $this->reasons = [];
+        $this->ids = [];
         foreach ($schedulesUrls as $url) {
             $this->getSchedulesByUrl($url);
         }
+        ParsingLog::create(
+            [
+                'type' => ParsingLog::WAREHOUSE_TYPE,
+                'total_count' => $this->totalCount,
+                'total_success' => $this->totalSuccess,
+                'reasons' => $this->reasons,
+                'ids' => $this->ids,
+                'parsing_date' => $todayDate->format('Y-m-d'),
+            ]
+        );
     }
 
     protected $currentDate;
@@ -65,13 +84,17 @@ class ReportUpload
             return;
         }
 
+        $this->ids[] = $job_id;
+
         $stage = $job->Stage;
         if ($stage != 'Pending' && $stage != 'Progress') {
+            $this->reasons[] = 'Job "' . $job_id . '". Stage is not Pending or Progress';
             return;
         }
 
         $sections = $job->Sections ?? null;
         if (!$sections || count($sections) < 1) {
+            $this->reasons[] = 'Job "' . $job_id . '" has not Sections';
             return;
         }
 
@@ -123,6 +146,7 @@ class ReportUpload
         $storage_location
     )
     {
+        $this->totalSuccess++;
         $reportRow = ReportRow::where('part_no', $catalog->Catalog->PartNo)
             ->where('site_name', $job->Site->Name)
             ->where('engineer', $schedule->Staff->Name)
@@ -141,7 +165,7 @@ class ReportUpload
                 'assigned' => $catalog->Quantity->Assigned,
                 'job_date' => $this->currentDate->format('Y-m-d H:i:s'),
             ]);
-        }   
+        }
 
     }
 
