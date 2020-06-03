@@ -11,11 +11,16 @@ namespace App\Service\Upload;
 
 use App\Models\ReportRow;
 use App\Service\simProRequestService;
+use App\Models\ParsingLog;
 
 class ReportUpload
 {
     /** @var simProRequestService */
     private $simpro;
+private $totalCount = 0;
+    private $totalSuccess = 0;
+    private $reasons = [];
+    private $ids = [];
 
     public function __construct()
     {
@@ -29,9 +34,23 @@ class ReportUpload
         $this->currentDate = new \DateTime();
 
         $schedulesUrls = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/schedules/?Type=job&Date=' . $todayDate->format('Y-m-d'));
+$this->totalCount = $this->simpro->result_count;
+        $this->totalSuccess = 0;
+        $this->reasons = [];
+        $this->ids = [];
         foreach ($schedulesUrls as $url) {
             $this->getSchedulesByUrl($url);
         }
+ParsingLog::create(
+            [
+                'type' => ParsingLog::WAREHOUSE_TYPE,
+                'total_count' => $this->totalCount,
+                'total_success' => $this->totalSuccess,
+                'reasons' => $this->reasons,
+                'ids' => $this->ids,
+                'parsing_date' => $todayDate->format('Y-m-d'),
+            ]
+        );
     }
 
     protected $currentDate;
@@ -41,9 +60,23 @@ class ReportUpload
         $this->currentDate = $datetime;
         dump('/api/v1.0/companies/0/schedules/?Type=job&Date=' . $datetime->format('Y-m-d'));
         $schedulesUrls = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/schedules/?Type=job&Date=' . $datetime->format('Y-m-d'));
+$this->totalCount = $this->simpro->result_count;
+        $this->totalSuccess = 0;
+        $this->reasons = [];
+        $this->ids = [];
         foreach ($schedulesUrls as $url) {
             $this->getSchedulesByUrl($url);
         }
+ParsingLog::create(
+            [
+                'type' => ParsingLog::WAREHOUSE_TYPE,
+                'total_count' => $this->totalCount,
+                'total_success' => $this->totalSuccess,
+                'reasons' => $this->reasons,
+                'ids' => $this->ids,
+                'parsing_date' => $datetime->format('Y-m-d'),
+            ]
+        );
     }
 
     public function getSchedulesByUrl($url)
@@ -59,22 +92,24 @@ class ReportUpload
     public function parseSchedule($schedule)
     {
         $job_id = array_first(explode('-', $schedule->Reference));
-
         $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_id . '?display=all');
         if (!$job) {
             return;
         }
+        $this->ids[] = $job_id;
 
         $stage = $job->Stage;
         if ($stage != 'Pending' && $stage != 'Progress') {
+            $this->reasons[] = 'Job "' . $job_id . '". Stage is not Pending or Progress';
             return;
         }
 
         $sections = $job->Sections ?? null;
         if (!$sections || count($sections) < 1) {
-            return;
+                    $this->reasons[] = 'Job "' . $job_id . '" has not Sections';   
+	 return;
         }
-
+        $this->totalSuccess++;
         foreach ($sections as $section) {
             $cost_centers = $section->CostCenters ?? null;
             if (!$cost_centers || !is_array($cost_centers)) {

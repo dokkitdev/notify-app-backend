@@ -78,7 +78,7 @@ class AppointmentsChlController extends Controller
                 'letters_generated' => 0,
                 'email_generated' => 0,
             ]);
-            if ($countAppointment > 15) {
+            if ($countAppointment >= 1) {
                 foreach ($appointments as $appointment) {
                     $appointment = Appointment::find($appointment);
                     if (!$appointment) {

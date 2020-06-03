@@ -12,6 +12,7 @@ namespace App\Service\Upload;
 use App\Models\HousingJob;
 use App\Service\simProRequestService;
 use Illuminate\Support\Facades\DB;
+use App\Models\ParsingLog;
 
 class HousingUpload
 {
@@ -23,6 +24,11 @@ class HousingUpload
     private $simpro;
 
     private $yesterday;
+private $totalCount;
+    private $totalSuccess;
+    private $reasons = [];
+    private $ids = [];
+
 
     public function __construct($yesterday)
     {
@@ -33,12 +39,26 @@ class HousingUpload
     public function run()
     {
         $result = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/jobs/?Customer.ID=in(11851)&Tags.ID=in(54,55,56)');
+	$this->totalCount = $this->simpro->result_count;
+        $this->totalSuccess = 0;
+        $this->reasons = [];
+        $this->ids = [];
         if ($result) {
             foreach ($result as $url) {
                 dump('getPageByUrl');
                 $this->getPageByUrl($url);
             }
         }
+	ParsingLog::create(
+            [
+                'type' => ParsingLog::HOUSING_TYPE,
+                'total_count' => $this->totalCount,
+                'total_success' => $this->totalSuccess,
+                'reasons' => $this->reasons,
+                'ids' => $this->ids,
+                'parsing_date' => $this->yesterday,
+            ]
+        );
 
 //        DB::delete('TRUNCATE `n_housing_job`;');
 
@@ -50,6 +70,7 @@ class HousingUpload
         if ($jobs) {
             foreach ($jobs as $job_info) {
                 dump('parseJob');
+                $this->ids[] = $job_info->ID;
                 $this->parseJob($job_info);
             }
         }
@@ -60,6 +81,7 @@ class HousingUpload
         $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_info->ID . '?display=all');
         if ($job && $job->Customer->ID != 11514 && $job->Customer->ID != 11851) {
             dump("Customer id not in (11514, 11851) " . $job->Customer->ID);
+            $this->reasons[] = "Customer \"".$job->Customer->ID."\" not in (11514, 11851)";
             return;
         }
         if (($job->Stage == 'Progress' || $job->Stage == 'Pending')) {
@@ -72,6 +94,7 @@ class HousingUpload
                     $h->delete();
                 }
             }
+            $this->reasons[] = "Job \"".$job->ID."\" is not progress or pending";
         }
     }
 
@@ -81,6 +104,7 @@ class HousingUpload
         $site_id = $job->Site->ID ?? null;
         if (!$site_id) {
             dump('noo site id');
+            $this->reasons[] = "Job \"".$job->ID."\" has not site id";
             return;
         }
         $tag_selected = null;
@@ -105,6 +129,7 @@ class HousingUpload
         }
 
         if (!$tag_selected) {
+            $this->reasons[] = "Job \"".$job->ID."\" has not valid tag";
             dump('noo tag selected');
             return;
         }
@@ -117,6 +142,7 @@ class HousingUpload
                 $date = \DateTime::createFromFormat('Y-m-d H:i:s', $housingJob->schedule_date);
                 $date = $date ? $date->format('Y-m-d') : Date('Y-m-d');
             } else {
+                $this->reasons[] = "Job \"".$job->ID."\" with tag no access 2, has not previous housing job";
                 return;
             }
             $schedule->Date = $date;
@@ -127,6 +153,7 @@ class HousingUpload
         $costCenterId = $job->Sections[0]->CostCenters[0]->ID ?? null;
         $schedule = $this->simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Type=job&Reference=' . $job->ID . '-' . $costCenterId . '&Date=' . $this->yesterday);
         if (sizeOf($schedule) < 1) {
+            $this->reasons[] = "Job \"".$job->ID."\" has 0 schedules";
             return;
         }
         $site = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/' . $site_id);
@@ -143,7 +170,8 @@ class HousingUpload
         dump($schedule->Date);
         if ($housingJob) {
             if (($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) || !empty($schedule->Is11851)) {
-                $housingJob->job_id = $job->ID;
+                                $this->totalSuccess++;
+		$housingJob->job_id = $job->ID;
                 $housingJob->order_no = $job->OrderNo;
                 $housingJob->company_name = $job->Customer->CompanyName;
                 $housingJob->due_date = $job->DueDate ? (\DateTime::createFromFormat('Y-m-d', $job->DueDate) ?? $housingJob->due_date) : $housingJob->due_date;
@@ -169,7 +197,8 @@ class HousingUpload
             }
         } else {
             if (($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) || !empty($schedule->Is11851)) {
-                $housingJob = \App\Models\HousingJob::create([
+                                $this->totalSuccess++;
+$housingJob = \App\Models\HousingJob::create([
                     'job_id' => $job->ID,
                     'order_no' => $job->OrderNo,
                     'company_name' => $job->Customer->CompanyName,

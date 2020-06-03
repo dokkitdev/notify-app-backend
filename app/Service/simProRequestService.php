@@ -22,6 +22,7 @@ class simProRequestService
 {
     private $token = 'e929be7849b90e553082e592552739082c7614ab';
     const API_URL = 'https://blueflamecornwallltd.simprocloud.com';
+    public $result_count;
 
 
     public function __construct()
@@ -67,6 +68,9 @@ class simProRequestService
         if ($res) {
             $headers = $res->getHeaders();
             $urls[] = $url;
+	    if (isset($headers['Result-Total'][0])) {
+                $this->result_count = $headers['Result-Total'][0];
+            }
             if (isset($headers['Result-Pages'][0]) && $headers['Result-Pages'][0] > 1) {
                 for ($i = 2; $i < $headers['Result-Pages'][0] + 1; $i++) {
 

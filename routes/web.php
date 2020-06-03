@@ -80,6 +80,13 @@ Route::group(['middleware' => ['CheckAdmin']], function () {
         Route::get('/import', 'Admin\\HousingController@import')->name('housing.import');
     });
 
+Route::group(['prefix' => '/parsing-logs'], function () {
+        Route::get('/', 'Admin\\ParsingLogsController@index')->name('parsing_logs.all');
+//        Route::get('/{id}/view', 'Admin\\HousingController@viewPdf')->name('housing.view');
+//        Route::post('/generate', 'Admin\\HousingController@generate')->name('housing.generate');
+//        Route::get('/import', 'Admin\\HousingController@import')->name('housing.import');
+    });
+
     Route::group(['prefix' => '/private'], function () {
         Route::get('/', 'Admin\\NewPrivateController@index')->name('private.all');
         Route::get('/debit', 'Admin\\NewPrivateController@debitIndex')->name('private.debit');

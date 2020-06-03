@@ -57,10 +57,8 @@ class PrivateService
                 continue;
             }
             dump('------- START ------');
-            if (!$customer->is_processed || !$customer->pdf) {
-                self::generateFilesForCustomer($customer);
+                self::generateFilesForCustomer($customer, true);
                 self::setIsProcessed($customer);
-            }
             dump('------ END   ------');
             $pdf = $customer->pdf;
             if (!file_exists($pdfFolder . $pdf)) {
@@ -84,14 +82,15 @@ class PrivateService
         return $file;
     }
 
-    public static function setIsProcessed($customer)
+public static function setIsProcessed($customer)
     {
-        if (!$customer->type == PrivateCustomer::ANNUAL) {
+        if ($customer->type == PrivateCustomer::DEBIT) {
             $customer->is_processed = 1;
             $customer->save();
         } else {
             $annualCustomers = PrivateCustomer::where('customer_id', $customer->customer_id)
                 ->where('next_recurring_date', $customer->next_recurring_date)
+                ->where('type', PrivateCustomer::ANNUAL)
                 ->get();
             foreach ($annualCustomers as $annualCustomer) {
                 $annualCustomer->is_processed = 1;
@@ -100,15 +99,16 @@ class PrivateService
         }
     }
 
-
-    static function generateFilesForCustomer($customer)
+    static function generateFilesForCustomer($customer, $isUpload = true)
     {
         $generator = new PrivateTemplateGenerator();
         $docx = $generator->generateDocx($customer);
         $pdf = TemplateGenerator::sGeneratePdfFromDocx($docx);
-        $sim = new simProRequestService();
-        $sim->uploadNewPrivate($customer, $pdf);
-        $customer->docx = $docx;
+	if ($isUpload) {
+        	$sim = new simProRequestService();
+        	$sim->uploadNewPrivate($customer, $pdf);
+        }
+	$customer->docx = $docx;
         $customer->pdf = $pdf;
         $customer->save();
     }

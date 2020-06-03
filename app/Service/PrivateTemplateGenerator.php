@@ -38,8 +38,8 @@ class PrivateTemplateGenerator
             $templateProcessor->cloneBlock('SITE_BLOCK', 0);
 
             $costCentersCount = 0;
-            foreach ($customers as $customer) {
-                $costCentersCount += $customer->costCenters()->count();
+            foreach ($customers as $c) {
+                $costCentersCount += $c->costCenters()->count();
             }
             $templateProcessor->cloneBlock('PROJECT_BLOCK', $costCentersCount, 1, true);
             $templateProcessor->cloneBlock('FINALS', 1);
@@ -81,7 +81,7 @@ class PrivateTemplateGenerator
             );
         $today = new \DateTime();
         $name = $isDebit ? 'Debit' : 'Annual';
-        $newFile = $customer->customer_id . '.' . $name . '.' . $today->format('Y-m-d') . '.docx';
+	$newFile = $customer->customer_id . '.' . $name . '.' . $today->format('Y-m-d') . '.' . $customer->recurring_invoice_id . '.docx';
 
         if ($customer->docx) {
             $oldFile = $docxFolder . '/' . $customer->docx;
@@ -143,7 +143,7 @@ class PrivateTemplateGenerator
                 $templateProcessor->cloneBlock('PREBUILDS_BLOCK#' . $i, $totalPrebuilds, 1);
                 if ($isNeedSection) {
                     $prebuildValues = [];
-                    $prebuildValues['name'] = $costCenter->section_name;
+                    $prebuildValues['name'] = TemplateGenerator::getCorrectString($costCenter->section_name);
                     $prebuildValues['qty'] = '';
                     $prebuildValues['ex_tax'] = '';
                     $prebuildValues['inc_tax'] = '';
@@ -152,7 +152,7 @@ class PrivateTemplateGenerator
                 }
                 if ($isProject && count($prebuilds)) {
                     $firstAsset = $prebuilds->first();
-                    $prebuildsValues['name'][] = $firstAsset['section_name'];
+                    $prebuildsValues['name'][] = TemplateGenerator::getCorrectString($firstAsset['section_name']);
                     $prebuildsValues['qty'][] = '';
                     $prebuildsValues['ex_tax'][] = '';
                     $prebuildsValues['inc_tax'][] = '';

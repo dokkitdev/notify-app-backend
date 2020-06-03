@@ -12,6 +12,7 @@ namespace App\Service\Upload;
 use App\Appointment;
 use App\Jobs\HousingJob;
 use App\Models\AppointmentProcessed;
+use App\Models\ParsingLog;
 use App\Service\simProRequestService;
 use App\Service\simProService;
 use App\Templates;
@@ -24,6 +25,10 @@ class JobUpload
     private $simpro;
 
     const COASTLINE = 11514;
+ private $totalCount;
+    private $totalSuccess;
+    private $reasons = [];
+    private $ids = [];
 
     public function __construct()
     {
@@ -33,7 +38,7 @@ class JobUpload
     public function run()
     {
         DB::delete('DELETE FROM appointments WHERE id > 0;');
-        $begin = new \DateTime('+3 day');
+        $begin = new \DateTime('-10 day'); //+3 day
         $end = new \DateTime('+19 day');
 
         $interval = \DateInterval::createFromDateString('1 day');
@@ -42,11 +47,25 @@ class JobUpload
 
         foreach ($period as $dt) {
             $result = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/schedules/?Type=job&Date=' . $dt->format('Y-m-d'));
+$this->totalCount = $this->simpro->result_count ?: 0;
+            $this->totalSuccess = 0;
+            $this->reasons = [];
+            $this->ids = [];
             if ($result) {
                 foreach ($result as $url) {
                     $this->getPageByNumber($url);
                 }
             }
+ParsingLog::create(
+                [
+                    'type' => ParsingLog::APPOINTMENTS_CHL_TYPE,
+                    'total_count' => $this->totalCount,
+                    'total_success' => $this->totalSuccess,
+                    'reasons' => $this->reasons,
+                    'ids' => $this->ids,
+                    'parsing_date' => $dt->format('Y-m-d'),
+                ]
+            );
         }
         $this->clearDublicates();
     }
@@ -62,8 +81,10 @@ class JobUpload
 
     public function parseSchedule($job_scheduler)
     {
+        $this->ids[] = $job_scheduler->ID;
         dump('parseSchedule ' . $job_scheduler->ID);
         if (!isset($job_scheduler->Reference)) {
+            $this->reasons[] = 'Job "' . $job_scheduler->ID . '" has no Reference';
             dump('no reference');
             return;
         }
@@ -78,6 +99,7 @@ class JobUpload
 
         $site_id = $result_job->Site->ID ?? null;
         if (!$site_id) {
+            $this->reasons[] = 'Job "' . $job_scheduler->ID . '". Site id is null';
             dump('site_id null');
             return;
         }
@@ -113,6 +135,7 @@ class JobUpload
      */
     public function createAppointment($job_scheduler, $result_job, $site, $type = Appointment::NORMAL_TYPE, $letterType = null)
     {
+        $this->totalSuccess++;
         $date = $job_scheduler->Date;
         $blocks = $job_scheduler->Blocks;
         $time = $blocks[0]->StartTime;
