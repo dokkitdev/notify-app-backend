@@ -12,6 +12,7 @@ namespace App\Service\Upload;
 use App\Appointment;
 use App\Jobs\HousingJob;
 use App\Models\AppointmentProcessed;
+use App\Models\CostCenter;
 use App\Models\ParsingLog;
 use App\Service\simProRequestService;
 use App\Service\simProService;
@@ -108,15 +109,9 @@ class JobUpload
 
         if ($result_job->Customer->ID == self::COASTLINE) {
             $tag = $this->selectTag($result_job);
-            $letterType = Templates::APPOINTMENT_LETTER_CHL_1;
-            if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
-                $letterType = Templates::APPOINTMENT_LETTER_CHL_2;
-            } else if ($tag == HousingUpload::TAG_NO_ACCESSS_3) {
-                $letterType = Templates::APPOINTMENT_LETTER_CHL_3;
-            }
-
+            $letterType = $this->getLetterTypeByTagAndJob($tag, $result_job);
             $this->parseSite($job_scheduler, $result_job, $site_id, Appointment::CHL_TYPE, $letterType);
-        } else {
+        } elseif ($job_scheduler->Type == 'Service') {
             $this->parseSite($job_scheduler, $result_job, $site_id);
         }
 
@@ -305,5 +300,45 @@ LIMIT ' . ($row->total - 1) . ';', [
             }
         }
         return $tag_selected;
+    }
+
+    public function getLetterTypeByTagAndJob($tag, $job)
+    {
+        $costCenter = null;
+        $costCenterId = $job->Sections[0]->CostCenters[0]->CostCenter->ID ?? null;
+        if ($costCenterId) {
+            $costCenter = CostCenter::where('cost_center_id', $costCenterId)->first();
+        }
+
+        if ($costCenter && $costCenter->type == CostCenter::TYPE_ELECTRIC) {
+            $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1;
+            if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
+                $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2;
+            } else {
+                if ($tag == HousingUpload::TAG_NO_ACCESSS_3) {
+                    $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3;
+                }
+            }
+        } elseif ($costCenter && $costCenter->type == CostCenter::TYPE_GAS) {
+            $letterType = Templates::APPOINTMENT_LETTER_GAS_CHL_1;
+            if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
+                $letterType = Templates::APPOINTMENT_LETTER_GAS_CHL_2;
+            } else {
+                if ($tag == HousingUpload::TAG_NO_ACCESSS_3) {
+                    $letterType = Templates::APPOINTMENT_LETTER_GAS_CHL_3;
+                }
+            }
+        } else {
+            $letterType = Templates::APPOINTMENT_LETTER_CHL_1;
+            if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
+                $letterType = Templates::APPOINTMENT_LETTER_CHL_2;
+            } else {
+                if ($tag == HousingUpload::TAG_NO_ACCESSS_3) {
+                    $letterType = Templates::APPOINTMENT_LETTER_CHL_3;
+                }
+            }
+        }
+
+        return $letterType;
     }
 }

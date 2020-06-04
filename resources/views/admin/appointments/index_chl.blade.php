@@ -47,6 +47,16 @@
                         @endif
                     </a>
                 </th>
+                <th style="width: 5%;">
+                    <a href="{{ route('chl.appointments.all') }}?page=1&sort=letter_type&direction={{ request()->get('sort') == 'letter_type' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
+                        Letter Type
+                        @if (request()->get('sort') == 'letter_type')
+                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
+                        @else
+                            <i class="fas fa-sort"></i>
+                        @endif
+                    </a>
+                </th>
                 <th>
                     <a href="{{ route('chl.appointments.all') }}?page=1&sort=company_name&direction={{ request()->get('sort') == 'company_name' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
                         Company Name
@@ -131,7 +141,8 @@
                     <td>
                         <input type="checkbox" name="appointments[]" value="{!! $a->id !!}">
                     </td>
-                    <td>{!! $a->job_id !!} {{$a->letter_type}}</td>
+                    <td>{!! $a->job_id !!}</td>
+                    <td>{{$a->letter_type_name}}</td>
                     <td>{!! $a->company_name !!}</td>
                     <td>{!! $a->getContact() !!}</td>
                     <td>{!! $a->getAddress() !!}</td>

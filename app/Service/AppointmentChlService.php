@@ -103,6 +103,12 @@ class AppointmentChlService
             Templates::APPOINTMENT_LETTER_CHL_1 => null,
             Templates::APPOINTMENT_LETTER_CHL_2 => null,
             Templates::APPOINTMENT_LETTER_CHL_3 => null,
+            Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1 => null,
+            Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2 => null,
+            Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3 => null,
+            Templates::APPOINTMENT_LETTER_GAS_CHL_1 => null,
+            Templates::APPOINTMENT_LETTER_GAS_CHL_2 => null,
+            Templates::APPOINTMENT_LETTER_GAS_CHL_3 => null,
         ];
         foreach ($appointments as $letterType => $val) {
             if ($appointment->letter_type == $letterType) {

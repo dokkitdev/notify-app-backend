@@ -88,7 +88,7 @@ class AppointmentsController extends Controller
         $generator = new TemplateGenerator();
         $sim = new simProRequestService();
         if ($appointments && is_array($appointments)) {
-            if (count($appointments) > 15) {
+            if (count($appointments) >= 1) {
                 foreach ($appointments as $a) {
                     $appointment = Appointment::find($a);
                     $appointment->is_proccessed = true;

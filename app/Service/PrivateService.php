@@ -84,12 +84,13 @@ class PrivateService
 
     public static function setIsProcessed($customer)
     {
-        if (!$customer->type == PrivateCustomer::ANNUAL) {
+        if ($customer->type == PrivateCustomer::DEBIT) {
             $customer->is_processed = 1;
             $customer->save();
         } else {
             $annualCustomers = PrivateCustomer::where('customer_id', $customer->customer_id)
                 ->where('next_recurring_date', $customer->next_recurring_date)
+                ->where('type', PrivateCustomer::ANNUAL)
                 ->get();
             foreach ($annualCustomers as $annualCustomer) {
                 $annualCustomer->is_processed = 1;

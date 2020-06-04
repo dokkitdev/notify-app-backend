@@ -37,18 +37,22 @@
             <span>Warehouse</span>
         </a>
     </li>
-    <li class="nav-item {!! Route::current()->getName() == 'parsing_logs.all' ? 'active' : '' !!}">
-        <a class="nav-link" href="{{ route('parsing_logs.all') }}">
-            <i class="fas fa-fw fa-folder"></i>
-            <span>Parsing logs</span>
+    <li class="nav-item
+                    @if(Request::path() === 'logs')
+            active
+@endif
+            ">
+        <a class="nav-link" href="/logs">
+            <i class="fas fa-fw fa-table"></i>
+            <span>Logs</span>
         </a>
     </li>
     @if(Auth::user()->role=='admin')
         <li class="nav-item
                         @if(Request::is('admin/template*')||Request::is('admin/housing*'))
-                                        active
-                        @endif
-                        ">
+                active
+@endif
+                ">
             <a class="nav-link" href="/admin/templates">
                 <i class="fas fa-fw fa-envelope"></i>
                 <span>Templates</span>
@@ -56,24 +60,19 @@
         </li>
         <li class="nav-item
                         @if(Request::is('admin/users*'))
-                                        active
-                        @endif
-                        ">
+                active
+@endif
+                ">
             <a class="nav-link" href="/admin/users">
                 <i class="fas fa-fw fa-users-cog"></i>
                 <span>Users</span>
             </a>
         </li>
     @endif
-
-    <li class="nav-item
-                    @if(Request::path() === 'logs')
-                                active
-                    @endif
-                    ">
-        <a class="nav-link" href="/logs">
-            <i class="fas fa-fw fa-table"></i>
-            <span>Logs</span>
+    <li class="nav-item {!! Route::current()->getName() == 'parsing_logs.all' ? 'active' : '' !!}">
+        <a class="nav-link" href="{{ route('parsing_logs.all') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Parsing logs</span>
         </a>
     </li>
 

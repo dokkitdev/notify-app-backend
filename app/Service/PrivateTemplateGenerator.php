@@ -81,7 +81,9 @@ class PrivateTemplateGenerator
             );
         $today = new \DateTime();
         $name = $isDebit ? 'Debit' : 'Annual';
-        $newFile = $customer->customer_id . '.' . $name . '.' . $today->format('Y-m-d') . '.docx';
+        $newFile = $customer->customer_id.'.'.$name.'.'.$today->format(
+                'Y-m-d'
+            ).'.'.$customer->recurring_invoice_id.'.docx';
 
         if ($customer->docx) {
             $oldFile = $docxFolder . '/' . $customer->docx;
@@ -173,17 +175,20 @@ class PrivateTemplateGenerator
                         (float)TemplateGenerator::getCorrectString($prebuild->ex_tax),
                         2
                     );
+                    $tax = round($prebuild->ex_tax * 0.2, 2);
                     $prebuildsValues['inc_tax'][] = $prebuildValues['inc_tax'] = number_format(
-                        (float)TemplateGenerator::getCorrectString($prebuild->inc_tax),
+                        (float)TemplateGenerator::getCorrectString($tax + $prebuild->ex_tax),
                         2
                     );
                     $prebuildsValues['tax'][] = $prebuildValues['tax'] = number_format(
-                        (float)TemplateGenerator::getCorrectString($prebuild->inc_tax - $prebuild->ex_tax),
+                        (float)TemplateGenerator::getCorrectString($tax),
                         2
                     );
 
-                    $prebuildsValues['sum_inc_tax'] += ($isDiscount ? -1 : 1) *  $prebuild->inc_tax;
+                    $prebuildsValues['sum_inc_tax'] += ($isDiscount ? -1 : 1) * ($tax + $prebuild->ex_tax);
                     $prebuildsValues['sum_ex_tax'] += ($isDiscount ? -1 : 1) * $prebuild->ex_tax;
+                    $prebuildsValues['sum_tax'] += ($isDiscount ? -1 : 1) * $tax;
+
 
                     $this->fillPrebuildRaw($templateProcessor, $prebuildValues, $i);
                 }
@@ -209,7 +214,10 @@ class PrivateTemplateGenerator
             }
 
         }
-        $ddaAmount = $finalValues['sum_inc_tax'] / $customer->getPeriodInteger();
+        $ddaAmount = ($finalValues['sum_ex_tax'] + round(
+                    $finalValues['sum_ex_tax'] * 0.2,
+                    2
+                )) / $customer->getPeriodInteger();
         $this
             ->fillCostCenterFinal($templateProcessor, $finalValues)
             ->fillDdaAmount($templateProcessor, $ddaAmount);
@@ -219,9 +227,14 @@ class PrivateTemplateGenerator
 
     public function fillCostCenterFinal(TemplateProcessor $templateProcessor, $finalValues)
     {
+        $tax = round($finalValues['sum_ex_tax'] * 0.2, 2);
         $templateProcessor->setValue('FinalTotalExTax', TemplateGenerator::getFloatValue($finalValues['sum_ex_tax']), 1);
-        $templateProcessor->setValue('FinalTotalTax', TemplateGenerator::getFloatValue($finalValues['sum_tax']), 1);
-        $templateProcessor->setValue('FinalTotalIncTax', TemplateGenerator::getFloatValue($finalValues['sum_inc_tax']), 1);
+        $templateProcessor->setValue('FinalTotalTax', TemplateGenerator::getFloatValue($tax), 1);
+        $templateProcessor->setValue(
+            'FinalTotalIncTax',
+            TemplateGenerator::getFloatValue($finalValues['sum_ex_tax'] + $tax),
+            1
+        );
         return $this;
     }
 
@@ -328,14 +341,17 @@ class PrivateTemplateGenerator
     }
     public function fillPrebuilds(TemplateProcessor $templateProcessor, $prebuilds, $i)
     {
+
+        $tax = round($prebuilds['sum_ex_tax'] * 0.2, 2);
+        $incTax = $prebuilds['sum_ex_tax'] + $tax;
         $templateProcessor->setValue('TotalExTax', number_format((float)$prebuilds['sum_ex_tax'], 2), 1);
-        $templateProcessor->setValue('TotalIncTax', number_format((float)$prebuilds['sum_inc_tax'], 2), 1);
-        $templateProcessor->setValue('TotalTax', number_format((float)$prebuilds['sum_tax'], 2), 1);
+        $templateProcessor->setValue('TotalIncTax', number_format($incTax, 2), 1);
+        $templateProcessor->setValue('TotalTax', number_format($tax, 2), 1);
 
 
         $templateProcessor->setValue('TotalExTax#' . $i, number_format((float)$prebuilds['sum_ex_tax'], 2), 1);
-        $templateProcessor->setValue('TotalIncTax#' . $i, number_format((float)$prebuilds['sum_inc_tax'], 2), 1);
-        $templateProcessor->setValue('TotalTax#' . $i, number_format((float)$prebuilds['sum_tax'], 2), 1);
+        $templateProcessor->setValue('TotalIncTax#'.$i, number_format($incTax, 2), 1);
+        $templateProcessor->setValue('TotalTax#'.$i, number_format($tax, 2), 1);
 
         return $this;
     }

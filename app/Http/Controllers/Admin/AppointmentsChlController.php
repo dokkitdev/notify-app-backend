@@ -11,6 +11,7 @@ use App\Logs;
 use App\Models\AppointmentLogged;
 use App\Service\AppointmentChlService;
 use App\Service\Exceptions\MessageException;
+use App\Templates;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +35,39 @@ class AppointmentsChlController extends Controller
             ->paginate($limit);
 
         $today = new \DateTime();
+
+        foreach ($appointments as $appointment) {
+            switch ($appointment->letter_type) {
+                case Templates::APPOINTMENT_LETTER_CHL_1:
+                    $appointment->letter_type_name = 'O 1';
+                    break;
+                case Templates::APPOINTMENT_LETTER_CHL_2:
+                    $appointment->letter_type_name = 'O 2';
+                    break;
+                case Templates::APPOINTMENT_LETTER_CHL_3:
+                    $appointment->letter_type_name = 'O 3';
+                    break;
+                case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1:
+                    $appointment->letter_type_name = 'E 1';
+                    break;
+                case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2:
+                    $appointment->letter_type_name = 'E 2';
+                    break;
+                case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3:
+                    $appointment->letter_type_name = 'E 3';
+                    break;
+                case Templates::APPOINTMENT_LETTER_GAS_CHL_1:
+                    $appointment->letter_type_name = 'G 1';
+                    break;
+                case Templates::APPOINTMENT_LETTER_GAS_CHL_2:
+                    $appointment->letter_type_name = 'G 2';
+                    break;
+                case Templates::APPOINTMENT_LETTER_GAS_CHL_3:
+                    $appointment->letter_type_name = 'G 3';
+                    break;
+            }
+        }
+
         return view('admin.appointments.index_chl', [
             'appointments' => $appointments,
             'limit' => $limit,
@@ -78,7 +112,7 @@ class AppointmentsChlController extends Controller
                 'letters_generated' => 0,
                 'email_generated' => 0,
             ]);
-            if ($countAppointment > 15) {
+            if ($countAppointment >= 1) {
                 foreach ($appointments as $appointment) {
                     $appointment = Appointment::find($appointment);
                     if (!$appointment) {

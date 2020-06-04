@@ -155,7 +155,7 @@ class HousingUpload
         $costCenterId = $job->Sections[0]->CostCenters[0]->ID ?? null;
         $schedule = $this->simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Type=job&Reference=' . $job->ID . '-' . $costCenterId . '&Date=' . $this->yesterday);
         if (sizeOf($schedule) < 1) {
-            $this->reasons[] = "Job \"".$job->ID."\" has 0 chedules";
+            $this->reasons[] = "Job \"".$job->ID."\" has 0 schedules";
             return;
         }
         $site = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/' . $site_id);

@@ -22,6 +22,7 @@
     <!-- Custom styles for this template-->
     <link href="{{asset('css/sb-admin.css')}}" rel="stylesheet">
     <link href="{{asset('css/main.css')}}" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ asset('/images/favicon-32x32.png') }}">
 
 </head>
 

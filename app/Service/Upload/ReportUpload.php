@@ -60,9 +60,23 @@ class ReportUpload
         $this->currentDate = $datetime;
         dump('/api/v1.0/companies/0/schedules/?Type=job&Date=' . $datetime->format('Y-m-d'));
         $schedulesUrls = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/schedules/?Type=job&Date=' . $datetime->format('Y-m-d'));
+        $this->totalCount = $this->simpro->result_count;
+        $this->totalSuccess = 0;
+        $this->reasons = [];
+        $this->ids = [];
         foreach ($schedulesUrls as $url) {
             $this->getSchedulesByUrl($url);
         }
+        ParsingLog::create(
+            [
+                'type' => ParsingLog::WAREHOUSE_TYPE,
+                'total_count' => $this->totalCount,
+                'total_success' => $this->totalSuccess,
+                'reasons' => $this->reasons,
+                'ids' => $this->ids,
+                'parsing_date' => $datetime->format('Y-m-d'),
+            ]
+        );
     }
 
     public function getSchedulesByUrl($url)
@@ -83,8 +97,8 @@ class ReportUpload
         if (!$job) {
             return;
         }
-
         $this->ids[] = $job_id;
+
 
         $stage = $job->Stage;
         if ($stage != 'Pending' && $stage != 'Progress') {
@@ -97,7 +111,7 @@ class ReportUpload
             $this->reasons[] = 'Job "' . $job_id . '" has not Sections';
             return;
         }
-
+        $this->totalSuccess++;
         foreach ($sections as $section) {
             $cost_centers = $section->CostCenters ?? null;
             if (!$cost_centers || !is_array($cost_centers)) {
@@ -146,7 +160,6 @@ class ReportUpload
         $storage_location
     )
     {
-        $this->totalSuccess++;
         $reportRow = ReportRow::where('part_no', $catalog->Catalog->PartNo)
             ->where('site_name', $job->Site->Name)
             ->where('engineer', $schedule->Staff->Name)

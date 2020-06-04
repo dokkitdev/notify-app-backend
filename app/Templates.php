@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Templates extends Model
 {
+    const TABLE = 'template';
     protected $table = 'template';
     protected $fillable = ['term', 'title', 'tag', 'alias', 'html_body', 'html', 'subject', 'docx', 'pdf', 'is_html'];
 
@@ -24,6 +25,14 @@ class Templates extends Model
     const APPOINTMENT_LETTER_CHL_1 = 'APPOINTMENT_LETTER_CHL_1';
     const APPOINTMENT_LETTER_CHL_2 = 'APPOINTMENT_LETTER_CHL_2';
     const APPOINTMENT_LETTER_CHL_3 = 'APPOINTMENT_LETTER_CHL_3';
+
+    const APPOINTMENT_LETTER_ELECTRIC_CHL_1 = 'APPOINTMENT_LETTER_ELECTRIC_CHL_1';
+    const APPOINTMENT_LETTER_ELECTRIC_CHL_2 = 'APPOINTMENT_LETTER_ELECTRIC_CHL_2';
+    const APPOINTMENT_LETTER_ELECTRIC_CHL_3 = 'APPOINTMENT_LETTER_ELECTRIC_CHL_3';
+
+    const APPOINTMENT_LETTER_GAS_CHL_1 = 'APPOINTMENT_LETTER_GAS_CHL_1';
+    const APPOINTMENT_LETTER_GAS_CHL_2 = 'APPOINTMENT_LETTER_GAS_CHL_2';
+    const APPOINTMENT_LETTER_GAS_CHL_3 = 'APPOINTMENT_LETTER_GAS_CHL_3';
 
     public function parent()
     {

@@ -96,7 +96,7 @@ class HousingController extends Controller
         $generator = new TemplateGenerator();
         $sim = new simProRequestService();
         if ($housing && is_array($housing)) {
-            if (count($housing) > 15) {
+            if (count($housing) >= 1) {
                 foreach ($housing as $h) {
                     $hous = HousingJob::find($h);
                     $hous->is_proccessed = true;
