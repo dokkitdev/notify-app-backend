@@ -9,7 +9,7 @@
 @section('content')
     <h1>Templates</h1>
     @foreach ($templateParents as $parent)
-        <h2 class="pt-3">{!! $parent->title !!}</h2>
+        <h4 class="pt-3">{!! $parent->title !!}</h4>
         <div class="content">
             <table class="table table-bordered" style="table-layout: fixed;">
                 @foreach ($parent->templates as $t)

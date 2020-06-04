@@ -2,7 +2,7 @@
 
 @section('content')
         <h1>Templates</h1>
-        <h2 class="pt-3">Private</h2>
+        <h4 class="pt-3">Private</h4>
         @foreach ($templatesGroups as $tg)
             <div class="content">
                 <table class="table table-bordered">
@@ -32,7 +32,7 @@
 
     <div class="clearfix"></div>
 
-        <h2 class="pt-5">Housing Authorities</h2>
+        <h4 class="pt-5">Housing Authorities</h4>
         <div class="content">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
