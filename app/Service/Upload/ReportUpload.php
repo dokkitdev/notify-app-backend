@@ -17,7 +17,6 @@ class ReportUpload
 {
     /** @var simProRequestService */
     private $simpro;
-
     private $totalCount = 0;
     private $totalSuccess = 0;
     private $reasons = [];
@@ -92,13 +91,11 @@ class ReportUpload
     public function parseSchedule($schedule)
     {
         $job_id = array_first(explode('-', $schedule->Reference));
-
         $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_id . '?display=all');
         if (!$job) {
             return;
         }
         $this->ids[] = $job_id;
-
 
         $stage = $job->Stage;
         if ($stage != 'Pending' && $stage != 'Progress') {
@@ -108,7 +105,8 @@ class ReportUpload
 
         $sections = $job->Sections ?? null;
         if (!$sections || count($sections) < 1) {
-            $this->reasons[] = 'Job "' . $job_id . '" has not Sections';
+            $this->reasons[] = 'Job "'.$job_id.'" has not Sections';
+
             return;
         }
         $this->totalSuccess++;

@@ -15,7 +15,7 @@ class NewPrivateController extends Controller
 {
     public function index(Request $request)
     {
-        $limit = $request->get('limit') ?? 10;
+        $limit = $request->get('limit') ?? 20;
         $sort = $request->get('sort') ?: 'id';
         $direction = $request->get('direction') ?: 'asc';
         $customers = $this->getCustomers(PrivateCustomer::ANNUAL, $limit, $sort, $direction);

@@ -12,29 +12,39 @@ class NewPrivateUpload
     /** @var simProRequestService */
     private $simpro;
 
-    public function __construct()
-    {
-        $this->simpro = new simProRequestService();
-    }
-
     private $totalCount;
     private $totalSuccess;
     private $reasons = [];
     private $recurringIds = [];
 
+    public function __construct()
+    {
+        $this->simpro = new simProRequestService();
+    }
+
+
     public function startToParse(): void
     {
+
         foreach ([
+                     new \DateTime('+17 day'),
+                     new \DateTime('+18 day'),
+                     new \DateTime('+19 day'),
+                     new \DateTime('+20 day'),
+                     new \DateTime('+21 day'),
+                     new \DateTime('+22 day'),
+                     new \DateTime('+23 day'),
                      new \DateTime('+24 day'),
                      new \DateTime('+25 day'),
                      new \DateTime('+26 day'),
                      new \DateTime('+27 day'),
                      new \DateTime('+28 day'),
-                     new \DateTime('+29 day'),
-//                     \DateTime::createFromFormat('Y-m-d', '2020-02-20'),
+                     new \DateTime('+29 day')
+//	                     \DateTime::createFromFormat('Y-m-d', '2020-02-20'),
 
                  ] as $nextRecurringDate) {
             $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
+            dump($nextRecurringDate);
             $pages = $this->simpro->getRequestPage(
                 'get',
                 "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}"
@@ -89,6 +99,7 @@ class NewPrivateUpload
             'get',
             '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId
         );
+
         dump('start to parse' . $recurringInvoiceId);
         if (!$recurringInvoice) {
             $this->reasons[] = $recurringInvoiceId.'. No recurring invoice found';
@@ -134,7 +145,6 @@ class NewPrivateUpload
         if (!$customFieldValue) {
             $this->reasons[] = $recurringInvoiceId.'. No custom field found';
             dump('no custom field value for ' . $recurringInvoiceId);
-
             return;
         }
 
@@ -171,6 +181,7 @@ class NewPrivateUpload
             ->where('recurring_invoice_id', $recurringInvoiceId ?: 0)
             ->where('next_recurring_date', 'LIKE', $recurringDate->format('Y') . '%')
             ->count();
+        $this->totalSuccess++;
         if ($countCustomerForProvidedYear) {
             $this->totalSuccess++;
             dump('This recurring invoice for customer already exist ' . $recurringInvoiceId);

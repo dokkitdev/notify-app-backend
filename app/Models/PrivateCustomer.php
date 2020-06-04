@@ -42,6 +42,7 @@ class PrivateCustomer extends Model
         'is_processed',
         'docx',
         'pdf',
+        'direct_month',
     ];
     const ANNUAL = 'Annual payment';
     const DEBIT = 'Direct Debit';

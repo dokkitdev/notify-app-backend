@@ -99,7 +99,6 @@ class PrivateService
         }
     }
 
-
     static function generateFilesForCustomer($customer, $isUpload = true)
     {
         $generator = new PrivateTemplateGenerator();

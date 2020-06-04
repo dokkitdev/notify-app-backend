@@ -24,7 +24,6 @@ class HousingUpload
     private $simpro;
 
     private $yesterday;
-
     private $totalCount;
     private $totalSuccess;
     private $reasons = [];
@@ -50,6 +49,16 @@ class HousingUpload
                 $this->getPageByUrl($url);
             }
         }
+        ParsingLog::create(
+            [
+                'type' => ParsingLog::HOUSING_TYPE,
+                'total_count' => $this->totalCount,
+                'total_success' => $this->totalSuccess,
+                'reasons' => $this->reasons,
+                'ids' => $this->ids,
+                'parsing_date' => $this->yesterday,
+            ]
+        );
 
         ParsingLog::create(
             [
@@ -84,6 +93,7 @@ class HousingUpload
         if ($job && $job->Customer->ID != 11514 && $job->Customer->ID != 11851) {
             $this->reasons[] = "Customer \"".$job->Customer->ID."\" not in (11514, 11851)";
             dump("Customer id not in (11514, 11851) " . $job->Customer->ID);
+            $this->reasons[] = "Customer \"".$job->Customer->ID."\" not in (11514, 11851)";
             return;
         }
         if (($job->Stage == 'Progress' || $job->Stage == 'Pending')) {
@@ -105,8 +115,9 @@ class HousingUpload
     {
         $site_id = $job->Site->ID ?? null;
         if (!$site_id) {
+
+            dump('noo site id');
             $this->reasons[] = "Job \"".$job->ID."\" has not site id";
-            dump('no site id');
             return;
         }
         $tag_selected = null;
@@ -172,6 +183,7 @@ class HousingUpload
         dump($schedule->Date);
         if ($housingJob) {
             if (($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) || !empty($schedule->Is11851)) {
+
                 $this->totalSuccess++;
                 $housingJob->job_id = $job->ID;
                 $housingJob->order_no = $job->OrderNo;
@@ -199,8 +211,10 @@ class HousingUpload
             }
         } else {
             if (($scheduleDate && $scheduleDate->format('Y-m-d') <= $this->yesterday) || !empty($schedule->Is11851)) {
+
                 $this->totalSuccess++;
-                $housingJob = \App\Models\HousingJob::create([
+                $housingJob = \App\Models\HousingJob::create(
+                    [
                     'job_id' => $job->ID,
                     'order_no' => $job->OrderNo,
                     'company_name' => $job->Customer->CompanyName,

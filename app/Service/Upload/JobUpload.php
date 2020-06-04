@@ -26,11 +26,11 @@ class JobUpload
     private $simpro;
 
     const COASTLINE = 11514;
-
     private $totalCount;
     private $totalSuccess;
     private $reasons = [];
     private $ids = [];
+
 
     public function __construct()
     {
@@ -40,7 +40,7 @@ class JobUpload
     public function run()
     {
         DB::delete('DELETE FROM appointments WHERE id > 0;');
-        $begin = new \DateTime('+3 day');
+        $begin = new \DateTime('-10 day'); //+3 day
         $end = new \DateTime('+19 day');
 
         $interval = \DateInterval::createFromDateString('1 day');
@@ -49,6 +49,7 @@ class JobUpload
 
         foreach ($period as $dt) {
             $result = $this->simpro->getRequestPage('get', '/api/v1.0/companies/0/schedules/?Type=job&Date=' . $dt->format('Y-m-d'));
+
             $this->totalCount = $this->simpro->result_count ?: 0;
             $this->totalSuccess = 0;
             $this->reasons = [];
@@ -102,7 +103,6 @@ class JobUpload
         $site_id = $result_job->Site->ID ?? null;
         if (!$site_id) {
             $this->reasons[] = 'Job "' . $job_scheduler->ID . '". Site id is null';
-
             dump('site_id null');
             return;
         }
