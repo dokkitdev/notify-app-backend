@@ -25,21 +25,19 @@ class AddTableWithIdsOfCostcenter extends Migration
             }
         );
 
+
         $electric = [
             99 => 'Electric Planned Maintenance Commercial',
-            53 => 'Electric Responsive Repair',
-            89 => 'Electric Responsive Repair Commercial',
-            78 => 'Electrical Installation',
-            178 => 'Emergency Response /Assistance - Alternative Skill Set',
-            134 => 'Energy Performance Certification (EPC)',
+            65 => 'Electric Planned Maintenance',
         ];
 
         $gas = [
+            56 => 'Gas Planned Maintenance',
+            91 => 'Gas Planned Maintenance Commercial',
             123 => 'Gas Planned Maintenance Commercial Catering',
-            43 => 'Gas Responsive Repair',
-            80 => 'Gas Responsive Repair Commercial',
-            135 => 'Lead/Quotation',
-            186 => 'Warranty Repair - Potterton/Baxi',
+            185 => 'LPG Planned Maintenance',
+            93 => 'LPG Planned Maintenance Commercial',
+            126 => 'LPG Planned Maintenance Commercial Catering',
         ];
 
         foreach ($electric as $id => $name) {

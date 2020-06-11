@@ -123,13 +123,16 @@ class AppointmentChlService
         self::getAppointmentLoggedTemplate($appointments, $appointment);
         $scheduleDate1 = $scheduleDate2 = $scheduleDate3 = '!NOT FOUND!';
         $dueDate = '';
-        if ($ap1 = $appointments[Templates::APPOINTMENT_LETTER_CHL_1]) {
+        $ap1 = $appointments[Templates::APPOINTMENT_LETTER_CHL_1] ?: $appointments[Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1] ?: $appointments[Templates::APPOINTMENT_LETTER_GAS_CHL_1];
+        if ($ap1) {
             $scheduleDate1 = self::getFormattedScheduleDateForChl($appointment, $ap1);
         }
-        if ($ap2 = $appointments[Templates::APPOINTMENT_LETTER_CHL_2]) {
+        $ap2 = $appointments[Templates::APPOINTMENT_LETTER_CHL_2] ?: $appointments[Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2] ?: $appointments[Templates::APPOINTMENT_LETTER_GAS_CHL_2];
+        if ($ap2) {
             $scheduleDate2 = self::getFormattedScheduleDateForChl($appointment, $ap2);
         }
-        if ($ap3 = $appointments[Templates::APPOINTMENT_LETTER_CHL_3]) {
+        $ap3 = $appointments[Templates::APPOINTMENT_LETTER_CHL_3] ?: $appointments[Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3] ?: $appointments[Templates::APPOINTMENT_LETTER_GAS_CHL_3];
+        if ($ap3) {
             $scheduleDate3 = self::getFormattedScheduleDateForChl($appointment, $ap3);
             $dueDate = $appointment->getFormatedScheduleDate();
         }
