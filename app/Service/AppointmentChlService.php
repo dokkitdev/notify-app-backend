@@ -125,13 +125,14 @@ class AppointmentChlService
         $scheduleDate1 = $scheduleDate2 = $scheduleDate3 = '!NOT FOUND!';
         $dueDate = '';
         if ($appointment->first_date) {
-            $scheduleDate1 = self::getFormatedScheduleDate($appointment->first_date, $appointment, 1);
+            $scheduleDate1 = self::getFormatedScheduleDate($appointment->first_date, $appointment, true);
         }
         if ($appointment->second_date) {
-            $scheduleDate2 = self::getFormatedScheduleDate($appointment->second_date, $appointment, 2);
+            $scheduleDate2 = self::getFormatedScheduleDate($appointment->second_date, $appointment);
         }
         if ($appointment->third_date) {
-            $scheduleDate3 = self::getFormatedScheduleDate($appointment->third_date, $appointment, 3);
+            $scheduleDate3 = self::getFormatedScheduleDate($appointment->third_date, $appointment);
+            $dueDate = self::getFormatedScheduleDate($appointment->first_date, $appointment);
         }
 
         $templateProcessor->setValue('ScheduleDate1', $scheduleDate1);
@@ -258,7 +259,7 @@ class AppointmentChlService
         return $file;
     }
 
-    public static function getFormatedScheduleDate($date, $appointment, $type)
+    public static function getFormatedScheduleDate($date, $appointment, $isNeedToAddScheduleTime = false)
     {
         $date = $date ? \DateTime::createFromFormat('Y-m-d', $date) : null;
         if (!$date) {
@@ -284,28 +285,8 @@ class AppointmentChlService
 
         $formatted = $weekday.', '.$day.' '.$month.' '.$year;
 
-        switch ($appointment->letter_type) {
-            case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1:
-            case Templates::APPOINTMENT_LETTER_GAS_CHL_1:
-            case Templates::APPOINTMENT_LETTER_CHL_1:
-                if ($type == 1) {
-                    $formatted .= ' '.$appointment->getFormatedScheduleTime();
-                }
-                break;
-            case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2:
-            case Templates::APPOINTMENT_LETTER_GAS_CHL_2:
-            case Templates::APPOINTMENT_LETTER_CHL_2:
-                if ($type == 2) {
-                    $formatted .= ' '.$appointment->getFormatedScheduleTime();
-                }
-                break;
-            case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3:
-            case Templates::APPOINTMENT_LETTER_GAS_CHL_3:
-            case Templates::APPOINTMENT_LETTER_CHL_3:
-                if ($type == 3) {
-                    $formatted .= ' '.$appointment->getFormatedScheduleTime();
-                }
-                break;
+        if ($isNeedToAddScheduleTime) {
+            $formatted .= ' '.$appointment->getFormatedScheduleTime();
         }
 
         return $formatted;
