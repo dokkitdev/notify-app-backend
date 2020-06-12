@@ -42,7 +42,7 @@
         <tr>
             <th>Created</th>
             <th>Type</th>
-            <th>Total</th>vi
+            <th>Total</th>
             <th>Success</th>
             <th>Parsing for</th>
             <th></th>
@@ -77,9 +77,6 @@
         'end' => ''
         ]
         ) }}
-    </div>
-    <div class="form-group text-right">
-        <input class="btn btn-primary" form="private-form" type="submit" value="Process">
     </div>
 
     <div id="myModal" class="modal fade" role="dialog">
