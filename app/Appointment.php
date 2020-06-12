@@ -33,7 +33,10 @@ class Appointment extends Model
         'customer_id',
         'type',
         'letter_type',
-        'due_date'
+        'due_date',
+        'first_date',
+        'second_date',
+        'third_date',
     ];
 
     public function getAddress()

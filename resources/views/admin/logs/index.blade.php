@@ -42,7 +42,7 @@
         <tr>
             <th>Created</th>
             <th>Type</th>
-            <th>Total</th>vi
+            <th>Total</th>
             <th>Success</th>
             <th>Parsing for</th>
             <th></th>

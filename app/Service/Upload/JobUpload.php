@@ -40,7 +40,7 @@ class JobUpload
     public function run()
     {
         DB::delete('DELETE FROM appointments WHERE id > 0;');
-        $begin = new \DateTime('-10 day'); //+3 day
+        $begin = new \DateTime('+2 day'); //+3 day
         $end = new \DateTime('+19 day');
 
         $interval = \DateInterval::createFromDateString('1 day');
@@ -132,12 +132,23 @@ class JobUpload
      */
     public function createAppointment($job_scheduler, $result_job, $site, $type = Appointment::NORMAL_TYPE, $letterType = null)
     {
+        dump($job_scheduler);
+
         $this->totalSuccess++;
         $date = $job_scheduler->Date;
         $blocks = $job_scheduler->Blocks;
         $time = $blocks[0]->StartTime;
 
         $jobId = $result_job->ID;
+
+        $results = $this->simpro->getRequest(
+            'get',
+            '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'%&columns=Date'
+        );
+        $firstDate = isset($results[0]) ? $results[0]->Date : null;
+        $secondDate = isset($results[1]) ? $results[1]->Date : null;
+        $thirdDate = isset($results[2]) ? $results[2]->Date : null;
+
         $workType = $result_job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null;
         $customerId = $result_job->Customer->ID;
         $companyName = $result_job->Customer->CompanyName;
@@ -179,7 +190,10 @@ class JobUpload
             'time' => $time,
             'type' => $type,
             'letter_type' => $letterType,
-            'due_date' => $dueDate
+            'due_date' => $dueDate,
+            'first_date' => $firstDate,
+            'second_date' => $secondDate,
+            'third_date' => $thirdDate,
         ]);
     }
 

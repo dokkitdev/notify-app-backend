@@ -118,24 +118,22 @@ class AppointmentChlService
             $appointments[$letterType] = AppointmentLogged::where('job_id', $appointment->job_id)
                 ->where('site_id', $appointment->site_id)
                 ->where('letter_type', $letterType)
+                ->orderBy('id', 'desc')
                 ->first();
         }
         self::getAppointmentLoggedTemplate($appointments, $appointment);
         $scheduleDate1 = $scheduleDate2 = $scheduleDate3 = '!NOT FOUND!';
         $dueDate = '';
-        $ap1 = $appointments[Templates::APPOINTMENT_LETTER_CHL_1] ?: $appointments[Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1] ?: $appointments[Templates::APPOINTMENT_LETTER_GAS_CHL_1];
-        if ($ap1) {
-            $scheduleDate1 = self::getFormattedScheduleDateForChl($appointment, $ap1);
+        if ($appointment->first_date) {
+            $scheduleDate1 = self::getFormatedScheduleDate($appointment->first_date, $appointment, 1);
         }
-        $ap2 = $appointments[Templates::APPOINTMENT_LETTER_CHL_2] ?: $appointments[Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2] ?: $appointments[Templates::APPOINTMENT_LETTER_GAS_CHL_2];
-        if ($ap2) {
-            $scheduleDate2 = self::getFormattedScheduleDateForChl($appointment, $ap2);
+        if ($appointment->second_date) {
+            $scheduleDate2 = self::getFormatedScheduleDate($appointment->second_date, $appointment, 2);
         }
-        $ap3 = $appointments[Templates::APPOINTMENT_LETTER_CHL_3] ?: $appointments[Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3] ?: $appointments[Templates::APPOINTMENT_LETTER_GAS_CHL_3];
-        if ($ap3) {
-            $scheduleDate3 = self::getFormattedScheduleDateForChl($appointment, $ap3);
-            $dueDate = $appointment->getFormatedScheduleDate();
+        if ($appointment->third_date) {
+            $scheduleDate3 = self::getFormatedScheduleDate($appointment->third_date, $appointment, 3);
         }
+
         $templateProcessor->setValue('ScheduleDate1', $scheduleDate1);
         $templateProcessor->setValue('ScheduleDate2', $scheduleDate2);
         $templateProcessor->setValue('ScheduleDate3', $scheduleDate3);
@@ -259,4 +257,58 @@ class AppointmentChlService
         $log->save();
         return $file;
     }
+
+    public static function getFormatedScheduleDate($date, $appointment, $type)
+    {
+        $date = $date ? \DateTime::createFromFormat('Y-m-d', $date) : null;
+        if (!$date) {
+            return '';
+        }
+        $weekday = $date->format('l');
+        $month = $date->format('F');
+        $year = $date->format('Y');
+        $day = ltrim($date->format('d'), '0');
+        if ($day % 10 == 1 && $day != 11) {
+            $day .= 'st';
+        } else {
+            if ($day % 10 == 2 && $day != 12) {
+                $day .= 'nd';
+            } else {
+                if ($day % 10 == 3 && $day != 13) {
+                    $day .= 'rd';
+                } else {
+                    $day .= 'th';
+                }
+            }
+        }
+
+        $formatted = $weekday.', '.$day.' '.$month.' '.$year;
+
+        switch ($appointment->letter_type) {
+            case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1:
+            case Templates::APPOINTMENT_LETTER_GAS_CHL_1:
+            case Templates::APPOINTMENT_LETTER_CHL_1:
+                if ($type == 1) {
+                    $formatted .= ' '.$appointment->getFormatedScheduleTime();
+                }
+                break;
+            case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2:
+            case Templates::APPOINTMENT_LETTER_GAS_CHL_2:
+            case Templates::APPOINTMENT_LETTER_CHL_2:
+                if ($type == 2) {
+                    $formatted .= ' '.$appointment->getFormatedScheduleTime();
+                }
+                break;
+            case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3:
+            case Templates::APPOINTMENT_LETTER_GAS_CHL_3:
+            case Templates::APPOINTMENT_LETTER_CHL_3:
+                if ($type == 3) {
+                    $formatted .= ' '.$appointment->getFormatedScheduleTime();
+                }
+                break;
+        }
+
+        return $formatted;
+    }
+
 }
