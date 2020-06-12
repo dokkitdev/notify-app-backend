@@ -259,7 +259,7 @@ class AppointmentChlService
         return $file;
     }
 
-    public static function getFormatedScheduleDate($date, $appointment, $isNeedToAddScheduleTime)
+    public static function getFormatedScheduleDate($date, $appointment, $isNeedToAddScheduleTime = false)
     {
         $date = $date ? \DateTime::createFromFormat('Y-m-d', $date) : null;
         if (!$date) {
