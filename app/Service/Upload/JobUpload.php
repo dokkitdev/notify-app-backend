@@ -107,11 +107,17 @@ class JobUpload
             return;
         }
 
+        $job_service = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$job_id);
+        if (!$job_service || $job_service->Type != 'Service') {
+            return;
+        }
+
         if ($result_job->Customer->ID == self::COASTLINE) {
             $tag = $this->selectTag($result_job);
             $letterType = $this->getLetterTypeByTagAndJob($tag, $result_job);
             $this->parseSite($job_scheduler, $result_job, $site_id, Appointment::CHL_TYPE, $letterType);
-        } elseif ($job_scheduler->Type == 'Service') {
+        } else {
+            dump('Service');
             $this->parseSite($job_scheduler, $result_job, $site_id);
         }
 
@@ -145,9 +151,21 @@ class JobUpload
             'get',
             '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'%&columns=Date'
         );
-        $firstDate = isset($results[0]) ? $results[0]->Date : null;
-        $secondDate = isset($results[1]) ? $results[1]->Date : null;
-        $thirdDate = isset($results[2]) ? $results[2]->Date : null;
+        $firstDate = $secondDate = $thirdDate = null;
+        foreach ($results as $scheduleDate) {
+            $scheduleDate = $scheduleDate->Date;
+            if ($firstDate == null) {
+                $firstDate = $scheduleDate;
+            } elseif ($secondDate == null && $firstDate && $firstDate != $scheduleDate) {
+                $secondDate = $scheduleDate;
+            } elseif ($thirdDate == null && $secondDate && $secondDate != $scheduleDate) {
+                $thirdDate = $scheduleDate;
+            }
+
+            if ($firstDate && $secondDate && $thirdDate) {
+                break;
+            }
+        }
 
         $workType = $result_job->Sections[0]->CostCenters[0]->CostCenter->Name ?? null;
         $customerId = $result_job->Customer->ID;
