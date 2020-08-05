@@ -40,7 +40,7 @@ class JobUpload
     public function run()
     {
         DB::delete('DELETE FROM appointments WHERE id > 0;');
-        $begin = new \DateTime('+2 day'); //+3 day
+        $begin = new \DateTime('+5 day'); //+3 day
         $end = new \DateTime('+19 day');
 
         $interval = \DateInterval::createFromDateString('1 day');
@@ -84,25 +84,28 @@ class JobUpload
 
     public function parseSchedule($job_scheduler)
     {
+
         $this->ids[] = $job_scheduler->ID;
-        dump('parseSchedule ' . $job_scheduler->ID);
+        dump('parseSchedule '.$job_scheduler->ID);
         if (!isset($job_scheduler->Reference)) {
-            $this->reasons[] = 'Job "' . $job_scheduler->ID . '" has no Reference';
+            $this->reasons[] = 'Job "'.$job_scheduler->ID.'" has no Reference';
             dump('no reference');
+
             return;
         }
         $job_parse = explode('-', $job_scheduler->Reference);
         $job_id = array_shift($job_parse);
-        dump('job id = ' . $job_id);
-        $result_job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $job_id . '?display=all');
+        dump('job id = '.$job_id);
+        $result_job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$job_id.'?display=all');
         if (!$result_job) {
             dump('!$result_job');
+
             return;
         }
 
         $site_id = $result_job->Site->ID ?? null;
         if (!$site_id) {
-            $this->reasons[] = 'Job "' . $job_scheduler->ID . '". Site id is null';
+            $this->reasons[] = 'Job "'.$job_scheduler->ID.'". Site id is null';
             dump('site_id null');
             return;
         }
@@ -114,13 +117,32 @@ class JobUpload
 
         if ($result_job->Customer->ID == self::COASTLINE) {
             $tag = $this->selectTag($result_job);
-            $letterType = $this->getLetterTypeByTagAndJob($tag, $result_job);
+            $letterType = $this->getLetterTypeByTagAndJobForChl($tag, $result_job);
+            if (!$letterType) {
+                $this->reasons[] = 'Job "'.$job_scheduler->ID.'" has cost center that is not in list';
+                dump('Letter type is not valid!');
+
+                return;
+            }
             $this->parseSite($job_scheduler, $result_job, $site_id, Appointment::CHL_TYPE, $letterType);
         } else {
+            $costCenter = null;
+            $costCenterId = $result_job->Sections[0]->CostCenters[0]->CostCenter->ID ?? null;
+            if ($costCenterId) {
+                $costCenter = CostCenter::where('cost_center_id', $costCenterId)->first();
+            }
+
+
+            if (!$costCenter) {
+                $this->reasons[] = 'Job "'.$job_scheduler->ID.'" has cost center that is not in list';
+                dump('Letter type is not valid!');
+
+                return;
+            }
+
             dump('Service');
             $this->parseSite($job_scheduler, $result_job, $site_id);
         }
-
     }
 
 
@@ -289,15 +311,18 @@ LIMIT 200
             }
             foreach ($totals as $row) {
 
-                DB::delete('DELETE FROM appointments_logged 
-WHERE job_id = :job 
-AND send_date = \'' . $row->send_date . '\' 
-AND site_id = :site_id 
-AND letter_type ' . ($row->letter_type ? ('= \'' . $row->letter_type . '\'') : 'is null') . '
-LIMIT ' . ($row->total - 1) . ';', [
-                    $row->job_id,
-                    $row->site_id,
-                ]);
+                DB::delete(
+                    'DELETE FROM appointments_logged
+WHERE job_id = :job
+AND send_date = \''.$row->send_date.'\'
+AND site_id = :site_id
+AND letter_type '.($row->letter_type ? ('= \''.$row->letter_type.'\'') : 'is null').'
+LIMIT '.($row->total - 1).';',
+                    [
+                        $row->job_id,
+                        $row->site_id,
+                    ]
+                );
             }
         }
     }
@@ -334,9 +359,10 @@ LIMIT ' . ($row->total - 1) . ';', [
         return $tag_selected;
     }
 
-    public function getLetterTypeByTagAndJob($tag, $job)
+    public function getLetterTypeByTagAndJobForChl($tag, $job)
     {
         $costCenter = null;
+        $letterType = null;
         $costCenterId = $job->Sections[0]->CostCenters[0]->CostCenter->ID ?? null;
         if ($costCenterId) {
             $costCenter = CostCenter::where('cost_center_id', $costCenterId)->first();
@@ -360,7 +386,7 @@ LIMIT ' . ($row->total - 1) . ';', [
                     $letterType = Templates::APPOINTMENT_LETTER_GAS_CHL_3;
                 }
             }
-        } else {
+        } elseif ($costCenter && $costCenter->type == CostCenter::TYPE_OTHER) {
             $letterType = Templates::APPOINTMENT_LETTER_CHL_1;
             if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
                 $letterType = Templates::APPOINTMENT_LETTER_CHL_2;
