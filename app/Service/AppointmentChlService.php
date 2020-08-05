@@ -79,7 +79,7 @@ class AppointmentChlService
         ];
 
         $values = [
-            TemplateGenerator::getCorrectStringUppercased($appointment->getContact()),
+            TemplateGenerator::getCorrectString($appointment->getContact()),
             $address1,
             $address2,
             TemplateGenerator::getCorrectString($appointment->city),
