@@ -17,6 +17,7 @@ class CostCenter extends Model
 {
     const TYPE_ELECTRIC = 'electric';
     const TYPE_GAS = 'gas';
+    const TYPE_OTHER = 'other';
     const TABLE = 'cost_centers';
     protected $table = 'cost_centers';
     protected $fillable = [
