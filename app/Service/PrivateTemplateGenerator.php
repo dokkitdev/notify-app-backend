@@ -4,6 +4,7 @@ namespace App\Service;
 
 
 use App\Helpers\Date;
+use App\Models\CostCenter;
 use App\Models\PrivateAsset;
 use App\Models\PrivateCostCenter;
 use App\Models\PrivateCustomer;
@@ -193,9 +194,9 @@ class PrivateTemplateGenerator
                     $this->fillPrebuildRaw($templateProcessor, $prebuildValues, $i);
                 }
                 $prebuildsValues['sum_tax'] = $prebuildsValues['sum_inc_tax'] - $prebuildsValues['sum_ex_tax'];
-                $finalValues['sum_ex_tax'] += $prebuildsValues['sum_ex_tax'];
-                $finalValues['sum_inc_tax'] += $prebuildsValues['sum_inc_tax'];
-                $finalValues['sum_tax'] += $prebuildsValues['sum_tax'];
+                $finalValues['sum_ex_tax'] += $costCenter->ex_tax;
+                $finalValues['sum_inc_tax'] += $costCenter->inc_tax;
+                $finalValues['sum_tax'] += $costCenter->tax;
                 $prebuildsValues = array_map(function ($prebuild) {
                     return is_array($prebuild) ? implode('</w:t><w:br/><w:t>', $prebuild) : $prebuild;
                 }, $prebuildsValues);
@@ -208,7 +209,7 @@ class PrivateTemplateGenerator
                         $customer->site_state,
                         $customer->site_postal_code
                     )
-                    ->fillPrebuilds($templateProcessor, $prebuildsValues, $i)
+                    ->fillPrebuilds($templateProcessor, $costCenter, $i)
                     ->fillCostCenter($templateProcessor, $costCenterName)
                 ;
             }
@@ -339,19 +340,17 @@ class PrivateTemplateGenerator
         $templateProcessor->setValue('PrebuildTax#' . $i, $prebuild['tax'], 1);
         $templateProcessor->setValue('PrebuildIncTax#' . $i, $prebuild['inc_tax'], 1);
     }
-    public function fillPrebuilds(TemplateProcessor $templateProcessor, $prebuilds, $i)
+    public function fillPrebuilds(TemplateProcessor $templateProcessor, PrivateCostCenter $costCenter, $i)
     {
 
-        $tax = round($prebuilds['sum_ex_tax'] * 0.2, 2);
-        $incTax = $prebuilds['sum_ex_tax'] + $tax;
-        $templateProcessor->setValue('TotalExTax', number_format((float)$prebuilds['sum_ex_tax'], 2), 1);
-        $templateProcessor->setValue('TotalIncTax', number_format($incTax, 2), 1);
-        $templateProcessor->setValue('TotalTax', number_format($tax, 2), 1);
+        $templateProcessor->setValue('TotalExTax', number_format($costCenter->ex_tax, 2), 1);
+        $templateProcessor->setValue('TotalIncTax', number_format($costCenter->inc_tax, 2), 1);
+        $templateProcessor->setValue('TotalTax', number_format($costCenter->tax, 2), 1);
 
 
-        $templateProcessor->setValue('TotalExTax#' . $i, number_format((float)$prebuilds['sum_ex_tax'], 2), 1);
-        $templateProcessor->setValue('TotalIncTax#'.$i, number_format($incTax, 2), 1);
-        $templateProcessor->setValue('TotalTax#'.$i, number_format($tax, 2), 1);
+        $templateProcessor->setValue('TotalExTax#' . $i, number_format($costCenter->ex_tax, 2), 1);
+        $templateProcessor->setValue('TotalIncTax#'.$i, number_format($costCenter->inc_tax, 2), 1);
+        $templateProcessor->setValue('TotalTax#'.$i, number_format($costCenter->tax, 2), 1);
 
         return $this;
     }
