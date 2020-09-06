@@ -194,9 +194,9 @@ class PrivateTemplateGenerator
                     $this->fillPrebuildRaw($templateProcessor, $prebuildValues, $i);
                 }
                 $prebuildsValues['sum_tax'] = $prebuildsValues['sum_inc_tax'] - $prebuildsValues['sum_ex_tax'];
-                $finalValues['sum_ex_tax'] += $prebuildsValues['sum_ex_tax'];
-                $finalValues['sum_inc_tax'] += $prebuildsValues['sum_inc_tax'];
-                $finalValues['sum_tax'] += $prebuildsValues['sum_tax'];
+                $finalValues['sum_ex_tax'] += $costCenter->ex_tax;
+                $finalValues['sum_inc_tax'] += $costCenter->inc_tax;
+                $finalValues['sum_tax'] += $costCenter->tax;
                 $prebuildsValues = array_map(function ($prebuild) {
                     return is_array($prebuild) ? implode('</w:t><w:br/><w:t>', $prebuild) : $prebuild;
                 }, $prebuildsValues);
