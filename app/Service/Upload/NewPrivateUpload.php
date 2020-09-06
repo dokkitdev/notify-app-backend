@@ -47,7 +47,7 @@ class NewPrivateUpload
             dump($nextRecurringDate);
             $pages = $this->simpro->getRequestPage(
                 'get',
-                "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}&Removed=true"
+                "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}&Removed=false"
             );
             $this->totalCount = $this->simpro->result_count;
             $this->totalSuccess = 0;
