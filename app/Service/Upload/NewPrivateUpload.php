@@ -57,6 +57,41 @@ class NewPrivateUpload
                 $this->parseRecurringPage($page);
             }
 
+            $pagesToRemove = $this->simpro->getRequestPage(
+                'get',
+                "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}&Removed=true"
+            );
+            $startYear = Date('Y') . '-01-01 00:00:00';
+            foreach ($pagesToRemove as $page) {
+                $recurringInvoices = $this->simpro->getRequest('get', $page);
+                if (!$recurringInvoices || !count($recurringInvoices)) {
+                    return;
+                }
+                foreach ($recurringInvoices as $recurringInvoice) {
+                    $recurringInvoiceId = $recurringInvoice->ID;
+                    $recurringInvoice = $this->simpro->getRequest(
+                        'get',
+                        '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId
+                    );
+
+                    $recurringDate = $recurringInvoice->NextRecurringDate ?? null;
+                    $recurringDate = \DateTime::createFromFormat('Y-m-d', $recurringDate);
+                    $customerId = $recurringInvoice->Customer->ID ?? null;
+
+                    if (!$customerId || !$recurringDate) {
+                        continue;
+                    }
+
+                    dump("Need  to  remove  customer - {$customerId}, recurring_invoice_id - {$recurringInvoiceId}, and date {$startYear}");
+                    PrivateCustomer::where('customer_id', $customerId)
+                        ->where('recurring_invoice_id', $recurringInvoiceId ?: 0)
+                        ->where('next_recurring_date', '>=', $startYear)
+                        ->where('is_processed', false)
+                        ->delete();
+                }
+            }
+
+
             ParsingLog::create(
                 [
                     'type' => ParsingLog::PRIVATE_TYPE,
@@ -173,53 +208,62 @@ class NewPrivateUpload
         $recurringDate = \DateTime::createFromFormat('Y-m-d', $recurringDate);
         if (!$customerId || !$recurringDate) {
             $this->reasons[] = $recurringInvoiceId.'. No customerId or recurring date found';
-            dump('no CustomerId or recurring date for ' . $recurringInvoiceId);
+            dump('no CustomerId or recurring date for '.$recurringInvoiceId);
 
             return;
         }
+
+        PrivateCustomer::where('customer_id', $customerId)
+            ->where('recurring_invoice_id', $recurringInvoiceId ?: 0)
+            ->where('next_recurring_date', '>=', Date('Y') . '-01-01 00:00:00')
+            ->where('is_processed', false)
+            ->delete();
         $countCustomerForProvidedYear = PrivateCustomer::where('customer_id', $customerId)
             ->where('recurring_invoice_id', $recurringInvoiceId ?: 0)
-            ->where('next_recurring_date', 'LIKE', $recurringDate->format('Y') . '%')
+            ->where('next_recurring_date', 'LIKE', $recurringDate->format('Y').'%')
             ->count();
-        $this->totalSuccess++;
         if ($countCustomerForProvidedYear) {
             $this->totalSuccess++;
-            dump('This recurring invoice for customer already exist ' . $recurringInvoiceId);
-
+            dump('This recurring invoice for customer already exist '.$recurringInvoiceId);
             return;
         }
 
-        $privateCustomer = PrivateCustomer::create([
-            'recurring_type' => $recurringInvoice->Type,
-            'recurring_invoice_id' => $recurringInvoice->ID ?? null,
-            'next_recurring_date' => $recurringDate->format('Y-m-d'),
-            'customer_id' => $customerId,
-            'site_name' => $recurringInvoice->Site->Name ?? null,
-            'company_name' => $customer->CompanyName ?? null,
-            'customer_title' => $customer->Title ?? null,
-            'customer_given_name' => $customer->GivenName ?? null,
-            'customer_family_name' => $customer->FamilyName ?? null,
-            'customer_address' => $customer->Address->Address ?? null,
-            'customer_city' => $customer->Address->City ?? null,
-            'customer_state' => $customer->Address->State ?? null,
-            'customer_postal_code' => $customer->Address->PostalCode ?? null,
-            'site_address' => $siteInfo->Address->Address ?? null,
-            'site_city' => $siteInfo->Address->City ?? null,
-            'site_state' => $siteInfo->Address->State ?? null,
-            'site_postal_code' => $siteInfo->Address->PostalCode ?? null,
-            'is_company' => $this->isCompanyCustomer,
-            'period' => $this->period,
-            'payer_reference' => $this->payerReference,
-            'payer_account_name' => $this->payerAccountName,
-            'direct_date' => $this->directDate,
-            'direct_month' => $this->month,
-            'type' => $customFieldValue,
-            'is_processed' => false,
-        ]);
+        $privateCustomer = PrivateCustomer::create(
+            [
+                'recurring_type' => $recurringInvoice->Type,
+                'recurring_invoice_id' => $recurringInvoice->ID ?? null,
+                'next_recurring_date' => $recurringDate->format('Y-m-d'),
+                'customer_id' => $customerId,
+                'site_name' => $recurringInvoice->Site->Name ?? null,
+                'company_name' => $customer->CompanyName ?? null,
+                'customer_title' => $customer->Title ?? null,
+                'customer_given_name' => $customer->GivenName ?? null,
+                'customer_family_name' => $customer->FamilyName ?? null,
+                'customer_address' => $customer->Address->Address ?? null,
+                'customer_city' => $customer->Address->City ?? null,
+                'customer_state' => $customer->Address->State ?? null,
+                'customer_postal_code' => $customer->Address->PostalCode ?? null,
+                'site_address' => $siteInfo->Address->Address ?? null,
+                'site_city' => $siteInfo->Address->City ?? null,
+                'site_state' => $siteInfo->Address->State ?? null,
+                'site_postal_code' => $siteInfo->Address->PostalCode ?? null,
+                'is_company' => $this->isCompanyCustomer,
+                'period' => $this->period,
+                'payer_reference' => $this->payerReference,
+                'payer_account_name' => $this->payerAccountName,
+                'direct_date' => $this->directDate,
+                'direct_month' => $this->month,
+                'type' => $customFieldValue,
+                'is_processed' => false,
+            ]
+        );
 
         $this->totalSuccess++;
 
-        $recurringInvoiceSections = $this->simpro->getRequest('get', '/api/v1.0/companies/0/recurringInvoices/' . $recurringInvoiceId . '/sections/');
+        $recurringInvoiceSections = $this->simpro->getRequest(
+            'get',
+            '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId.'/sections/'
+        );
         if ($recurringInvoiceSections) {
             foreach ($recurringInvoiceSections as $recurringInvoiceSection) {
                 $this->processRecurringInvoiceSection(
@@ -271,6 +315,7 @@ class NewPrivateUpload
         $recurringInvoiceId = $recurringInvoice->ID;
         $sectionId = $section->ID;
         $sectionName = $section->Name;
+
 
         $cc = $privateCustomer->costCenters()->create([
             'name' => $costCenter->CostCenter->Name ?? null,
