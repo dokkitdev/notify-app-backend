@@ -5,7 +5,7 @@
 //$username = $url["user"];
 //$password = $url["pass"];
 //$database = substr($url["path"], 1);
-return [    
+return [
 
     /*
     |--------------------------------------------------------------------------
@@ -60,6 +60,7 @@ return [
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
+            'strict' => false
         ],
         'pgsql' => [
 //            'driver'   => 'pgsql',
