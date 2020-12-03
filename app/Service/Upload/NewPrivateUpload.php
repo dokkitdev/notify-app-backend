@@ -44,11 +44,11 @@ class NewPrivateUpload
 
                  ] as $nextRecurringDate) {
             $nextRecurringDate = $nextRecurringDate->format('Y-m-d');
-            dump($nextRecurringDate);
             $pages = $this->simpro->getRequestPage(
                 'get',
                 "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}&Removed=false"
             );
+	   dump(count($pages), $nextRecurringDate);
             $this->totalCount = $this->simpro->result_count;
             $this->totalSuccess = 0;
             $this->reasons = [];
@@ -65,7 +65,7 @@ class NewPrivateUpload
             foreach ($pagesToRemove as $page) {
                 $recurringInvoices = $this->simpro->getRequest('get', $page);
                 if (!$recurringInvoices || !count($recurringInvoices)) {
-                    return;
+                    continue;
                 }
                 foreach ($recurringInvoices as $recurringInvoice) {
                     $recurringInvoiceId = $recurringInvoice->ID;
