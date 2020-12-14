@@ -14,17 +14,22 @@ use Illuminate\Support\Facades\Route;
 
 class NewPrivateController extends Controller
 {
-    public function reparse(Request $request) {
+    public function reparse(Request $request)
+    {
         $id = $request->request->get('id');
         $customer = PrivateCustomer::query()->find($id);
         if ($customer) {
             $customer->delete();
         }
 
-        (new NewPrivateUpload)
+        $result = (new NewPrivateUpload)
             ->rerapseByRecurringInvoiceId($id);
 
-
+        return redirect()->back()->with(
+            [
+                $result ? 'ok' : 'error' => $result ? 'Success!' : 'Failed!',
+            ]
+        );
     }
 
     public function index(Request $request)
@@ -33,11 +38,15 @@ class NewPrivateController extends Controller
         $sort = $request->get('sort') ?: 'id';
         $direction = $request->get('direction') ?: 'asc';
         $customers = $this->getCustomers(PrivateCustomer::ANNUAL, $limit, $sort, $direction);
-        return view('admin.new_private.private', [
-            'customers' => $customers,
-            'limit' => $limit,
-            'title' => 'Private Contract Letters (Annual payment)',
-        ]);
+
+        return view(
+            'admin.new_private.private',
+            [
+                'customers' => $customers,
+                'limit' => $limit,
+                'title' => 'Private Contract Letters (Annual payment)',
+            ]
+        );
     }
 
     public function debitIndex(Request $request)
@@ -49,11 +58,15 @@ class NewPrivateController extends Controller
         foreach ($customers as $customer) {
             $customer->invoices = $customer->recurring_invoice_id;
         }
-        return view('admin.new_private.private', [
-            'customers' => $customers,
-            'limit' => $limit,
-            'title' => 'Private Contract Letters (Direct Debit)',
-        ]);
+
+        return view(
+            'admin.new_private.private',
+            [
+                'customers' => $customers,
+                'limit' => $limit,
+                'title' => 'Private Contract Letters (Direct Debit)',
+            ]
+        );
     }
 
     private function getCustomers($type, $limit, $sort = 'id', $direction = 'asc')
@@ -67,7 +80,6 @@ class NewPrivateController extends Controller
 
     public function viewPdf($id, Request $request)
     {
-
         $customer = PrivateCustomer::find($id);
         if (!$customer) {
             return redirect()->route('private.all');
@@ -76,7 +88,8 @@ class NewPrivateController extends Controller
 
         $pdf = $customer->pdf;
         $pdfFolder = Config::get('constants.storage_pdf');
-        return response()->file($pdfFolder . '/' . $pdf);
+
+        return response()->file($pdfFolder.'/'.$pdf);
     }
 
     public function generate(Request $request)
@@ -89,6 +102,7 @@ class NewPrivateController extends Controller
         } catch (MessageException $exception) {
             $message = $exception->getDescription();
         }
+
         return redirect()->back()->with($message);
     }
 

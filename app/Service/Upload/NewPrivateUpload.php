@@ -61,7 +61,7 @@ class NewPrivateUpload
                 'get',
                 "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}&Removed=false"
             );
-            dump(count($pages), $nextRecurringDate);
+//            dump(count($pages), $nextRecurringDate);
             $this->totalCount = $this->simpro->result_count;
             $this->totalSuccess = 0;
             $this->reasons = [];
@@ -96,9 +96,9 @@ class NewPrivateUpload
                         continue;
                     }
 
-                    dump(
-                        "Need  to  remove  customer - {$customerId}, recurring_invoice_id - {$recurringInvoiceId}, and date {$startYear}"
-                    );
+//                    dump(
+//                        "Need  to  remove  customer - {$customerId}, recurring_invoice_id - {$recurringInvoiceId}, and date {$startYear}"
+//                    );
                     PrivateCustomer::where('customer_id', $customerId)
                         ->where('recurring_invoice_id', $recurringInvoiceId ?: 0)
                         ->where('next_recurring_date', '>=', $startYear)
@@ -150,16 +150,16 @@ class NewPrivateUpload
             '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId
         );
 
-        dump('start to parse'.$recurringInvoiceId);
+//        dump('start to parse'.$recurringInvoiceId);
         if (!$recurringInvoice) {
             $this->reasons[] = $recurringInvoiceId.'. No recurring invoice found';
-            dump('no recurring invoice for '.$recurringInvoiceId);
+//            dump('no recurring invoice for '.$recurringInvoiceId);
 
             return;
         }
         if (!$recurringInvoice->CustomFields) {
             $this->reasons[] = $recurringInvoiceId.'. No custom fields found';
-            dump('no custom fields '.$recurringInvoiceId);
+//            dump('no custom fields '.$recurringInvoiceId);
 
             return;
         }
@@ -194,7 +194,7 @@ class NewPrivateUpload
         }
         if (!$customFieldValue) {
             $this->reasons[] = $recurringInvoiceId.'. No custom field found';
-            dump('no custom field value for '.$recurringInvoiceId);
+//            dump('no custom field value for '.$recurringInvoiceId);
 
             return;
         }
@@ -211,7 +211,7 @@ class NewPrivateUpload
 
         if (!$customer) {
             $this->reasons[] = $recurringInvoiceId.'. No customer found for recurring invoice';
-            dump('no Customer for '.$recurringInvoiceId);
+//            dump('no Customer for '.$recurringInvoiceId);
 
             return;
         }
@@ -224,7 +224,7 @@ class NewPrivateUpload
         $recurringDate = \DateTime::createFromFormat('Y-m-d', $recurringDate);
         if (!$customerId || !$recurringDate) {
             $this->reasons[] = $recurringInvoiceId.'. No customerId or recurring date found';
-            dump('no CustomerId or recurring date for '.$recurringInvoiceId);
+//            dump('no CustomerId or recurring date for '.$recurringInvoiceId);
 
             return;
         }
@@ -240,7 +240,7 @@ class NewPrivateUpload
             ->count();
         if ($countCustomerForProvidedYear) {
             $this->totalSuccess++;
-            dump('This recurring invoice for customer already exist '.$recurringInvoiceId);
+//            dump('This recurring invoice for customer already exist '.$recurringInvoiceId);
 
             return;
         }
@@ -391,7 +391,7 @@ class NewPrivateUpload
             'get',
             "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}"
         );
-        dump('offs', $offs, 'catalogs', $catalogs, 'Discount', $costCenter->Totals->Discount);
+//        dump('offs', $offs, 'catalogs', $catalogs, 'Discount', $costCenter->Totals->Discount);
         $exTax = $costCenter->Totals->Discount ?? 0; //3.02
         if ($exTax) {
             $incTax = $exTax + Round($exTax * 0.2, 2);
