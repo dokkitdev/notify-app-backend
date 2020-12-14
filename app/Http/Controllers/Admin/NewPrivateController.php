@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PrivateCustomer;
 use App\Service\Exceptions\MessageException;
 use App\Service\PrivateService;
+use App\Service\Upload\NewPrivateUpload;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -13,6 +14,19 @@ use Illuminate\Support\Facades\Route;
 
 class NewPrivateController extends Controller
 {
+    public function reparse(Request $request) {
+        $id = $request->request->get('id');
+        $customer = PrivateCustomer::query()->find($id);
+        if ($customer) {
+            $customer->delete();
+        }
+
+        (new NewPrivateUpload)
+            ->rerapseByRecurringInvoiceId($id);
+
+
+    }
+
     public function index(Request $request)
     {
         $limit = $request->get('limit') ?? 20;

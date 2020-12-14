@@ -88,10 +88,12 @@ Route::group(['middleware' => ['CheckAdmin']], function () {
     });
 
     Route::group(['prefix' => '/private'], function () {
+        Route::post('/reparse', 'Admin\\NewPrivateController@reparse')->name('private.reparse');
         Route::get('/', 'Admin\\NewPrivateController@index')->name('private.all');
         Route::get('/debit', 'Admin\\NewPrivateController@debitIndex')->name('private.debit');
         Route::get('/{id}/view', 'Admin\\NewPrivateController@viewPdf')->name('private.view');
         Route::post('/generate', 'Admin\\NewPrivateController@generate')->name('private.generate');
+
 //        Route::get('/import', 'Admin\\PrivateController@import')->name('private.import');
 //        Route::get('/testik', 'Admin\\PrivateController@testik')->name('private.random');
     });

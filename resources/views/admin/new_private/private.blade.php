@@ -24,9 +24,10 @@
             font-size: 10px;
         }
 
-        .nav  .nav-link {
+        .nav .nav-link {
             color: black;
         }
+
         .nav .active {
             border-bottom: 2px solid #2a2c83 !important;
         }
@@ -35,23 +36,55 @@
 
 @section('content')
 
+    <div id="reparse-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('private.reparse') }}" id="reparsing-form" method="post">
+                        @csrf
+                        <h4>Recurring Invoice ID:</h4>
+                        <input type="text" class="form-control" name="id" required>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" form="reparsing-form">Parse</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <form action="{{ route('private.generate') }}" method="post" id="private-form">
         @csrf
         <h2>{{ $title }}</h2>
-        <ul class="nav">
-            <li class="nav-item">
-                <a class="nav-link {!! Route::current()->getName() == 'private.all' ? 'active' : '' !!}" href="{{ route('private.all') }}">Annual payment</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {!! Route::current()->getName() == 'private.debit' ? 'active' : '' !!}" href="{{ route('private.debit') }}">Direct Debit</a>
-            </li>
-        </ul>
+        <div class="row">
+            <div class="col-md-9">
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a class="nav-link {!! Route::current()->getName() == 'private.all' ? 'active' : '' !!}"
+                           href="{{ route('private.all') }}">Annual payment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {!! Route::current()->getName() == 'private.debit' ? 'active' : '' !!}"
+                           href="{{ route('private.debit') }}">Direct Debit</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-3 text-right">
+                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#reparse-modal">Reparse
+                    Contract</a>
+            </div>
+        </div>
         <table id="private-table" class="tablesorter" style="width: 100%">
             <thead>
             <tr>
                 <th class="col checkbox-th"><input type="checkbox"> <i
-                            title="Select entries that should be processed"
-                            class="fas fa-info"></i></th>
+                        title="Select entries that should be processed"
+                        class="fas fa-info"></i></th>
                 <th>
                     <a href="{{ route(Route::current()->getAction('as')) }}?page=1&sort=customer_id&direction={{ request()->get('sort') == 'customer_id' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
                         Customer ID
@@ -150,36 +183,36 @@
 
     <script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
     <script>
-      $(document).ready(function () {
-        $('body').on('click', '.disabled', e => {
-          e.preventDefault();
-        })
-      });
-
-      const checkboxAll = $('.checkbox-th input[type="checkbox"]'),
-        checkboxes = $('#private-table > tbody input[type="checkbox"]:not(:disabled)');
-
-      checkboxAll.click(function (e) {
-        const checked = this.checked;
-        checkboxes.each((i, el) => {
-          el.checked = checked;
-          clickCheckbox.call(el);
+        $(document).ready(function () {
+            $('body').on('click', '.disabled', e => {
+                e.preventDefault();
+            })
         });
-      });
 
-      checkboxes.click(clickCheckbox);
+        const checkboxAll = $('.checkbox-th input[type="checkbox"]'),
+            checkboxes = $('#private-table > tbody input[type="checkbox"]:not(:disabled)');
 
-      function clickCheckbox() {
-        const tr = $(this).closest('tr');
-        if (this.checked) {
-          tr.addClass('checked')
-        } else {
-          tr.removeClass('checked');
+        checkboxAll.click(function (e) {
+            const checked = this.checked;
+            checkboxes.each((i, el) => {
+                el.checked = checked;
+                clickCheckbox.call(el);
+            });
+        });
+
+        checkboxes.click(clickCheckbox);
+
+        function clickCheckbox() {
+            const tr = $(this).closest('tr');
+            if (this.checked) {
+                tr.addClass('checked')
+            } else {
+                tr.removeClass('checked');
+            }
         }
-      }
 
-      $('form').submit(function (e) {
-        $('input[type="submit"]').attr('disabled', 'disabled');
-      });
+        $('form').submit(function (e) {
+            $('input[type="submit"]').attr('disabled', 'disabled');
+        });
     </script>
 @endsection
