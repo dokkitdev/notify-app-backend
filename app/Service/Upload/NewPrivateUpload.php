@@ -262,7 +262,7 @@ class NewPrivateUpload
 
         $recurringInvoiceSections = $this->simpro->getRequest(
             'get',
-            '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId.'/sections/'
+            '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId.'/sections/?pageSize=100'
         );
         if ($recurringInvoiceSections) {
             foreach ($recurringInvoiceSections as $recurringInvoiceSection) {
