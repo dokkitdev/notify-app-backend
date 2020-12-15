@@ -31,11 +31,19 @@
         .nav .active {
             border-bottom: 2px solid #2a2c83 !important;
         }
+
+        .processing-cursor {
+            cursor: progress !important;
+        }
     </style>
 @endsection
 
 @section('content')
-
+    @if ($log)
+        <div class="alert-danger alert">
+            Letters are processing please try again in a few minutes
+        </div>
+    @endif
     <div id="reparse-modal" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -75,7 +83,8 @@
                 </ul>
             </div>
             <div class="col-md-3 text-right">
-                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#reparse-modal">Reparse
+                <a href="#"
+                   class="btn btn-primary {{ $log ? 'processing-cursor' : '' }}" {{ $log ? '' : 'data-toggle="modal" data-target="#reparse-modal"'}}>Reparse
                     Contract</a>
             </div>
         </div>

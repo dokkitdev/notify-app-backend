@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Logs;
 use App\Models\PrivateCustomer;
 use App\Service\Exceptions\MessageException;
 use App\Service\PrivateService;
@@ -16,6 +17,20 @@ class NewPrivateController extends Controller
 {
     public function reparse(Request $request)
     {
+        $log = Logs::query()
+            ->where('customer_type', 'Private')
+            ->where('is_finished', '=', 0)
+            ->whereNotNull('command')
+            ->first();
+        if ($log) {
+            return redirect()->back()->with(
+                [
+                    'error' => 'Letters are processing please try again in a few minutes',
+                ]
+            );
+        }
+
+
         $id = $request->request->get('id');
         $customer = PrivateCustomer::query()->where('recurring_invoice_id', $id)->first();
 
@@ -40,12 +55,19 @@ class NewPrivateController extends Controller
         $direction = $request->get('direction') ?: 'asc';
         $customers = $this->getCustomers(PrivateCustomer::ANNUAL, $limit, $sort, $direction);
 
+        $log = Logs::query()
+            ->where('customer_type', 'Private')
+            ->where('is_finished', '=', 0)
+            ->whereNotNull('command')
+            ->first();
+
         return view(
             'admin.new_private.private',
             [
                 'customers' => $customers,
                 'limit' => $limit,
                 'title' => 'Private Contract Letters (Annual payment)',
+                'log' => $log,
             ]
         );
     }
@@ -60,12 +82,19 @@ class NewPrivateController extends Controller
             $customer->invoices = $customer->recurring_invoice_id;
         }
 
+        $log = Logs::query()
+            ->where('customer_type', 'Private')
+            ->where('is_finished', '=', 0)
+            ->whereNotNull('command')
+            ->first();
+
         return view(
             'admin.new_private.private',
             [
                 'customers' => $customers,
                 'limit' => $limit,
                 'title' => 'Private Contract Letters (Direct Debit)',
+                'log' => $log,
             ]
         );
     }
