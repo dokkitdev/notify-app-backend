@@ -39,7 +39,7 @@
 @endsection
 
 @section('content')
-    @if ($log)
+    @if ($log && !session('error') && !session('ok'))
         <div class="alert-danger alert">
             Letters are processing please try again in a few minutes
         </div>
