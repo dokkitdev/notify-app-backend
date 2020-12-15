@@ -84,7 +84,11 @@
             </div>
             <div class="col-md-3 text-right">
                 <a href="#"
-                   class="btn btn-primary {{ $log ? 'processing-cursor' : '' }}" {{ $log ? '' : 'data-toggle="modal" data-target="#reparse-modal"'}}>Reparse
+                   class="btn btn-primary {{ $log ? 'processing-cursor' : '' }}"
+                   @if ($log)
+                   @else data-toggle="modal"
+                   data-target="#reparse-modal"
+                    @endif>Reparse
                     Contract</a>
             </div>
         </div>
