@@ -17,7 +17,8 @@ class NewPrivateController extends Controller
     public function reparse(Request $request)
     {
         $id = $request->request->get('id');
-        $customer = PrivateCustomer::query()->find($id);
+        $customer = PrivateCustomer::query()->where('recurring_invoice_id', $id)->first();
+
         if ($customer) {
             $customer->delete();
         }
