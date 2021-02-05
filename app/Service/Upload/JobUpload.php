@@ -171,7 +171,7 @@ class JobUpload
 
         $results = $this->simpro->getRequest(
             'get',
-            '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'%&columns=Date'
+            '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'-%&columns=Date'
         );
         $firstDate = $secondDate = $thirdDate = null;
         foreach ($results as $scheduleDate) {
