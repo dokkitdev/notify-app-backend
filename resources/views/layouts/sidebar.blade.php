@@ -37,6 +37,24 @@
             <span>Warehouse</span>
         </a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('asset_report.index') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Asset Report</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('reports.all') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Zero Report</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('reports.all') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Report Logs</span>
+        </a>
+    </li>
     <li class="nav-item
                     @if(Request::path() === 'logs')
             active

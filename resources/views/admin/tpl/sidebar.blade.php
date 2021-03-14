@@ -1,4 +1,0 @@
-<li class="nav-item"><a href="{{route('main.index')}}" class="nav-link">Main</a></li>
-<li class="nav-item"><a href="{{route('users.index')}}" class="nav-link">Users</a></li>
-<li class="nav-item"><a href="{{route('templates.index')}}" class="nav-link text-danger">Templates</a></li>
-<li class="nav-item"><a href="/" class="nav-link text-danger">Exit</a></li>
