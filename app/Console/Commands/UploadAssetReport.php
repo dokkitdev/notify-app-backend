@@ -37,6 +37,8 @@ class UploadAssetReport extends Command
      */
     public function handle()
     {
+        AssetReport::query()->truncate();;
+        AssetReportValidation::query()->truncate();
         $pages = $this->simpro->getRequestPage('get', self::SITES_URL.'?Customers.ID=11514&columns=ID,CustomFields');
         foreach ($pages as $page) {
             $sites = $this->simpro->getRequest('get', $page);
@@ -129,7 +131,7 @@ class UploadAssetReport extends Command
             $data['job_due_date'] = $job->DueDate ?? null;
 
             $jobId = $job->ID ?? 0;
-            $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$jobId.'?columns=Stage,Tags,DueDate');
+                $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$jobId.'?columns=Stage,Tags,DueDate');
             if ($job) {
                 $data['job_stage'] = $job->Stage ?? null;
                 $data['service_due'] = $job->DueDate;
@@ -145,7 +147,7 @@ class UploadAssetReport extends Command
                 }
             }
 
-            $schedules = $this->simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'-%');
+                $schedules = $this->simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'-%');
             if ($schedules) {
                 $schedule = $schedules[0] ?? new \stdClass();
                 $scheduleDate = $schedule->Date;
@@ -224,7 +226,6 @@ class UploadAssetReport extends Command
                 ]
             );
         }
-        die;
     }
 
 

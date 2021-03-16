@@ -27,8 +27,24 @@ Route::group(
             ['prefix' => '/asset-report'],
             function () {
                 Route::get('/', 'AssetReportController@index')->name('asset_report.index');
+                Route::get('/download', 'AssetReportController@downloadCsv')->name('asset_report.download_csv');
             }
         );
+        Route::group(
+            ['prefix' => '/zero-report'],
+            function () {
+                Route::get('/', 'ZeroReportController@index')->name('zero_report.index');
+                Route::post('/', 'ZeroReportController@requestToParseZeroReport');
+            }
+        );
+        Route::group(
+            ['prefix' => '/report-logs'],
+            function () {
+                Route::get('/', 'ReportLogsController@index')->name('report_logs.index');
+                Route::get('/{id}/download', 'ReportLogsController@download')->name('report_logs.download');
+            }
+        );
+
 
         Route::group(
             ['prefix' => '/appointments'],

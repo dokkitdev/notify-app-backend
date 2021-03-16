@@ -1,0 +1,41 @@
+@extends('layouts.app')
+@section('css')
+    <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
+    <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
+@endsection
+@section('content')
+    <h2>Zero Report</h2>
+    <form method="POST" id="zero-form">
+        @csrf
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="daterange">Dates</label>
+                    <input type="text" id="daterange" name="dates" value="{{ Date('d/m/Y') }} - {{ Date('d/m/Y') }}"
+                           class="form-control"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 text-right">
+                <button type="submit"
+                        class="btn btn-primary">Run Report
+                </button>
+            </div>
+        </div>
+    </form>
+@endsection
+
+@section('js')
+    <script type="text/javascript" src="{{ asset('js/moment.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/daterangepicker.min.js') }}"></script>
+    <script>
+        $('#daterange').daterangepicker({
+            locale: {
+                format: 'DD/MM/YYYY'
+            },
+            opens: 'left'
+        }, function (start, end, label) {
+        });
+    </script>
+@endsection
