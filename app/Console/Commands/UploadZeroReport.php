@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\HousingPage;
 use App\Models\AssetReport;
 use App\Models\AssetReportValidation;
+use App\Models\ParsingConstant;
 use App\Models\ReportLog;
 use App\Service\HousingUploader;
 use App\Service\Requester;
@@ -82,5 +83,13 @@ class UploadZeroReport extends Command
                 'filename' => $name,
             ]
         );
+
+        $zeroConstant = ParsingConstant::query()
+            ->where('type', ParsingConstant::ZERO_TYPE)
+            ->first();
+        if ($zeroConstant) {
+            $zeroConstant->is_need_parsing = false;
+            $zeroConstant->save();
+        }
     }
 }

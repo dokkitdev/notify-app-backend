@@ -5,12 +5,16 @@
 @endsection
 @section('content')
 
-
+    @if ($asset_constant->is_need_parsing == true and !session('ok'))
+        <div class="alert-info alert">
+            Parsing is scheduled
+        </div>
+    @endif
 
     <h2>Asset Report</h2>
     <form method="get" id="filter-asset-form">
         <div class="row">
-            <div class="col-md-9">
+            <div class="col-md-8">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
@@ -24,26 +28,28 @@
                             </select>
                         </div>
                     </div>
-                    @if($site_id)
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="asset_type">Asset Type</label>
-                                <select name="asset_type" id="asset_type" class="form-control">
-                                    <option></option>
-                                    @foreach($asset_types as $a)
-                                        <option
-                                            {{ $asset_type == $a->asset_type ? 'selected' : '' }} value="{{$a->asset_type}}">{{$a->asset_type}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="asset_type">Asset Type</label>
+                            <select name="asset_type" id="asset_type" class="form-control">
+                                <option></option>
+                                @foreach($asset_types as $a)
+                                    <option
+                                        {{ $asset_type == $a->asset_type ? 'selected' : '' }} value="{{$a->asset_type}}">{{$a->asset_type}}</option>
+                                @endforeach
+                            </select>
                         </div>
-                    @endif
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3 text-right">
-                <a href="#"
-                   class="btn btn-primary">Run Validation</a>
-                <a download="test.csv" href="{{ route('asset_report.download_csv') }}"
+            <div class="col-md-4 text-right">
+                @if ($asset_constant->is_need_parsing == true)
+                    <button type="button" disabled class="btn btn-primary">Schedule Validation</button>
+                @else
+                    <a href="{{ route('asset_report.schedule') }}"
+                       class="btn btn-primary">Schedule Validation</a>
+                @endif
+                <a href="{{ route('asset_report.download_csv') }}"
                    class="btn btn-primary">Process Report</a>
             </div>
         </div>

@@ -47,7 +47,6 @@
         </div>
 
     <div class="clearfix"></div>
-
     @foreach ($housingTemplatesGroups as $tg)
         <div class="content">
         <h3>{{$tg->company_name}}</h3>
@@ -72,6 +71,5 @@
             </table>
         </div>
     @endforeach
-
     <div class="clearfix"></div>
 @endsection

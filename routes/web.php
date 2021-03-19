@@ -28,6 +28,7 @@ Route::group(
             function () {
                 Route::get('/', 'AssetReportController@index')->name('asset_report.index');
                 Route::get('/download', 'AssetReportController@downloadCsv')->name('asset_report.download_csv');
+                Route::get('/schedule', 'AssetReportController@scheduleValidation')->name('asset_report.schedule');
             }
         );
         Route::group(

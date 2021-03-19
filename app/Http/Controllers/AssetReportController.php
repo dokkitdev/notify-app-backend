@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 
 
 use App\Http\Controllers\Controller;
+use App\Models\ParsingConstant;
 use App\Models\AssetReport;
 use App\Models\AssetReportValidation;
+use App\Models\ReportLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
@@ -14,6 +16,16 @@ class AssetReportController extends Controller
 {
     public function index(Request $request)
     {
+
+        $assetConstant = ParsingConstant::firstOrCreate(
+            [
+                'type' => ParsingConstant::ASSET_TYPE,
+            ],
+            [
+                'is_need_parsing' => false,
+            ]
+        );
+
         $sites = AssetReportValidation::query()
             ->select('site_id')
             ->groupBy('site_id')
@@ -27,7 +39,7 @@ class AssetReportController extends Controller
         $direction = $request->get('direction') ?: 'asc';
         $validations = AssetReportValidation::query();
 
-        $assetTypes = [];
+
         if ($siteId) {
             $validations->where('site_id', $siteId);
             $assetTypes = AssetReportValidation::query()
@@ -36,7 +48,10 @@ class AssetReportController extends Controller
                 ->groupBy('asset_type')
                 ->get();
         } else {
-            $assetType = null;
+            $assetTypes = AssetReportValidation::query()
+                ->select('asset_type')
+                ->groupBy('asset_type')
+                ->get();
         }
 
         if ($assetType) {
@@ -58,6 +73,7 @@ class AssetReportController extends Controller
                 'site_id' => $siteId,
                 'asset_types' => $assetTypes,
                 'asset_type' => $assetType,
+                'asset_constant' => $assetConstant,
             ]
         );
     }
@@ -66,7 +82,8 @@ class AssetReportController extends Controller
     {
         $assetReports = AssetReport::get();
         $pdfFolder = Config::get('constants.reports');
-        $fp = fopen($pdfFolder . '/CHL_InstalledEquipment202103141856.csv', 'w');
+        $name = 'CHL_InstalledEquipment_'.Date('YmdHi').'.csv';
+        $fp = fopen($pdfFolder.'/'.$name, 'w');
         fputcsv(
             $fp,
             [
@@ -118,7 +135,34 @@ class AssetReportController extends Controller
             );
         }
         fclose($fp);
-        return response()->file($pdfFolder . '/CHL_InstalledEquipment202103141856.csv');
+        ReportLog::create(
+            [
+                'type' => ReportLog::ASSET_REPORT,
+                'filename' => $name,
+            ]
+        );
+        return response()->download($pdfFolder.'/'.$name, $name);
+    }
 
+    public function scheduleValidation(Request $request)
+    {
+        $assetConstant = ParsingConstant::firstOrCreate(
+            [
+                'type' => ParsingConstant::ASSET_TYPE,
+            ],
+            [
+                'is_need_parsing' => true,
+            ]
+        );
+        if (!$assetConstant->is_need_parsing) {
+            $assetConstant->is_need_parsing = 1;
+            $assetConstant->save();
+        }
+
+        return redirect()->back()->with(
+            [
+                'ok' => 'You have successfully scheduled parsing',
+            ]
+        );
     }
 }
