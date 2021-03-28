@@ -4,7 +4,7 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\Webhook;
+use App\Jobs\AssetReportJob;
 use Illuminate\Http\Request;
 
 class WebhookController extends Controller
@@ -12,10 +12,6 @@ class WebhookController extends Controller
     public function webhookAction(Request $request)
     {
         $data = $request->all();
-        Webhook::create(
-            [
-                'data' => $data,
-            ]
-        );
+        AssetReportJob::dispatch($data);
     }
 }

@@ -69,7 +69,7 @@ class UploadZeroReport extends Command
                     $job->OrderNo,
                     $job->ID,
                     $job->DateIssued,
-                    $job->Stage,
+                    $job->Stage == 'Archived' ? '' : $job->Stage,
                     $job->Status->Name,
                     $exTax,
                 ];
