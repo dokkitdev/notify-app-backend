@@ -1,5 +1,7 @@
 <?php
 
+Route::any('/webhooks', 'WebhookController@webhookAction');
+
 Route::any('/', 'Auth\LoginController@showLoginForm')->name('login');
 Route::group(
     ['middleware' => ['CheckAdmin']],

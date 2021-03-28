@@ -139,7 +139,7 @@ class UploadAssetReport extends Command
 
         $testHistories = $this->simpro->getRequest(
             'get',
-            self::SITES_URL.$siteId.'/assets/'.$assetId.'/testHistory/?columns=Job'
+                self::SITES_URL.$siteId.'/assets/'.$assetId.'/testHistory/?columns=Job'
         );
 
         if ($testHistories) {
