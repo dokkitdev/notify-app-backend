@@ -115,6 +115,7 @@
         'end' => '',
         'site_id' => $site_id,
         'asset_type' => $asset_type,
+        'error_selected' => $error_selected
         ]
         ) }}
     </div>
