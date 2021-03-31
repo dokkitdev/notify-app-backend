@@ -64,14 +64,13 @@ class AssetReportController extends Controller
             'No Model found',
         ];
 
-        if ($errorSelected) {
+        if ($errorSelected !== null) {
             if ($errorSelected == 0) {
                 $like = 'Last service%ago';
             } else {
                 $like = $errors[$errorSelected] ?? '';
                 $like .= '%';
             }
-
             $validations->where('error', 'LIKE', $like);
         }
 
