@@ -15,6 +15,7 @@
         <input type="hidden" name="direction" value="{{ request()->get('direction') }}">
         <input type="hidden" name="site_id" value="{{ $site_id }}"/>
         <input type="hidden" name="asset_type" value="{{ $asset_type }}"/>
+        <input type="hidden" name="error_selected" value="{{ $error_selected }}"/>
     </form>
     <span>
     @php ($start_item = ($paginator->currentPage() - 1) * $paginator->perPage() + 1)
@@ -31,10 +32,10 @@
         {!! $paginator->total() !!}
     </span>
     <a class="pagination-button prev {{ ($paginator->currentPage() == 1) ? 'disabled' : '' }}"
-       href="{{ $paginator->url($paginator->currentPage()-1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}&sort={{ request()->get('sort') }}&direction={{ request()->get('direction') }}&site_id={{$site_id}}&asset_type={{$asset_type}}">
+       href="{{ $paginator->url($paginator->currentPage()-1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}&sort={{ request()->get('sort') }}&direction={{ request()->get('direction') }}&site_id={{$site_id}}&asset_type={{$asset_type}}&error_selected={{$error_selected}}">
         < </a>
     <a class="pagination-button next {{ ($paginator->currentPage() == $paginator->lastPage()) ? 'disabled' : '' }}"
-       href="{{ $paginator->url($paginator->currentPage()+1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}&sort={{ request()->get('sort') }}&direction={{ request()->get('direction') }}&site_id={{$site_id}}&asset_type={{$asset_type}}">
+       href="{{ $paginator->url($paginator->currentPage()+1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}&sort={{ request()->get('sort') }}&direction={{ request()->get('direction') }}&site_id={{$site_id}}&asset_type={{$asset_type}}&error_selected={{$error_selected}}">
         > </a>
 </div>
 
