@@ -61,6 +61,7 @@ class PrivateService
             self::setIsProcessed($customer);
             dump('------ END   ------');
             $pdf = $customer->pdf;
+	    dump($pdf . '!!!!!!');
             if (!file_exists($pdfFolder . $pdf)) {
                 $customer->pdf = null;
                 $customer->save();
@@ -68,12 +69,20 @@ class PrivateService
             }
             $pdfs[] = $customer->pdf;
         }
+	dump($pdfs);
         if (!$isSuccess) {
             return false;
         }
         $today = new \DateTime();
         $file = 'Privates.' . $today->format('Y-m-d.H-i-s') . '.pdf';
         dump($pdfs);
+	if (!count($pdfs)){
+            $log->letters_generated = 0;
+            $log->email_generated = 0;
+            $log->pdf = null;
+            $log->save();
+            return true;
+        }
         TemplateGenerator::mergeAllPdfsPages($pdfs, $file);
         $log->letters_generated = count($pdfs);
         $log->email_generated = 0;

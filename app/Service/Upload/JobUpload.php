@@ -40,7 +40,7 @@ class JobUpload
     public function run()
     {
         DB::delete('DELETE FROM appointments WHERE id > 0;');
-        $begin = new \DateTime('+5 day'); //+3 day
+        $begin = new \DateTime('+3 day'); //+3 day
         $end = new \DateTime('+19 day');
 
         $interval = \DateInterval::createFromDateString('1 day');
@@ -171,7 +171,7 @@ class JobUpload
 
         $results = $this->simpro->getRequest(
             'get',
-            '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'%&columns=Date'
+            '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'-%&columns=Date'
         );
         $firstDate = $secondDate = $thirdDate = null;
         foreach ($results as $scheduleDate) {
