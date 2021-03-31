@@ -146,7 +146,7 @@ class AssetReportController extends Controller
                     $assetReport->service_level_start_date,
                     $assetReport->job_due_date,
                     $assetReport->next_service_date,
-                    $assetReport->job_stage,
+                    $assetReport->job_stage == 'Archived' ? '' : $assetReport->job_stage,
                     $assetReport->service_level_name,
                     $assetReport->last_MOT_date,
                     $assetReport->service_due,
