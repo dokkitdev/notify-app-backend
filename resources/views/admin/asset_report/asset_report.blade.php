@@ -40,6 +40,18 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="error_selected">Error</label>
+                            <select name="error_selected" id="error_selected" class="form-control">
+                                <option></option>
+                                @foreach($errors as $k => $a)
+                                    <option
+                                        {{ $error_selected!== null && $error_selected == $k ? 'selected' : '' }} value="{{ $k }}">{{$a}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-md-4 text-right">
@@ -120,7 +132,7 @@
             })
         });
 
-        $('#site_id,#asset_type').change(function (e) {
+        $('#site_id,#asset_type,#error_selected').change(function (e) {
             console.log('hei');
             $('#filter-asset-form').trigger('submit');
         });

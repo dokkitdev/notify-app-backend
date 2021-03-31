@@ -65,11 +65,12 @@ class UploadZeroReport extends Command
                 if ($exTax != 0) {
                     continue;
                 }
+                $stage = $job->Stage;
                 $data = [
                     $job->OrderNo,
                     $job->ID,
                     $job->DateIssued,
-                    $job->Stage == 'Archived' ? '' : $job->Stage,
+                    $stage == 'Archived' ? '' : $stage,
                     $job->Status->Name,
                     $exTax,
                 ];

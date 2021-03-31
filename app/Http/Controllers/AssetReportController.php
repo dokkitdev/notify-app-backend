@@ -4,10 +4,9 @@
 namespace App\Http\Controllers;
 
 
-use App\Http\Controllers\Controller;
-use App\Models\ParsingConstant;
 use App\Models\AssetReport;
 use App\Models\AssetReportValidation;
+use App\Models\ParsingConstant;
 use App\Models\ReportLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -16,7 +15,6 @@ class AssetReportController extends Controller
 {
     public function index(Request $request)
     {
-
         $assetConstant = ParsingConstant::firstOrCreate(
             [
                 'type' => ParsingConstant::ASSET_TYPE,
@@ -34,6 +32,7 @@ class AssetReportController extends Controller
 
         $siteId = $request->get('site_id');
         $assetType = $request->get('asset_type');
+        $errorSelected = $request->get('error_selected');
         $limit = $request->get('limit') ?? 20;
         $sort = $request->get('sort') ?: 'id';
         $direction = $request->get('direction') ?: 'asc';
@@ -52,6 +51,28 @@ class AssetReportController extends Controller
                 ->select('asset_type')
                 ->groupBy('asset_type')
                 ->get();
+        }
+
+        $errors = [
+            'Last service ago',
+            'Service due in 11 days',
+            'Service due tomorrow',
+            'Service complete outside of due date',
+            'No UPRN',
+            'No Fuel Type found',
+            'No Asset Make found',
+            'No Model found',
+        ];
+
+        if ($errorSelected) {
+            if ($errorSelected == 0) {
+                $like = 'Last service%ago';
+            } else {
+                $like = $errors[$errorSelected] ?? '';
+                $like .= '%';
+            }
+
+            $validations->where('error', 'LIKE', $like);
         }
 
         if ($assetType) {
@@ -74,6 +95,8 @@ class AssetReportController extends Controller
                 'asset_types' => $assetTypes,
                 'asset_type' => $assetType,
                 'asset_constant' => $assetConstant,
+                'errors' => $errors,
+                'error_selected' => $errorSelected,
             ]
         );
     }
@@ -141,6 +164,7 @@ class AssetReportController extends Controller
                 'filename' => $name,
             ]
         );
+
         return response()->download($pdfFolder.'/'.$name, $name);
     }
 
