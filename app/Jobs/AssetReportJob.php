@@ -178,12 +178,12 @@ class AssetReportJob implements ShouldQueue
 
         AssetReport::query()
             ->where('site_id', $siteId)
-            ->where('asset_id')
+            ->where('asset_id', $assetId)
             ->delete();
 
         AssetReportValidation::query()
             ->where('site_id', $siteId)
-            ->where('asset_id')
+            ->where('asset_id', $assetId)
             ->delete();
 
         $assetReport = AssetReport::create($data);

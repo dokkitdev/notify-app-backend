@@ -14,10 +14,10 @@ class WebhookController extends Controller
     {
         $data = $request->all();
         AssetReportJob::dispatch($data);
-        Webhook::create(
-            [
-                'data' => $data,
-            ]
-        );
+//        Webhook::create(
+//            [
+//                'data' => $data,
+//            ]
+//        );
     }
 }
