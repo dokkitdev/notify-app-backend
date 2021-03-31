@@ -37,11 +37,32 @@
             <span>Warehouse</span>
         </a>
     </li>
+    <li class="nav-item {!! Route::current()->getName() == 'asset_report.index' ? 'active' : '' !!}">
+        <a class="nav-link"
+           href="{{ route('asset_report.index') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Asset Report</span>
+        </a>
+    </li>
+    <li class="nav-item {!! Route::current()->getName() == 'zero_report.index' ? 'active' : '' !!}">
+        <a class="nav-link"
+           href="{{ route('zero_report.index') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Zero Report</span>
+        </a>
+    </li>
+    <li class="nav-item {!! Route::current()->getName() == 'report_logs.index' ? 'active' : '' !!}">
+        <a class="nav-link"
+           href="{{ route('report_logs.index') }}">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Report Logs</span>
+        </a>
+    </li>
     <li class="nav-item
                     @if(Request::path() === 'logs')
-            active
+        active
 @endif
-            ">
+        ">
         <a class="nav-link" href="/logs">
             <i class="fas fa-fw fa-table"></i>
             <span>Logs</span>
@@ -50,9 +71,9 @@
     @if(Auth::user()->role=='admin')
         <li class="nav-item
                         @if(Request::is('admin/template*')||Request::is('admin/housing*'))
-                active
+            active
 @endif
-                ">
+            ">
             <a class="nav-link" href="/admin/templates">
                 <i class="fas fa-fw fa-envelope"></i>
                 <span>Templates</span>
@@ -60,9 +81,9 @@
         </li>
         <li class="nav-item
                         @if(Request::is('admin/users*'))
-                active
+            active
 @endif
-                ">
+            ">
             <a class="nav-link" href="/admin/users">
                 <i class="fas fa-fw fa-users-cog"></i>
                 <span>Users</span>

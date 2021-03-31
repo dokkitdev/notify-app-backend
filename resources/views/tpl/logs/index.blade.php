@@ -36,7 +36,7 @@
                 <td>
                     @if ($log->pdf)
                         <a target="_blank"
-			href="{!! url('storage/pdf/' . $log->pdf) !!}"
+                           href="{!! url('storage/pdf/' . $log->pdf) !!}"
                            title="Download PDF template">Letters</a>
                     @endif
                     @if ($log->emails)

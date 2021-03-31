@@ -75,8 +75,7 @@ class PrivateService
         }
         $today = new \DateTime();
         $file = 'Privates.' . $today->format('Y-m-d.H-i-s') . '.pdf';
-        dump($pdfs);
-	if (!count($pdfs)){
+        if (!count($pdfs)){
             $log->letters_generated = 0;
             $log->email_generated = 0;
             $log->pdf = null;

@@ -96,6 +96,7 @@ class JobUpload
         $job_parse = explode('-', $job_scheduler->Reference);
         $job_id = array_shift($job_parse);
         dump('job id = '.$job_id);
+
         $result_job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$job_id.'?display=all');
         if (!$result_job) {
             dump('!$result_job');
