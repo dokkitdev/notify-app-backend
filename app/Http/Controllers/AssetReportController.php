@@ -118,11 +118,11 @@ class AssetReportController extends Controller
                 'Make',
                 'Model',
                 'Last Service Date',
-                'Service Level – Start Date',
+                'Service Level Start Date',
                 'Job Due Date',
-                'Service Level – Next Service Date',
+                'Service Level Next Service Date',
                 'Job Stage',
-                'Service Level - Name',
+                'Service Level Name',
                 'Last MOT Date',
                 'Service Due',
                 'Next Scheduled Appointment Date',
@@ -131,6 +131,11 @@ class AssetReportController extends Controller
             ','
         );
         foreach ($assetReports as $assetReport) {
+            $jobDueDate = '';
+            $jobStage = $assetReport->job_stage;
+            if (in_array($jobStage, ['Progress', 'Pending', 'Complete'])) {
+                $jobDueDate = $assetReport->job_due_date;
+            }
             fputcsv(
                 $fp,
                 [
@@ -144,9 +149,9 @@ class AssetReportController extends Controller
                     $assetReport->model,
                     $assetReport->last_service_date,
                     $assetReport->service_level_start_date,
-                    $assetReport->job_due_date,
+                    $jobDueDate,
                     $assetReport->next_service_date,
-                    $assetReport->job_stage == 'Archived' ? '' : $assetReport->job_stage,
+                    $jobStage == 'Archived' ? '' : $jobStage,
                     $assetReport->service_level_name,
                     $assetReport->last_MOT_date,
                     $assetReport->service_due,
@@ -167,8 +172,10 @@ class AssetReportController extends Controller
         return response()->download($pdfFolder.'/'.$name, $name);
     }
 
-    public function scheduleValidation(Request $request)
-    {
+    public
+    function scheduleValidation(
+        Request $request
+    ) {
         $assetConstant = ParsingConstant::firstOrCreate(
             [
                 'type' => ParsingConstant::ASSET_TYPE,
