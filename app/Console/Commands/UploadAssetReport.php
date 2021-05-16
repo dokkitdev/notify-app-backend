@@ -120,17 +120,19 @@ class UploadAssetReport extends Command
         foreach ($asset->CustomFields as $customField) {
             $customFieldId = $customField->CustomField->ID ?? 0;
             $value = $customField->Value;
-            if ($customFieldId == 1042) {
-                $data['type'] = $value;
-            } elseif ($customFieldId == 1531) {
-                $data['fuel_type'] = $value;
-            } elseif ($customFieldId == 1043) {
-                $data['make'] = $value;
-            } elseif ($customFieldId == 1044) {
-                $data['model'] = $value;
-            } elseif ($customFieldId == 1315 && $data['last_service_date'] === null) {
+
+            $customFieldName = $customField->CustomField->Name ?? null;
+            if ($customFieldName == 'Last Service Date' && $data['last_service_date'] === null) {
                 $data['last_service_date'] = $value;
-            } elseif ($customFieldId == 1943) {
+            } elseif(strpos($customFieldName, 'Fuel Type') !== false) {
+                $data['fuel_type'] = $value;
+            } elseif($customFieldName == 'Type') {
+                $data['type'] = $value;
+            } elseif($customFieldName == 'Make') {
+                $data['make'] = $value;
+            } elseif($customFieldName == 'Model') {
+                $data['model'] = $value;
+            } elseif($customFieldName = 'Last Years MOT Date'){
                 $data['last_MOT_date'] = $value;
             }
         }
@@ -227,6 +229,16 @@ class UploadAssetReport extends Command
         if (!$data['model']) {
             $errors[] = 'No Model found';
         }
+        
+        AssetReport::query()
+            ->where('site_id', $siteId)
+            ->where('asset_id', $assetId)
+            ->delete();
+
+        AssetReportValidation::query()
+            ->where('site_id', $siteId)
+            ->where('asset_id', $assetId)
+            ->delete();
 
         $assetReport = AssetReport::create($data);
         foreach ($errors as $error) {
