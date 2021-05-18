@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Jobs\AssetReportJob;
 use App\Models\AssetReport;
 use App\Models\AssetReportValidation;
 use App\Models\ParsingConstant;
@@ -13,6 +14,17 @@ use Illuminate\Support\Facades\Config;
 
 class AssetReportController extends Controller
 {
+    public function test()
+    {
+        $data = [
+            'reference' => [
+                'siteID' => 39872,
+                'assetID' => 101834,
+            ],
+        ];
+        AssetReportJob::dispatch($data);
+    }
+
     public function index(Request $request)
     {
         $assetConstant = ParsingConstant::firstOrCreate(

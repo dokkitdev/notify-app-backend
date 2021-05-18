@@ -89,7 +89,7 @@ class AssetReportJob implements ShouldQueue
                 $data['make'] = $value;
             } elseif($customFieldName == 'Model') {
                 $data['model'] = $value;
-            } elseif($customFieldName = 'Last Years MOT Date'){
+            } elseif($customFieldName == 'Last Years MOT Date'){
                 $data['last_MOT_date'] = $value;
             }
         }
