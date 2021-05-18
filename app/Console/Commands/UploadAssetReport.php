@@ -132,7 +132,7 @@ class UploadAssetReport extends Command
                 $data['make'] = $value;
             } elseif($customFieldName == 'Model') {
                 $data['model'] = $value;
-            } elseif($customFieldName = 'Last Years MOT Date'){
+            } elseif($customFieldName == 'Last Years MOT Date'){
                 $data['last_MOT_date'] = $value;
             }
         }
@@ -229,7 +229,7 @@ class UploadAssetReport extends Command
         if (!$data['model']) {
             $errors[] = 'No Model found';
         }
-        
+
         AssetReport::query()
             ->where('site_id', $siteId)
             ->where('asset_id', $assetId)
