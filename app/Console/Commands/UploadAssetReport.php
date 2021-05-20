@@ -109,7 +109,6 @@ class UploadAssetReport extends Command
         if (!$assetsPages) {
             return;
         }
-
         foreach ($assetsPages as $assetPage) {
             $assets = $this->simpro->getRequest('get', $assetPage);
             foreach ($assets as $asset) {
