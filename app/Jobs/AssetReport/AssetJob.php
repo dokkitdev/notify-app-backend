@@ -197,8 +197,6 @@ class AssetJob implements ShouldQueue
             ->delete();
 
         $assetReport = AssetReport::create($data);
-        dump($assetReport);
-        die;
         foreach ($errors as $error) {
             AssetReportValidation::create(
                 [
