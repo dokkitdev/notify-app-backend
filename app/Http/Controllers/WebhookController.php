@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 
 
 use App\Jobs\AssetReportJob;
-use App\Jobs\JobAssetReportJob;
+use App\Jobs\SiteAssetReportJob;
 use App\Models\Webhook;
 use Illuminate\Http\Request;
 
@@ -18,7 +18,7 @@ class WebhookController extends Controller
         if (in_array($id, ['asset.created', 'asset.updated'])) {
             AssetReportJob::dispatch($data);
         } elseif ($id === 'job.updated') {
-            JobAssetReportJob::dispatch($data);
+            SiteAssetReportJob::dispatch($data);
         }
         Webhook::create(
             [
