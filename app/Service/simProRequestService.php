@@ -34,10 +34,11 @@ class simProRequestService
     {
         $this->getToken();
         $client = new Client();
-        $url = $url . ((strpos($url, '?') != false) ? '&' : '?') . 'access_token=' . $this->token;
+        $url = $url.((strpos($url, '?') != false) ? '&' : '?').'access_token='.$this->token;
         try {
             $res = $client->request($method, $url, $data);
-            if ((int)$res->getStatusCode() == 200 || (int)$res->getStatusCode() == 201 || (int)$res->getStatusCode() == 204) {
+            if ((int)$res->getStatusCode() == 200 || (int)$res->getStatusCode() == 201 || (int)$res->getStatusCode(
+                ) == 204) {
                 return $res;
             }
         } catch (\Exception $e) {
@@ -49,19 +50,26 @@ class simProRequestService
                 //print 'ac='.$attemptCount.'<br>';
                 return $this->request($method, $url, $data, $attemptCount);
             } else {
-                Log::error('simPRORequestError ' . $e->getMessage());
+                Log::error('simPRORequestError '.$e->getMessage());
             }
         }
+
         return false;
     }
 
 
-    public function getRequestPage($method, $url)
+    public function getRequestPage($method, $url, $additionalHeaders = [])
     {
-        $res = $this->request($method, self::API_URL . $url,
-            ['headers' => [
-                'Accept' => 'application/json', #todo required
-            ]
+        $res = $this->request(
+            $method,
+            self::API_URL.$url,
+            [
+                'headers' => array_merge(
+                    [
+                        'Accept' => 'application/json',
+                    ],
+                    $additionalHeaders
+                ),
             ]
         );
         if ($res) {
@@ -72,10 +80,10 @@ class simProRequestService
             }
             if (isset($headers['Result-Pages'][0]) && $headers['Result-Pages'][0] > 1) {
                 for ($i = 2; $i < $headers['Result-Pages'][0] + 1; $i++) {
-
-                    $urls[] = $url . ((strpos($url, '?') != false) ? '&' : '?') . 'page=' . $i;
+                    $urls[] = $url.((strpos($url, '?') != false) ? '&' : '?').'page='.$i;
                 }
             }
+
             return $urls;
         } else {
             return false;
@@ -83,16 +91,24 @@ class simProRequestService
     }
 
 
-    public function getRequest($method, $url)
+    public function getRequest($method, $url, $additionalHeaders = [])
     {
-
-        $res = $this->request($method, self::API_URL . $url,
-            ['headers' => [
-                'Accept' => 'application/json', #todo required
-            ]
+        $res = $this->request(
+            $method,
+            self::API_URL.$url,
+            [
+                'headers' => array_merge(
+                    [
+                        'Accept' => 'application/json',
+                    ],
+                    $additionalHeaders
+                ),
             ]
         );
-        if ($res) return json_decode($res->getBody());
+        if ($res) {
+            return json_decode($res->getBody());
+        }
+
         return false;
     }
 
@@ -100,28 +116,38 @@ class simProRequestService
     {
         $client = new Client();
         $this->getToken();
-        $res = $client->delete(self::API_URL . $url . '?access_token=' . $this->token,
-            ['headers' => [
-                'Accept' => 'application/json', #todo required
-            ]
+        $res = $client->delete(
+            self::API_URL.$url.'?access_token='.$this->token,
+            [
+                'headers' => [
+                    'Accept' => 'application/json', #todo required
+                ],
             ]
         );
-        if ($res) return json_decode($res->getBody());
+        if ($res) {
+            return json_decode($res->getBody());
+        }
+
         return false;
     }
 
     public function patchRequest($method, $url, $data)
     {
-        $res = $this->request($method, self::API_URL . $url,
-            ['headers' => [
-                'Accept' => 'application/json', #todo required
-            ],
-                'json' => $data
+        $res = $this->request(
+            $method,
+            self::API_URL.$url,
+            [
+                'headers' => [
+                    'Accept' => 'application/json', #todo required
+                ],
+                'json' => $data,
             ]
         );
-        if ($res) return json_decode($res->getBody());
-        return false;
+        if ($res) {
+            return json_decode($res->getBody());
+        }
 
+        return false;
     }
 
     private function reGenToken()
@@ -133,6 +159,7 @@ class simProRequestService
             $set->wait = 1;
             $set->save();
             $this->getToken(true);
+
             return;
         }
         $this->getToken();
@@ -147,9 +174,11 @@ class simProRequestService
             if ($count <= 3) {
                 sleep(10);
                 $count++;
+
                 return $this->getToken(false, $count);
             } else {
                 Log::error('simPRO can`t get token');
+
                 return false;
             }
         }
@@ -174,7 +203,7 @@ class simProRequestService
             404 => 'Not found',
             500 => 'Internal server error',
             502 => 'Bad gateway',
-            503 => 'Service unavailable'
+            503 => 'Service unavailable',
         );
         $client = new Client();
         /**
@@ -197,14 +226,18 @@ class simProRequestService
 //        $set->expires_in = $data->expires_in;
         $set->wait = 0;
         $set->save();
+
         return true;
     }
 
     function getParam($name)
     {
         $settings = Settings::where(['name' => $name])->get()->toArray();
-        if (count($settings) == 0) return new Settings();
-        else return Settings::find($settings[0]['id']);
+        if (count($settings) == 0) {
+            return new Settings();
+        } else {
+            return Settings::find($settings[0]['id']);
+        }
     }
 
     function uploadAppointment(Appointment $a)
@@ -212,12 +245,14 @@ class simProRequestService
 //        dump('upload');
         $today = new \DateTime();
         $pdf_folder = Config::get('constants.storage_pdf');
-        if (!is_file($pdf_folder . '/' . $a->pdf)) {
+        if (!is_file($pdf_folder.'/'.$a->pdf)) {
             return;
         }
-        $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $a->pdf));
-        $file_name = $a->job_id . '.appointment.' . $today->format('Y-m-d') . '.pdf';
-        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/jobs/' . $a->job_id . '/attachments/files/',
+        $b64Doc = base64_encode(file_get_contents($pdf_folder.'/'.$a->pdf));
+        $file_name = $a->job_id.'.appointment.'.$today->format('Y-m-d').'.pdf';
+        $res = $this->patchRequest(
+            'POST',
+            '/api/v1.0/companies/0/jobs/'.$a->job_id.'/attachments/files/',
             [
                 'Filename' => $file_name,
                 'Base64Data' => $b64Doc,
@@ -242,14 +277,16 @@ class simProRequestService
                 break;
         }
         $today = new \DateTime();
-        $file_name = 'Job#' . $a->job_id . '.' . $letter_type . '.' . $today->format('Y-m-d') . '.pdf';
+        $file_name = 'Job#'.$a->job_id.'.'.$letter_type.'.'.$today->format('Y-m-d').'.pdf';
 
         $pdf_folder = Config::get('constants.storage_pdf');
-        if (!is_file($pdf_folder . '/' . $a->pdf)) {
+        if (!is_file($pdf_folder.'/'.$a->pdf)) {
             return;
         }
-        $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $a->pdf));
-        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/jobs/' . $a->job_id . '/attachments/files/',
+        $b64Doc = base64_encode(file_get_contents($pdf_folder.'/'.$a->pdf));
+        $res = $this->patchRequest(
+            'POST',
+            '/api/v1.0/companies/0/jobs/'.$a->job_id.'/attachments/files/',
             [
                 'Filename' => $file_name,
                 'Base64Data' => $b64Doc,
@@ -263,17 +300,19 @@ class simProRequestService
     {
         $today = new \DateTime();
         $pdf_folder = Config::get('constants.storage_pdf');
-        if (!is_file($pdf_folder . '/' . $h->pdf)) {
+        if (!is_file($pdf_folder.'/'.$h->pdf)) {
             return;
         }
-        $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $h->pdf));
+        $b64Doc = base64_encode(file_get_contents($pdf_folder.'/'.$h->pdf));
         $tag = $h->tags;
         $tag = str_replace("(Letter)", '', $tag);
         $tag = strtolower($tag);
         $tag = trim($tag);
         $tag = str_replace(' ', '-', $tag);
-        $file_name = $h->job_id . '.' . $tag . '.' . $today->format('Y-m-d') . '.pdf';
-        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/jobs/' . $h->job_id . '/attachments/files/',
+        $file_name = $h->job_id.'.'.$tag.'.'.$today->format('Y-m-d').'.pdf';
+        $res = $this->patchRequest(
+            'POST',
+            '/api/v1.0/companies/0/jobs/'.$h->job_id.'/attachments/files/',
             [
                 'Filename' => $file_name,
                 'Base64Data' => $b64Doc,
@@ -288,26 +327,33 @@ class simProRequestService
     {
 //        /api/v1.0/companies/0/employees/123/attachments/files/
         $pdf_folder = Config::get('constants.storage_pdf');
-        if (!is_file($pdf_folder . '/' . $pdf)) {
+        if (!is_file($pdf_folder.'/'.$pdf)) {
             return;
         }
-        $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $pdf));
-        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/customers/' . $customer->company_id . '/attachments/files/', [
+        $b64Doc = base64_encode(file_get_contents($pdf_folder.'/'.$pdf));
+        $res = $this->patchRequest(
+            'POST',
+            '/api/v1.0/companies/0/customers/'.$customer->company_id.'/attachments/files/',
+            [
                 'Filename' => $pdf,
                 'Base64Data' => $b64Doc,
             ]
         );
     }
 
-    function uploadNewPrivate($customer, $pdf) {
+    function uploadNewPrivate($customer, $pdf)
+    {
         $pdf_folder = Config::get('constants.storage_pdf');
-        if (!is_file($pdf_folder . '/' . $pdf)) {
+        if (!is_file($pdf_folder.'/'.$pdf)) {
             return;
         }
-        $b64Doc = base64_encode(file_get_contents($pdf_folder . '/' . $pdf));
+        $b64Doc = base64_encode(file_get_contents($pdf_folder.'/'.$pdf));
 
 //        $res = $this->patchRequest('POST', '/api/v1.0/companies/0/recurringInvoices/'. $customer->recurring_invoice_id . '/attachments/files/', [
-            $res = $this->patchRequest('POST', '/api/v1.0/companies/0/customers/' . $customer->customer_id . '/attachments/files/', [
+        $res = $this->patchRequest(
+            'POST',
+            '/api/v1.0/companies/0/customers/'.$customer->customer_id.'/attachments/files/',
+            [
                 'Filename' => $pdf,
                 'Base64Data' => $b64Doc,
             ]

@@ -2,21 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\AssetReport\AssetJob;
+use App\AssetLogForDev;
 use App\Jobs\AssetReport\SiteJob;
-use App\Jobs\HousingPage;
-use App\Models\ParsingConstant;
 use App\Models\AssetReport;
 use App\Models\AssetReportValidation;
-use App\Service\HousingUploader;
-use App\Service\Requester;
 use App\Service\simProRequestService;
-use App\Service\simProService;
-use App\Service\Upload\HousingUpload;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
-use Psr\Http\Message\ResponseInterface;
 
 class UploadAssetReport extends Command
 {
@@ -40,24 +31,16 @@ class UploadAssetReport extends Command
      */
     public function handle()
     {
-        $assetConstant = ParsingConstant::firstOrCreate(
+        $da = new \DateTime('-1 day');
+
+        AssetLogForDev::query()->truncate();
+        $pages = $this->simpro->getRequestPage(
+            'get',
+            self::SITES_URL.'?Customers.ID=11514&columns=ID,CustomFields&pageSize=100',
             [
-                'type' => ParsingConstant::ASSET_TYPE,
-            ],
-            [
-                'is_need_parsing' => false,
+                'If-Modified-Since' => $da->format('D, d M Y 00:00:00 ').'GMT'
             ]
         );
-
-//        if (!$assetConstant->is_need_parsing) {
-//            return;
-//        }
-        $assetConstant->is_need_parsing = false;
-        $assetConstant->save();
-
-        AssetReport::query()->truncate();
-        AssetReportValidation::query()->truncate();
-        $pages = $this->simpro->getRequestPage('get', self::SITES_URL.'?Customers.ID=11514&columns=ID,CustomFields&pageSize=100');
         foreach ($pages as $page) {
             $sites = $this->simpro->getRequest('get', $page);
             foreach ($sites as $site) {
@@ -127,15 +110,15 @@ class UploadAssetReport extends Command
             $customFieldName = $customField->CustomField->Name ?? null;
             if ($customFieldName == 'Last Service Date' && $data['last_service_date'] === null) {
                 $data['last_service_date'] = $value;
-            } elseif(strpos($customFieldName, 'Fuel Type') !== false) {
+            } elseif (strpos($customFieldName, 'Fuel Type') !== false) {
                 $data['fuel_type'] = $value;
-            } elseif($customFieldName == 'Type') {
+            } elseif ($customFieldName == 'Type') {
                 $data['type'] = $value;
-            } elseif($customFieldName == 'Make') {
+            } elseif ($customFieldName == 'Make') {
                 $data['make'] = $value;
-            } elseif($customFieldName == 'Model') {
+            } elseif ($customFieldName == 'Model') {
                 $data['model'] = $value;
-            } elseif($customFieldName == 'Last Years MOT Date'){
+            } elseif ($customFieldName == 'Last Years MOT Date') {
                 $data['last_MOT_date'] = $value;
             }
         }
@@ -144,7 +127,7 @@ class UploadAssetReport extends Command
 
         $testHistories = $this->simpro->getRequest(
             'get',
-                self::SITES_URL.$siteId.'/assets/'.$assetId.'/testHistory/?columns=Job'
+            self::SITES_URL.$siteId.'/assets/'.$assetId.'/testHistory/?columns=Job'
         );
 
         if ($testHistories) {

@@ -114,6 +114,7 @@ class AssetReportController extends Controller
 
     public function downloadCsv(Request $request)
     {
+        ini_set('memory_limit', '2048M');
         $assetReports = AssetReport::get();
         $pdfFolder = Config::get('constants.reports');
         $name = 'CHL_InstalledEquipment_'.Date('YmdHi').'.csv';
@@ -142,11 +143,16 @@ class AssetReportController extends Controller
             ],
             ','
         );
+        $now = Date('Y-m-d');
         foreach ($assetReports as $assetReport) {
             $jobDueDate = '';
             $jobStage = $assetReport->job_stage;
             if (in_array($jobStage, ['Progress', 'Pending', 'Complete'])) {
                 $jobDueDate = $assetReport->job_due_date;
+            }
+            $d = null;
+            if ($assetReport->next_scheduled_appointment_date) {
+                list($d) = explode(' ', $assetReport->next_scheduled_appointment_date);
             }
             fputcsv(
                 $fp,
@@ -167,7 +173,7 @@ class AssetReportController extends Controller
                     $assetReport->service_level_name,
                     $assetReport->last_MOT_date,
                     $assetReport->service_due,
-                    $assetReport->next_scheduled_appointment_date,
+                    $assetReport->next_scheduled_appointment_date && $d >= $now ? $assetReport->next_scheduled_appointment_date : '',
                     $assetReport->no_access_visits,
                 ],
                 ','
