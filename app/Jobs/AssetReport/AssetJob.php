@@ -1,77 +1,47 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Jobs\AssetReport;
 
-use App\AssetLogForDev;
-use App\Jobs\AssetReport\SiteJob;
 use App\Models\AssetReport;
 use App\Models\AssetReportValidation;
 use App\Service\simProRequestService;
-use Illuminate\Console\Command;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
-class UploadAssetReport extends Command
+class AssetJob implements ShouldQueue
 {
-    /** @var simProRequestService */
-    protected $simpro;
-    protected $signature = 'upload:asset:report';
-    protected $description = 'Command description';
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     const SITES_URL = '/api/v1.0/companies/0/sites/';
 
-    public function __construct()
+    private $site;
+    private $asset;
+
+
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct($site, $asset)
     {
-        $this->simpro = new simProRequestService();
-        parent::__construct();
+        $this->site = $site;
+        $this->asset = $asset;
     }
 
     /**
-     * Execute the console command.
+     * Execute the job.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
-        $da = new \DateTime('-1 day');
-
-        AssetLogForDev::query()->truncate();
-        $pages = $this->simpro->getRequestPage(
-            'get',
-            self::SITES_URL.'?Customers.ID=11514&columns=ID,CustomFields&pageSize=100',
-            [
-                'If-Modified-Since' => $da->format('D, d M Y 00:00:00 ').'GMT'
-            ]
-        );
-        foreach ($pages as $page) {
-            $sites = $this->simpro->getRequest('get', $page);
-            foreach ($sites as $site) {
-                SiteJob::dispatch($site);
-//                $this->handleSite($site);
-            }
-        }
-    }
-
-    public function handleSite($site)
-    {
-        $siteId = $site->ID ?? 0;
-
-        $assetsPages = $this->simpro->getRequestPage(
-            'get',
-            self::SITES_URL.$siteId.'/assets/?Archived=false&columns=ID,AssetType,CustomFields,LastTest,StartDate'
-        );
-        if (!$assetsPages) {
-            return;
-        }
-
-        foreach ($assetsPages as $assetPage) {
-            $assets = $this->simpro->getRequest('get', $assetPage);
-            foreach ($assets as $asset) {
-                $this->handleAsset($site, $asset);
-            }
-        }
-    }
-
-    public function handleAsset($site, $asset)
-    {
+        $simpro = new simProRequestService();
+        $site = $this->site;
+        $asset = $this->asset;
         $today = strtotime(Date('Y-m-d'));
         $siteId = $site->ID ?? 0;
         $assetId = $asset->ID ?? 0;
@@ -125,7 +95,7 @@ class UploadAssetReport extends Command
         $data['last_service_date'] = $data['last_service_date'] ?: $asset->StartDate;
 
 
-        $testHistories = $this->simpro->getRequest(
+        $testHistories = $simpro->getRequest(
             'get',
             self::SITES_URL.$siteId.'/assets/'.$assetId.'/testHistory/?columns=Job'
         );
@@ -135,7 +105,7 @@ class UploadAssetReport extends Command
             $data['job_due_date'] = $job->DueDate ?? null;
 
             $jobId = $job->ID ?? 0;
-            $job = $this->simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$jobId.'?columns=Stage,Tags,DueDate');
+            $job = $simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$jobId.'?columns=Stage,Tags,DueDate');
             if ($job) {
                 $data['job_stage'] = $job->Stage ?? null;
                 $data['service_due'] = $job->DueDate;
@@ -151,7 +121,7 @@ class UploadAssetReport extends Command
                 }
             }
 
-            $schedules = $this->simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'-%');
+            $schedules = $simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'-%');
             if ($schedules) {
                 $schedule = $schedules[0] ?? new \stdClass();
                 $scheduleDate = $schedule->Date;
@@ -163,7 +133,7 @@ class UploadAssetReport extends Command
             }
         }
 
-        $serviceLevels = $this->simpro->getRequest(
+        $serviceLevels = $simpro->getRequest(
             'get',
             self::SITES_URL.$siteId.'/assets/'.$assetId.'/serviceLevels/'
         );
@@ -241,13 +211,11 @@ class UploadAssetReport extends Command
             );
         }
     }
-
-
     public function getDaysDiff($firstTime, $secondTime)
     {
         $diff = $firstTime - $secondTime;
 
         return (int)abs(round($diff / (60 * 60 * 24)));
     }
-}
 
+}
