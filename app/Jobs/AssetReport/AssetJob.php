@@ -78,6 +78,10 @@ class AssetJob implements ShouldQueue
             $value = $customField->Value;
 
             $customFieldName = $customField->CustomField->Name ?? null;
+            if ($customFieldName) {
+                $customFieldName = trim($customFieldName);
+            }
+
             if ($customFieldName == 'Last Service Date' && $data['last_service_date'] === null) {
                 $data['last_service_date'] = $value;
             } elseif (strpos($customFieldName, 'Fuel Type') !== false) {
@@ -145,6 +149,11 @@ class AssetJob implements ShouldQueue
             if ($data['service_due'] === null) {
                 $data['service_due'] = $data['next_service_date'];
             }
+
+            $now = Date('Y-m-d');
+            if ($data['job_due_date'] < $now) {
+                $data['job_due_date'] = $serviceLevel->ServiceDate ?? null;
+            }
         }
         if ($data['last_service_date']) {
             $daysBetween = $this->getDaysDiff($today, strtotime($data['last_service_date']));
@@ -211,6 +220,7 @@ class AssetJob implements ShouldQueue
             );
         }
     }
+
     public function getDaysDiff($firstTime, $secondTime)
     {
         $diff = $firstTime - $secondTime;
