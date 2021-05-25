@@ -40,7 +40,7 @@ class SiteJob implements ShouldQueue
         $da = new \DateTime('-1 day');
         $assets = $simpro->getRequest(
             'get',
-            "/api/v1.0/companies/0/customerAssets/?display=all&Site.ID=$siteId&pageSize=100&Archived=false&columns=ID,AssetType,CustomFields,LastTest,StartDate",
+            "/api/v1.0/companies/0/customerAssets/?display=all&Site.ID=$siteId&pageSize=100&Archived=false&columns=ID,AssetType,CustomFields,LastTest,StartDate"
 //            [
 //                'If-Modified-Since' => $da->format('D, d M Y 00:00:00 ').'GMT',
 //            ]
