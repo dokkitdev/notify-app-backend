@@ -31,8 +31,6 @@ class UploadAssetReport extends Command
      */
     public function handle()
     {
-        $da = new \DateTime('-1 day');
-
         AssetLogForDev::query()->truncate();
         AssetReport::query()->truncate();
         AssetReportValidation::query()->truncate();
