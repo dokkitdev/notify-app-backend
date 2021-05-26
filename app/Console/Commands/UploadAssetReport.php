@@ -31,6 +31,7 @@ class UploadAssetReport extends Command
      */
     public function handle()
     {
+	return;
         AssetLogForDev::query()->truncate();
         AssetReport::query()->truncate();
         AssetReportValidation::query()->truncate();
