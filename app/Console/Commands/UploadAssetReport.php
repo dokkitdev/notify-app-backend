@@ -31,7 +31,6 @@ class UploadAssetReport extends Command
      */
     public function handle()
     {
-	return;
         AssetLogForDev::query()->truncate();
         $pages = $this->simpro->getRequestPage(
             'get',
