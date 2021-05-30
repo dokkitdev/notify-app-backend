@@ -195,6 +195,16 @@ class AssetJob implements ShouldQueue
             $errors[] = 'No Model found';
         }
 
+        $today = Date('Y-m-d');
+        if (!$data['job_due_date'] || ($data['job_due_date'] < $today)) {
+            $data['job_due_date'] = $data['next_service_date'];
+        }
+
+        if (trim($data['job_stage']) != 'Progress') {
+            $data['no_access_visits'] = null;
+        }
+
+
         AssetReport::query()
             ->where('site_id', $siteId)
             ->where('asset_id', $assetId)
