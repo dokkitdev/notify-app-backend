@@ -32,6 +32,9 @@ class UploadAssetReport extends Command
     public function handle()
     {
         AssetLogForDev::query()->truncate();
+        AssetReportValidation::query()->truncate();
+        AssetReport::query()->truncate();
+
         $pages = $this->simpro->getRequestPage(
             'get',
             self::SITES_URL.'?Customers.ID=11514&columns=ID,CustomFields&pageSize=100'
