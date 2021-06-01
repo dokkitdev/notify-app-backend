@@ -195,12 +195,14 @@ class AssetJob implements ShouldQueue
             $errors[] = 'No Model found';
         }
 
+
         $today = Date('Y-m-d');
         if (!$data['job_due_date'] || ($data['job_due_date'] < $today)) {
             $data['service_due'] = $data['next_service_date'];
         } else {
             $data['service_due'] = $data['job_due_date'];
         }
+
 
         if (trim($data['job_stage']) != 'Progress') {
             $data['no_access_visits'] = null;
