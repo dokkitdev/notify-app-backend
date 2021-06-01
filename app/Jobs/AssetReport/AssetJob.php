@@ -197,7 +197,9 @@ class AssetJob implements ShouldQueue
 
         $today = Date('Y-m-d');
         if (!$data['job_due_date'] || ($data['job_due_date'] < $today)) {
-            $data['job_due_date'] = $data['next_service_date'];
+            $data['service_due'] = $data['next_service_date'];
+        } else {
+            $data['service_due'] = $data['job_due_date'];
         }
 
         if (trim($data['job_stage']) != 'Progress') {

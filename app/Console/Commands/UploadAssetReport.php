@@ -37,7 +37,7 @@ class UploadAssetReport extends Command
 
         $pages = $this->simpro->getRequestPage(
             'get',
-            self::SITES_URL.'?Customers.ID=11514&columns=ID,CustomFields&pageSize=100'
+            self::SITES_URL.'?Customers.ID=11514&columns=ID,CustomFields&pageSize=100&ID=in(38777,35465,32869,36131,35750,31990,35577,37342,33060,32385)'
         );
         foreach ($pages as $page) {
             $sites = $this->simpro->getRequest('get', $page);
