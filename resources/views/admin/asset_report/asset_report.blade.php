@@ -55,12 +55,6 @@
                 </div>
             </div>
             <div class="col-md-4 text-right">
-                @if ($asset_constant->is_need_parsing == true)
-                    <button type="button" disabled class="btn btn-primary">Schedule Validation</button>
-                @else
-                    <a href="{{ route('asset_report.schedule') }}"
-                       class="btn btn-primary">Schedule Validation</a>
-                @endif
                 <a href="{{ route('asset_report.download_csv') }}"
                    class="btn btn-primary">Process Report</a>
             </div>
