@@ -19,6 +19,7 @@ class AssetJob implements ShouldQueue
 
     private $site;
     private $asset;
+    private $today;
 
 
     /**
@@ -26,10 +27,11 @@ class AssetJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($site, $asset)
+    public function __construct($site, $asset, $today)
     {
         $this->site = $site;
         $this->asset = $asset;
+        $this->today = $today;
     }
 
     /**
@@ -196,8 +198,7 @@ class AssetJob implements ShouldQueue
         }
 
 
-        $today = Date('Y-m-d');
-        if (!$data['job_due_date'] || ($data['job_due_date'] < $today)) {
+        if (!$data['job_due_date'] || ($data['job_due_date'] < $this->today)) {
             $data['service_due'] = $data['next_service_date'];
         } else {
             $data['service_due'] = $data['job_due_date'];
