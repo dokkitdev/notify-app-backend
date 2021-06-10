@@ -144,6 +144,7 @@ class AssetReportController extends Controller
             ','
         );
         $now = Date('Y-m-d');
+        $today = (new \DateTime('+1 day'))->format('Y-m-d');
         foreach ($assetReports as $assetReport) {
             $jobDueDate = '';
             $jobStage = $assetReport->job_stage;
@@ -154,6 +155,15 @@ class AssetReportController extends Controller
             if ($assetReport->next_scheduled_appointment_date) {
                 list($d) = explode(' ', $assetReport->next_scheduled_appointment_date);
             }
+
+            if (!$jobDueDate || ($jobDueDate < $today)) {
+                $serviceDue = $assetReport->next_service_date;
+            } else {
+                $serviceDue = $jobDueDate;
+            }
+
+
+
             fputcsv(
                 $fp,
                 [
@@ -172,7 +182,7 @@ class AssetReportController extends Controller
                     $jobStage == 'Archived' ? '' : $jobStage,
                     $assetReport->service_level_name,
                     $assetReport->last_MOT_date,
-                    $assetReport->service_due,
+                    $serviceDue,
                     $assetReport->next_scheduled_appointment_date && $d >= $now ? $assetReport->next_scheduled_appointment_date : '',
                     $assetReport->no_access_visits,
                 ],
