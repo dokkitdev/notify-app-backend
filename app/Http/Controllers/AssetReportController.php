@@ -148,7 +148,7 @@ class AssetReportController extends Controller
         foreach ($assetReports as $assetReport) {
             $jobDueDate = '';
             $jobStage = $assetReport->job_stage;
-            if (in_array($jobStage, ['Progress', 'Pending', 'Complete'])) {
+            if (in_array($jobStage, ['Progress', 'Pending'])) {
                 $jobDueDate = $assetReport->job_due_date;
             }
             $d = null;
