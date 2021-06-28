@@ -157,6 +157,10 @@ class AssetJob implements ShouldQueue
                 $data['job_due_date'] = $serviceLevel->ServiceDate ?? null;
             }
         }
+
+
+
+
         if ($data['last_service_date']) {
             $daysBetween = $this->getDaysDiff($today, strtotime($data['last_service_date']));
             if ($daysBetween > 365) {
@@ -174,9 +178,9 @@ class AssetJob implements ShouldQueue
 
         if ($data['service_due']) {
             $daysBetween = $this->getDaysDiff($today, strtotime($data['service_due']));
-            if ($daysBetween === 11) {
+            if ($daysBetween === 13) {
                 $errors[] = 'Service due in 11 days';
-            } elseif ($daysBetween === 1) {
+            } if ($daysBetween === 2) {
                 $errors[] = 'Service due tomorrow';
             }
         }
@@ -185,8 +189,9 @@ class AssetJob implements ShouldQueue
             $lastServiceDate = \DateTime::createFromFormat('Y-m-d', $data['last_service_date']);
             $serviceDue = \DateTime::createFromFormat('Y-m-d', $data['service_due']);
             $diff = $lastServiceDate->diff($serviceDue);
-            $m = $diff->m;
-            $d = $diff->d;
+            $y = abs($diff->y);
+            $m = abs($diff->m) + $y + 12;
+            $d = abs($diff->d);
             if ($m > 12 || ($diff->m === 12 && $d > 0)) {
                 $errors[] = 'Service complete outside of due date '.$m.' '.($m > 1 ? 'months' : 'month').' '.$d.' '.($d > 1 ? 'days' : 'day');
             }
