@@ -159,8 +159,6 @@ class AssetJob implements ShouldQueue
         }
 
 
-
-
         if ($data['last_service_date']) {
             $daysBetween = $this->getDaysDiff($today, strtotime($data['last_service_date']));
             if ($daysBetween > 365) {
@@ -176,11 +174,12 @@ class AssetJob implements ShouldQueue
         }
 
 
-        if ($data['service_due']) {
+        if ($data['service_due'] && in_array($data['job_stage'], ['Progress', 'Pending'])) {
             $daysBetween = $this->getDaysDiff($today, strtotime($data['service_due']));
             if ($daysBetween === 13) {
                 $errors[] = 'Service due in 11 days';
-            } if ($daysBetween === 2) {
+            }
+            if ($daysBetween === 2) {
                 $errors[] = 'Service due tomorrow';
             }
         }
@@ -188,6 +187,9 @@ class AssetJob implements ShouldQueue
         if ($data['last_service_date'] && $data['service_due']) {
             $lastServiceDate = \DateTime::createFromFormat('Y-m-d', $data['last_service_date']);
             $serviceDue = \DateTime::createFromFormat('Y-m-d', $data['service_due']);
+            if (!in_array($data['job_stage'], ['Progress', 'Pending'])) {
+                $serviceDue = \DateTime::createFromFormat('Y-m-d', $data['next_service_date']);
+            }
             $diff = $lastServiceDate->diff($serviceDue);
             $y = abs($diff->y);
             $m = abs($diff->m) + $y + 12;
@@ -209,9 +211,6 @@ class AssetJob implements ShouldQueue
         if (!$data['model']) {
             $errors[] = 'No Model found';
         }
-
-
-
 
 
         if (trim($data['job_stage']) != 'Progress') {
