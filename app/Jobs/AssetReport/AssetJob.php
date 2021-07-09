@@ -14,6 +14,7 @@ use Illuminate\Queue\SerializesModels;
 class AssetJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    public $tries = 3;
 
     const SITES_URL = '/api/v1.0/companies/0/sites/';
 

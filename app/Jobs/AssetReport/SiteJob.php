@@ -14,7 +14,7 @@ class SiteJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-
+    public $tries = 3;
     private $site;
 
     /**
@@ -52,7 +52,7 @@ class SiteJob implements ShouldQueue
             return;
         }
 
-        $today =  (new \DateTime('+1 day'))->format('Y-m-d');
+        $today = (new \DateTime('+1 day'))->format('Y-m-d');
         foreach ($assets as $asset) {
             AssetJob::dispatch($this->site, $asset, $today);
         }
