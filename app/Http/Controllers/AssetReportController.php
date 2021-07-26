@@ -43,8 +43,9 @@ class AssetReportController extends Controller
 
 
         $siteId = $request->get('site_id');
-        $assetType = $request->get('asset_type');
-        $errorSelected = $request->get('error_selected');
+        $assetType = $request->get('asset_type') ?: [];
+        $serviceLevelName = $request->get('service_level_name') ?: [];
+        $errorSelected = $request->get('error_selected') ?: [];
         $limit = $request->get('limit') ?? 20;
         $sort = $request->get('sort') ?: 'id';
         $direction = $request->get('direction') ?: 'asc';
@@ -55,13 +56,28 @@ class AssetReportController extends Controller
             $validations->where('site_id', $siteId);
             $assetTypes = AssetReportValidation::query()
                 ->select('asset_type')
+                ->whereNotNull('asset_type')
                 ->where('site_id', $siteId)
                 ->groupBy('asset_type')
+                ->get();
+
+            $serviceLevelNames = AssetReportValidation::query()
+                ->select('service_level_name')
+                ->where('site_id', $siteId)
+                ->whereNotNull('service_level_name')
+                ->groupBy('service_level_name')
                 ->get();
         } else {
             $assetTypes = AssetReportValidation::query()
                 ->select('asset_type')
+                ->whereNotNull('asset_type')
                 ->groupBy('asset_type')
+                ->get();
+
+            $serviceLevelNames = AssetReportValidation::query()
+                ->whereNotNull('service_level_name')
+                ->select('service_level_name')
+                ->groupBy('service_level_name')
                 ->get();
         }
 
@@ -77,17 +93,28 @@ class AssetReportController extends Controller
         ];
 
         if ($errorSelected !== null) {
-            if ($errorSelected == 0) {
-                $like = 'Last service%ago';
-            } else {
-                $like = $errors[$errorSelected] ?? '';
-                $like .= '%';
-            }
-            $validations->where('error', 'LIKE', $like);
+            $validations->where(
+                function ($q) use ($errors, $errorSelected) {
+                    foreach ($errorSelected as $e) {
+                        $e = (int) $e;
+                        if ($e == 0) {
+                            $like = 'Last service%ago';
+                        } else {
+                            $like = $errors[$e] ?? '';
+                            $like .= '%';
+                        }
+                        $q->orWhere('error', 'LIKE', $like);
+                    }
+                }
+            );
         }
 
         if ($assetType) {
-            $validations->where('asset_type', $assetType);
+            $validations->whereIn('asset_type', $assetType);
+        }
+
+        if ($serviceLevelName) {
+            $validations->whereIn('service_level_name', $serviceLevelName);
         }
 
         $validations = $validations
@@ -108,6 +135,8 @@ class AssetReportController extends Controller
                 'asset_constant' => $assetConstant,
                 'errors' => $errors,
                 'error_selected' => $errorSelected,
+                'service_level_names' => $serviceLevelNames,
+                'service_level_name' => $serviceLevelName,
             ]
         );
     }
@@ -161,7 +190,6 @@ class AssetReportController extends Controller
             } else {
                 $serviceDue = $jobDueDate;
             }
-
 
 
             fputcsv(
