@@ -14,11 +14,33 @@
         <input type="hidden" name="sort" value="{{ request()->get('sort') }}">
         <input type="hidden" name="direction" value="{{ request()->get('direction') }}">
         <input type="hidden" name="site_id" value="{{ $site_id }}"/>
-        <input type="hidden" name="asset_type" value="{{ $asset_type }}"/>
-        <input type="hidden" name="error_selected" value="{{ $error_selected }}"/>
+        @foreach($asset_type as $a)
+            <input type="hidden" name="asset_type[]" value="{{ $a }}"/>
+        @endforeach
+        @foreach($service_level_name as $a)
+            <input type="hidden" name="service_level_name[]" value="{{ $a }}"/>
+        @endforeach
+        @foreach($error_selected as $a)
+            <input type="hidden" name="error_selected[]" value="{{ $a }}"/>
+        @endforeach
     </form>
     <span>
-    @php ($start_item = ($paginator->currentPage() - 1) * $paginator->perPage() + 1)
+        @php
+            $pagination = '';
+            foreach ($asset_type as $a) {
+                $pagination .= '&asset_type[]=' . $a;
+            }
+            foreach ($service_level_name as $a) {
+                $pagination .= '&service_level_name[]=' . $a;
+            }
+            foreach ($error_selected as $a) {
+                $pagination .= '&error_selected[]=' . $a;
+            }
+        @endphp
+
+
+
+        @php ($start_item = ($paginator->currentPage() - 1) * $paginator->perPage() + 1)
         @if ($start_item > $paginator->total())
             {!! $paginator->total() !!}
             -
@@ -32,10 +54,10 @@
         {!! $paginator->total() !!}
     </span>
     <a class="pagination-button prev {{ ($paginator->currentPage() == 1) ? 'disabled' : '' }}"
-       href="{{ $paginator->url($paginator->currentPage()-1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}&sort={{ request()->get('sort') }}&direction={{ request()->get('direction') }}&site_id={{$site_id}}&asset_type={{$asset_type}}&error_selected={{$error_selected}}">
+       href="{{ $paginator->url($paginator->currentPage()-1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}&sort={{ request()->get('sort') }}&direction={{ request()->get('direction') }}&site_id={{$site_id}}&{{ $pagination }}">
         < </a>
     <a class="pagination-button next {{ ($paginator->currentPage() == $paginator->lastPage()) ? 'disabled' : '' }}"
-       href="{{ $paginator->url($paginator->currentPage()+1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}&sort={{ request()->get('sort') }}&direction={{ request()->get('direction') }}&site_id={{$site_id}}&asset_type={{$asset_type}}&error_selected={{$error_selected}}">
+       href="{{ $paginator->url($paginator->currentPage()+1) }}&limit={!! $limit !!}&start={!! $start !!}&end={!! $end !!}&sort={{ request()->get('sort') }}&direction={{ request()->get('direction') }}&site_id={{$site_id}}&{{ $pagination }}">
         > </a>
 </div>
 

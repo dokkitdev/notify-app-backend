@@ -14,6 +14,7 @@ use Illuminate\Queue\SerializesModels;
 class AssetJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
     public $tries = 3;
 
     const SITES_URL = '/api/v1.0/companies/0/sites/';
@@ -48,7 +49,9 @@ class AssetJob implements ShouldQueue
         $today = strtotime(Date('Y-m-d'));
         $siteId = $site->ID ?? 0;
         $assetId = $asset->ID ?? 0;
-
+        if ($assetId != 97946) {
+            return;
+        }
         $errors = [];
         $data = [
             'site_id' => $siteId,
@@ -191,12 +194,15 @@ class AssetJob implements ShouldQueue
             if (!in_array($data['job_stage'], ['Progress', 'Pending'])) {
                 $serviceDue = \DateTime::createFromFormat('Y-m-d', $data['next_service_date']);
             }
-            $diff = $lastServiceDate->diff($serviceDue);
-            $y = abs($diff->y);
-            $m = abs($diff->m) + $y + 12;
-            $d = abs($diff->d);
-            if ($m > 12 || ($diff->m === 12 && $d > 0)) {
-                $errors[] = 'Service complete outside of due date '.$m.' '.($m > 1 ? 'months' : 'month').' '.$d.' '.($d > 1 ? 'days' : 'day');
+            try {
+                $diff = $lastServiceDate->diff($serviceDue);
+                $y = abs($diff->y);
+                $m = abs($diff->m) + $y + 12;
+                $d = abs($diff->d);
+                if ($m > 12 || ($diff->m === 12 && $d > 0)) {
+                    $errors[] = 'Service complete outside of due date '.$m.' '.($m > 1 ? 'months' : 'month').' '.$d.' '.($d > 1 ? 'days' : 'day');
+                }
+            } catch (\Exception $e) {
             }
         }
 
@@ -236,10 +242,11 @@ class AssetJob implements ShouldQueue
                     'site_id' => $data['site_id'],
                     'uprn' => $data['uprn'],
                     'fuel_type' => $data['fuel_type'],
-                    'asset_type' => $data['asset_type'],
+                    'asset_type' => trim($data['asset_type']),
                     'asset_id' => $data['asset_id'],
                     'asset_report_id' => $assetReport->id,
                     'error' => $error,
+                    'service_level_name' => trim($data['service_level_name']),
                 ]
             );
         }
