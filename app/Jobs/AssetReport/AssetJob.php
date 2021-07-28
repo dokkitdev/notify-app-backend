@@ -49,9 +49,7 @@ class AssetJob implements ShouldQueue
         $today = strtotime(Date('Y-m-d'));
         $siteId = $site->ID ?? 0;
         $assetId = $asset->ID ?? 0;
-        if ($assetId != 97946) {
-            return;
-        }
+        
         $errors = [];
         $data = [
             'site_id' => $siteId,
