@@ -23,6 +23,9 @@
         @foreach($error_selected as $a)
             <input type="hidden" name="error_selected[]" value="{{ $a }}"/>
         @endforeach
+        @foreach($stages_selected as $a)
+            <input type="hidden" name="stages[]" value="{{ $a }}"/>
+        @endforeach
     </form>
     <span>
         @php
@@ -35,6 +38,9 @@
             }
             foreach ($error_selected as $a) {
                 $pagination .= '&error_selected[]=' . $a;
+            }
+            foreach ($stages_selected as $a) {
+                $pagination .= '&stages[]=' . $a;
             }
         @endphp
 

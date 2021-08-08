@@ -16,5 +16,6 @@ class AssetReportValidation extends Model
         'asset_report_id',
         'error',
         'service_level_name',
+        'job_stage',
     ];
 }

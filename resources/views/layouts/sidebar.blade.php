@@ -39,7 +39,7 @@
     </li>
     <li class="nav-item {!! Route::current()->getName() == 'asset_report.index' ? 'active' : '' !!}">
         <a class="nav-link"
-           href="{{ route('asset_report.index') }}">
+           href="{{ route('asset_report.index') }}?first=1">
             <i class="fas fa-fw fa-folder"></i>
             <span>Asset Report</span>
         </a>
