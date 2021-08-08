@@ -75,6 +75,23 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="stages">Stage</label>
+                            <select multiple name="stages[]" id="stages"
+                                    class="selectpicker form-control"
+                                    multiple data-live-search="true">
+                                @foreach($stages as $k => $a)
+                                    <option
+                                        {{ in_array($a->job_stage, $stages_selected) ? 'selected' : '' }} value="{{ $a->job_stage }}">{{$a->job_stage}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <br>
+                        <input type="submit"  class="btn btn-primary" value="Save Filters" name="save_filter">
+                    </div>
                 </div>
             </div>
             <div class="col-md-4 text-right">
@@ -110,7 +127,7 @@
         <tbody>
         @foreach($validations as $validation)
             <tr>
-                <td>{{ $validation->site_id }}</td>
+                <td>{{ $validation->site_id }} {{ $validation->job_stage }}</td>
                 <td>{{ $validation->uprn }}</td>
                 <td>{{ $validation->asset_id }}</td>
                 <td>{{ $validation->asset_type }}</td>
@@ -133,7 +150,8 @@
         'site_id' => $site_id,
         'asset_type' => $asset_type,
         'service_level_name' => $service_level_name,
-        'error_selected' => $error_selected
+        'error_selected' => $error_selected,
+        'stages_selected' => $stages_selected,
         ]
         ) }}
     </div>
@@ -154,7 +172,7 @@
         $('#site_id').on('change', function (e) {
             $('#filter-asset-form').trigger('submit');
         });
-        $('#site_id,#asset_type,#error_selected,#service_level_name').on('hide.bs.select', function (e) {
+        $('#site_id,#asset_type,#error_selected,#service_level_name, #stages').on('hide.bs.select', function (e) {
             $('#filter-asset-form').trigger('submit');
         });
     </script>

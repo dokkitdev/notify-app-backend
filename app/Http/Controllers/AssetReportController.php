@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\AssetReportJob;
 use App\Models\AssetReport;
+use App\Models\AssetReportFilter;
 use App\Models\AssetReportValidation;
 use App\Models\ParsingConstant;
 use App\Models\ReportLog;
@@ -44,8 +45,29 @@ class AssetReportController extends Controller
 
         $siteId = $request->get('site_id');
         $assetType = $request->get('asset_type') ?: [];
+        $stagesSelected = $request->get('stages') ?: [];
         $serviceLevelName = $request->get('service_level_name') ?: [];
         $errorSelected = $request->get('error_selected') ?: [];
+
+        if ($request->has('first')) {
+            $filter = AssetReportFilter::query()->firstOrCreate([]);
+            $siteId = $filter->site_id;
+            $assetType = $filter->asset_types ?: [];
+            $stagesSelected = $filter->stages ?: [];
+            $serviceLevelName = $filter->service_levels ?: [];
+            $errorSelected = $filter->errors ?: [];
+        }
+
+        if ($request->has('save_filter')) {
+            $filter = AssetReportFilter::query()->firstOrCreate([]);
+            $filter->site_id = $siteId;
+            $filter->asset_types = $assetType;
+            $filter->stages = $stagesSelected;
+            $filter->service_levels = $serviceLevelName;
+            $filter->errors = $errorSelected;
+            $filter->save();
+        }
+
         $limit = $request->get('limit') ?? 20;
         $sort = $request->get('sort') ?: 'id';
         $direction = $request->get('direction') ?: 'asc';
@@ -67,6 +89,13 @@ class AssetReportController extends Controller
                 ->whereNotNull('service_level_name')
                 ->groupBy('service_level_name')
                 ->get();
+
+            $stages = AssetReportValidation::query()
+                ->select('job_stage')
+                ->where('site_id', $siteId)
+                ->whereNotNull('job_stage')
+                ->groupBy('job_stage')
+                ->get();
         } else {
             $assetTypes = AssetReportValidation::query()
                 ->select('asset_type')
@@ -78,6 +107,12 @@ class AssetReportController extends Controller
                 ->whereNotNull('service_level_name')
                 ->select('service_level_name')
                 ->groupBy('service_level_name')
+                ->get();
+
+            $stages = AssetReportValidation::query()
+                ->select('job_stage')
+                ->whereNotNull('job_stage')
+                ->groupBy('job_stage')
                 ->get();
         }
 
@@ -96,14 +131,21 @@ class AssetReportController extends Controller
             $validations->where(
                 function ($q) use ($errors, $errorSelected) {
                     foreach ($errorSelected as $e) {
-                        $e = (int) $e;
+                        $e = (int)$e;
                         if ($e == 0) {
                             $like = 'Last service%ago';
                         } else {
                             $like = $errors[$e] ?? '';
                             $like .= '%';
                         }
-                        $q->orWhere('error', 'LIKE', $like);
+                        if ($e != 3) {
+                            $q->orWhere('error', 'LIKE', $like);
+                        } else {
+                            $q
+                                ->orWhere('error', 'LIKE', 'Service complete outside of due date 12 months%')
+                                ->orWhere('error', 'LIKE', 'Service complete outside of due date 13 months%')
+                                ->orWhere('error', 'LIKE', 'Service complete outside of due date 14 months%');
+                        }
                     }
                 }
             );
@@ -115,6 +157,10 @@ class AssetReportController extends Controller
 
         if ($serviceLevelName) {
             $validations->whereIn('service_level_name', $serviceLevelName);
+        }
+
+        if ($stagesSelected) {
+            $validations->whereIn('job_stage', $stagesSelected);
         }
 
         $validations = $validations
@@ -137,6 +183,8 @@ class AssetReportController extends Controller
                 'error_selected' => $errorSelected,
                 'service_level_names' => $serviceLevelNames,
                 'service_level_name' => $serviceLevelName,
+                'stages' => $stages,
+                'stages_selected' => $stagesSelected,
             ]
         );
     }

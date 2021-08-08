@@ -49,7 +49,7 @@ class AssetJob implements ShouldQueue
         $today = strtotime(Date('Y-m-d'));
         $siteId = $site->ID ?? 0;
         $assetId = $asset->ID ?? 0;
-        
+
         $errors = [];
         $data = [
             'site_id' => $siteId,
@@ -245,6 +245,7 @@ class AssetJob implements ShouldQueue
                     'asset_report_id' => $assetReport->id,
                     'error' => $error,
                     'service_level_name' => trim($data['service_level_name']),
+                    'job_stage' => $data['job_stage'],
                 ]
             );
         }
