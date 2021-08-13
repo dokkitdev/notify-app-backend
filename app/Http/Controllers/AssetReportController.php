@@ -143,8 +143,7 @@ class AssetReportController extends Controller
                         } else {
                             $q
                                 ->orWhere('error', 'LIKE', 'Service complete outside of due date 12 months%')
-                                ->orWhere('error', 'LIKE', 'Service complete outside of due date 13 months%')
-                                ->orWhere('error', 'LIKE', 'Service complete outside of due date 14 months%');
+                                ->orWhere('error', 'LIKE', 'Service complete outside of due date 13 months%');
                         }
                     }
                 }
