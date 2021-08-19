@@ -195,7 +195,7 @@ class AssetJob implements ShouldQueue
             try {
                 $diff = $lastServiceDate->diff($serviceDue);
                 $y = abs($diff->y);
-                $m = abs($diff->m) + $y + 12;
+                $m = abs($diff->m) + $y * 12;
                 $d = abs($diff->d);
                 if ($m > 12 || ($diff->m === 12 && $d > 0)) {
                     $errors[] = 'Service complete outside of due date '.$m.' '.($m > 1 ? 'months' : 'month').' '.$d.' '.($d > 1 ? 'days' : 'day');
