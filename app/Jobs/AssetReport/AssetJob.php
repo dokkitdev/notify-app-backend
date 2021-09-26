@@ -51,6 +51,21 @@ class AssetJob implements ShouldQueue
         $assetId = $asset->ID ?? 0;
 
         $errors = [];
+
+        $lastServiceDate = null;
+
+        $testHistories = $simpro->getRequest(
+            'get',
+            self::SITES_URL.$siteId.'/assets/'.$assetId.'/testHistory/'
+        );
+
+        if ($testHistories) {
+            $t = $testHistories[0];
+            if (in_array($t->TestRecord->Result ?? '', ['Pass', 'Fail'])) {
+                $lastServiceDate = $t->TestRecord->Date;
+            }
+        }
+
         $data = [
             'site_id' => $siteId,
             'uprn' => null,
@@ -60,7 +75,7 @@ class AssetJob implements ShouldQueue
             'fuel_type' => null,
             'make' => null,
             'model' => null,
-            'last_service_date' => $asset->LastTest->Date ?? null,
+            'last_service_date' => $lastServiceDate,
             'service_level_start_date' => $asset->StartDate,
             'job_due_date' => null,
             'next_service_date' => null,
@@ -100,7 +115,7 @@ class AssetJob implements ShouldQueue
                 $data['last_MOT_date'] = $value;
             }
         }
-        $data['last_service_date'] = $data['last_service_date'] ?: $asset->StartDate;
+//        $data['last_service_date'] = $data['last_service_date'] ?: $asset->StartDate;
 
 
         $testHistories = $simpro->getRequest(
