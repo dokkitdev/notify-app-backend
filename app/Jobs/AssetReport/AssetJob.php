@@ -60,11 +60,14 @@ class AssetJob implements ShouldQueue
         );
 
         if ($testHistories) {
-            $t = $testHistories[0];
-            if (in_array($t->TestRecord->Result ?? '', ['Pass', 'Fail'])) {
-                $lastServiceDate = $t->TestRecord->Date;
+            foreach ($testHistories as $th) {
+                if (in_array($th->TestRecord->Result ?? '', ['Pass', 'Fail'])) {
+                    $lastServiceDate = $th->TestRecord->Date;
+                    break;
+                }
             }
         }
+        dump('siteId='.$siteId.', assetid='.$assetId.', '.$lastServiceDate);
 
         $data = [
             'site_id' => $siteId,
