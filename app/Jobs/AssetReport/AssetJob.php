@@ -67,7 +67,6 @@ class AssetJob implements ShouldQueue
                 }
             }
         }
-        dump('siteId='.$siteId.', assetid='.$assetId.', '.$lastServiceDate);
 
         $data = [
             'site_id' => $siteId,
@@ -104,7 +103,7 @@ class AssetJob implements ShouldQueue
                 $customFieldName = trim($customFieldName);
             }
 
-            if ($customFieldName == 'Last Service Date' && $data['last_service_date'] === null) {
+            if (strtolower($customFieldName) == strtolower('Last Service Date') && $data['last_service_date'] === null) {
                 $data['last_service_date'] = $value;
             } elseif (strpos($customFieldName, 'Fuel Type') !== false) {
                 $data['fuel_type'] = $value;
