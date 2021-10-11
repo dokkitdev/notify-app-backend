@@ -12,17 +12,16 @@ class WebhookController extends Controller
 {
     public function webhookAction(Request $request)
     {
-//        $data = $request->all();
-//        $id = $data['ID'];
-//        if (in_array($id, ['asset.created', 'asset.updated'])) {
-//            AssetReportJob::dispatch($data);
-//        } elseif ($id === 'job.updated') {
-//            SiteAssetReportJob::dispatch($data);
-//        }
-//        Webhook::create(
-//            [
-//                'data' => $data,
-//            ]
-//        );
+        $data = $request->all();
+        $id = $data['ID'];
+        if (in_array($id, ['asset.created', 'asset.updated'])) {
+            AssetReportJob::dispatch($data, true);
+        }
+        Webhook::query()
+            ->create(
+            [
+                'data' => $data,
+            ]
+        );
     }
 }

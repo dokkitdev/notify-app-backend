@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 
 use App\Jobs\AssetReportJob;
+use App\Jobs\AssetReportMiniExportJob;
 use App\Models\AssetReport;
 use App\Models\AssetReportFilter;
 use App\Models\AssetReportValidation;
@@ -271,6 +272,8 @@ class AssetReportController extends Controller
                 'filename' => $name,
             ]
         );
+
+        AssetReportMiniExportJob::dispatch();
 
         return response()->download($pdfFolder.'/'.$name, $name);
     }
