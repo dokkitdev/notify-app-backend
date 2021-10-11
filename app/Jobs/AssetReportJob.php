@@ -3,13 +3,14 @@
 namespace App\Jobs;
 
 use App\Models\AssetReport;
+use App\Models\AssetReportMini;
 use App\Models\AssetReportValidation;
 use App\Service\simProRequestService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class AssetReportJob implements ShouldQueue
 {
@@ -17,15 +18,17 @@ class AssetReportJob implements ShouldQueue
 
 
     private $data;
+    private $isWebhook;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($data)
+    public function __construct($data, $isWebhook = false)
     {
         $this->data = $data;
+        $this->isWebhook = $isWebhook;
     }
 
     /**
@@ -44,7 +47,20 @@ class AssetReportJob implements ShouldQueue
         $assetId = $data['reference']['assetID'];
         $siteUrl = '/api/v1.0/companies/0/sites/'.$siteId;
         $assetUrl = $siteUrl.'/assets/'.$assetId;
-        $site = $simpro->getRequest('get', $siteUrl.'?columns=ID,CustomFields');
+        $site = $simpro->getRequest('get', $siteUrl.'?columns=ID,CustomFields,Customers');
+        if ($this->isWebhook) {
+            $customers = $site->Customers;
+            $isCoastline = false;
+            foreach ($customers as $customer) {
+                if ($customer->ID == 11514) {
+                    $isCoastline = true;
+                    break;
+                }
+            }
+            if (!$isCoastline) {
+                return;
+            }
+        }
         $asset = $simpro->getRequest('get', $assetUrl.'?columns=ID,AssetType,CustomFields,LastTest,StartDate');
         $today = strtotime(Date('Y-m-d'));
         $errors = [];
@@ -81,15 +97,15 @@ class AssetReportJob implements ShouldQueue
             $customFieldName = $customField->CustomField->Name ?? null;
             if ($customFieldName == 'Last Service Date' && $data['last_service_date'] === null) {
                 $data['last_service_date'] = $value;
-            } elseif(strpos($customFieldName, 'Fuel Type') !== false) {
+            } elseif (strpos($customFieldName, 'Fuel Type') !== false) {
                 $data['fuel_type'] = $value;
-            } elseif($customFieldName == 'Type') {
+            } elseif ($customFieldName == 'Type') {
                 $data['type'] = $value;
-            } elseif($customFieldName == 'Make') {
+            } elseif ($customFieldName == 'Make') {
                 $data['make'] = $value;
-            } elseif($customFieldName == 'Model') {
+            } elseif ($customFieldName == 'Model') {
                 $data['model'] = $value;
-            } elseif($customFieldName == 'Last Years MOT Date'){
+            } elseif ($customFieldName == 'Last Years MOT Date') {
                 $data['last_MOT_date'] = $value;
             }
         }
@@ -183,14 +199,21 @@ class AssetReportJob implements ShouldQueue
             ->where('asset_id', $assetId)
             ->delete();
 
+
+        AssetReportMini::query()
+            ->where('site_id', $siteId)
+            ->where('asset_id', $assetId)
+            ->delete();
+
         AssetReportValidation::query()
             ->where('site_id', $siteId)
             ->where('asset_id', $assetId)
             ->delete();
 
-        $assetReport = AssetReport::create($data);
+        $assetReport = AssetReport::query()->create($data);
+        AssetReportMini::query()->create($data);
         foreach ($errors as $error) {
-            AssetReportValidation::create(
+            AssetReportValidation::query()->create(
                 [
                     'site_id' => $data['site_id'],
                     'uprn' => $data['uprn'],
@@ -203,6 +226,7 @@ class AssetReportJob implements ShouldQueue
             );
         }
     }
+
     public function getDaysDiff($firstTime, $secondTime)
     {
         $diff = $firstTime - $secondTime;
