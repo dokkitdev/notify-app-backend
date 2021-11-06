@@ -176,7 +176,7 @@ class AssetReportJob implements ShouldQueue
             $diff = $lastServiceDate->diff($serviceDue);
             $m = $diff->m;
             $d = $diff->d;
-            if ($m > 12 || ($diff->m === 12 && $d > 0)) {
+            if ($m < 12 || $m > 14) {
                 $errors[] = 'Service complete outside of due date '.$m.' '.($m > 1 ? 'months' : 'month').' '.$d.' '.($d > 1 ? 'days' : 'day');
             }
         }
