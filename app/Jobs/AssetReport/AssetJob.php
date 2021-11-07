@@ -103,7 +103,9 @@ class AssetJob implements ShouldQueue
                 $customFieldName = trim($customFieldName);
             }
 
-            if (strtolower($customFieldName) == strtolower('Last Service Date') && $data['last_service_date'] === null) {
+            if (strtolower($customFieldName) == strtolower(
+                    'Last Service Date'
+                ) && $data['last_service_date'] === null) {
                 $data['last_service_date'] = $value;
             } elseif (strpos($customFieldName, 'Fuel Type') !== false) {
                 $data['fuel_type'] = $value;
@@ -214,7 +216,7 @@ class AssetJob implements ShouldQueue
                 $y = abs($diff->y);
                 $m = abs($diff->m) + $y * 12;
                 $d = abs($diff->d);
-                if ($m > 12 || ($diff->m === 12 && $d > 0)) {
+                if ($m < 12 || $m > 14) {
                     $errors[] = 'Service complete outside of due date '.$m.' '.($m > 1 ? 'months' : 'month').' '.$d.' '.($d > 1 ? 'days' : 'day');
                 }
             } catch (\Exception $e) {
