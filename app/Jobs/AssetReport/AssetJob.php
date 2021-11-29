@@ -197,10 +197,10 @@ class AssetJob implements ShouldQueue
 
         if ($data['service_due'] && in_array($data['job_stage'], ['Progress', 'Pending'])) {
             $daysBetween = $this->getDaysDiff($today, strtotime($data['service_due']));
-            if ($daysBetween === 13) {
+            if ($daysBetween <= 11) {
                 $errors[] = 'Service due in 11 days';
             }
-            if ($daysBetween === 2) {
+            if ($daysBetween === 1) {
                 $errors[] = 'Service due tomorrow';
             }
         }

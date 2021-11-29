@@ -163,7 +163,7 @@ class AssetReportJob implements ShouldQueue
 
         if ($data['service_due']) {
             $daysBetween = $this->getDaysDiff($today, strtotime($data['service_due']));
-            if ($daysBetween === 11) {
+            if ($daysBetween <= 11) {
                 $errors[] = 'Service due in 11 days';
             } elseif ($daysBetween === 1) {
                 $errors[] = 'Service due tomorrow';
