@@ -45,9 +45,9 @@ class AssetReportJob implements ShouldQueue
         $data = $this->data;
         $siteId = $data['reference']['siteID'];
         $assetId = $data['reference']['assetID'];
-        $siteUrl = '/api/v1.0/companies/0/sites/'.$siteId;
-        $assetUrl = $siteUrl.'/assets/'.$assetId;
-        $site = $simpro->getRequest('get', $siteUrl.'?columns=ID,CustomFields,Customers');
+        $siteUrl = '/api/v1.0/companies/0/sites/' . $siteId;
+        $assetUrl = $siteUrl . '/assets/' . $assetId;
+        $site = $simpro->getRequest('get', $siteUrl . '?columns=ID,CustomFields,Customers');
         if ($this->isWebhook) {
             $customers = $site->Customers;
             $isCoastline = false;
@@ -61,7 +61,7 @@ class AssetReportJob implements ShouldQueue
                 return;
             }
         }
-        $asset = $simpro->getRequest('get', $assetUrl.'?columns=ID,AssetType,CustomFields,LastTest,StartDate');
+        $asset = $simpro->getRequest('get', $assetUrl . '?columns=ID,AssetType,CustomFields,LastTest,StartDate');
         $today = strtotime(Date('Y-m-d'));
         $errors = [];
         $data = [
@@ -110,14 +110,14 @@ class AssetReportJob implements ShouldQueue
             }
         }
         $data['last_service_date'] = $data['last_service_date'] ?: $asset->StartDate;
-        $testHistories = $simpro->getRequest('get', $assetUrl.'/testHistory/?columns=Job');
+        $testHistories = $simpro->getRequest('get', $assetUrl . '/testHistory/?columns=Job');
 
         if ($testHistories) {
             $job = $testHistories[0]->Job ?? new \stdClass();
             $data['job_due_date'] = $job->DueDate ?? null;
 
             $jobId = $job->ID ?? 0;
-            $job = $simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$jobId.'?columns=Stage,Tags,DueDate');
+            $job = $simpro->getRequest('get', '/api/v1.0/companies/0/jobs/' . $jobId . '?columns=Stage,Tags,DueDate');
             if ($job) {
                 $data['job_stage'] = $job->Stage ?? null;
                 $data['service_due'] = $job->DueDate;
@@ -133,19 +133,19 @@ class AssetReportJob implements ShouldQueue
                 }
             }
 
-            $schedules = $simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Reference='.$jobId.'-%');
+            $schedules = $simpro->getRequest('get', '/api/v1.0/companies/0/schedules/?Reference=' . $jobId . '-%');
             if ($schedules) {
                 $schedule = $schedules[0] ?? new \stdClass();
                 $scheduleDate = $schedule->Date;
                 $blocks = $schedule->Blocks;
                 if ($blocks) {
                     $block = $blocks[0];
-                    $data['next_scheduled_appointment_date'] = $scheduleDate.' '.$block->StartTime.' - '.$block->EndTime;
+                    $data['next_scheduled_appointment_date'] = $scheduleDate . ' ' . $block->StartTime . ' - ' . $block->EndTime;
                 }
             }
         }
 
-        $serviceLevels = $simpro->getRequest('get', $assetUrl.'/serviceLevels/');
+        $serviceLevels = $simpro->getRequest('get', $assetUrl . '/serviceLevels/');
         if ($serviceLevels) {
             $serviceLevel = $serviceLevels[0];
             $data['next_service_date'] = $serviceLevel->ServiceDate ?? null;
@@ -156,17 +156,17 @@ class AssetReportJob implements ShouldQueue
         }
         if ($data['last_service_date']) {
             $daysBetween = $this->getDaysDiff($today, strtotime($data['last_service_date']));
-            if ($daysBetween > 365) {
-                $errors[] = 'Last service '.$daysBetween.' ago';
+            if ($daysBetween > 425) {
+                $errors[] = 'Last service ' . $daysBetween . ' days ago';
             }
         }
 
         if ($data['service_due']) {
-            $daysBetween = $this->getDaysDiff($today, strtotime($data['service_due']));
-            if ($daysBetween <= 11) {
-                $errors[] = 'Service due in 11 days';
-            } elseif ($daysBetween === 1) {
+            $daysBetween = $this->getDaysDiffWithoutAbs(strtotime($data['service_due']), $today);
+            if ($daysBetween === 1) {
                 $errors[] = 'Service due tomorrow';
+            } else if ($daysBetween <= 30) {
+                $errors[] = 'Service due within ' . $daysBetween . ' days';
             }
         }
 
@@ -177,7 +177,7 @@ class AssetReportJob implements ShouldQueue
             $m = $diff->m;
             $d = $diff->d;
             if ($m < 12 || $m > 14) {
-                $errors[] = 'Service complete outside of due date '.$m.' '.($m > 1 ? 'months' : 'month').' '.$d.' '.($d > 1 ? 'days' : 'day');
+                $errors[] = 'Service complete outside of due date ' . $m . ' ' . ($m > 1 ? 'months' : 'month') . ' ' . $d . ' ' . ($d > 1 ? 'days' : 'day');
             }
         }
 
@@ -232,5 +232,12 @@ class AssetReportJob implements ShouldQueue
         $diff = $firstTime - $secondTime;
 
         return (int)abs(round($diff / (60 * 60 * 24)));
+    }
+
+    public function getDaysDiffWithoutAbs($firstTime, $secondTime): int
+    {
+        $diff = $firstTime - $secondTime;
+
+        return (int)round($diff / (60 * 60 * 24));
     }
 }

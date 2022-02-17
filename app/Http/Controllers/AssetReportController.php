@@ -118,8 +118,8 @@ class AssetReportController extends Controller
         }
 
         $errors = [
-            'Last service ago',
-            'Service due in 11 days',
+            'Last Service over 14mths',
+            'Service due in 30 days',
             'Service due tomorrow',
             'Service complete outside of due date',
             'No UPRN',
@@ -135,6 +135,8 @@ class AssetReportController extends Controller
                         $e = (int)$e;
                         if ($e == 0) {
                             $like = 'Last service%ago';
+                        } else if ($e == 1) {
+                            $like = 'Service due within%days';
                         } else {
                             $like = $errors[$e] ?? '';
                             $like .= '%';

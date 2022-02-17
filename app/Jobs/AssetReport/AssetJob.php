@@ -182,8 +182,8 @@ class AssetJob implements ShouldQueue
 
         if ($data['last_service_date']) {
             $daysBetween = $this->getDaysDiff($today, strtotime($data['last_service_date']));
-            if ($daysBetween > 365) {
-                $errors[] = 'Last service '.$daysBetween.' ago';
+            if ($daysBetween > 425) {
+                $errors[] = 'Last service '.$daysBetween.' days ago';
             }
         }
 
@@ -196,12 +196,11 @@ class AssetJob implements ShouldQueue
 
 
         if ($data['service_due'] && in_array($data['job_stage'], ['Progress', 'Pending'])) {
-            $daysBetween = $this->getDaysDiff($today, strtotime($data['service_due']));
-            if ($daysBetween <= 11) {
-                $errors[] = 'Service due in 11 days';
-            }
+            $daysBetween = $this->getDaysDiffWithoutAbs($today, strtotime($data['service_due']));
             if ($daysBetween === 1) {
                 $errors[] = 'Service due tomorrow';
+            } else if ($daysBetween <= 30) {
+                $errors[] = 'Service due within ' . $daysBetween . ' days';
             }
         }
 
@@ -275,6 +274,13 @@ class AssetJob implements ShouldQueue
         $diff = $firstTime - $secondTime;
 
         return (int)abs(round($diff / (60 * 60 * 24)));
+    }
+
+    public function getDaysDiffWithoutAbs($firstTime, $secondTime): int
+    {
+        $diff = $firstTime - $secondTime;
+
+        return (int)round($diff / (60 * 60 * 24));
     }
 
 }
