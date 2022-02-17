@@ -1,8 +1,7 @@
-@extends('admin.tpl.wrapper')
+@extends('layouts.app')
 
 @section('content')
 
-    <div class="container">
 
         @foreach ($errors->all() as $error)
             <li>{{ $error }}</li>
@@ -11,6 +10,7 @@
         <h2>Edit user – "{{$user['name']}}"</h2>
         {!! Form::open(['url' => '/admin/users/'.$user['id'], 'method' => 'PUT','enctype'=>'multipart/form-data']) !!}
 
+            <input type="hidden" name="id" value={{$user['id']}}>
         <div class="form-group">
             {!! Form::label('Name', 'Name') !!}
             {!! Form::text('name',$user['name'],['class'=>'form-control']) !!}
@@ -30,7 +30,6 @@
                 @endforeach
             </select>
         </div>
-        {!! Form::submit('Update', ['class'=>'btn btn-primary']) !!}
-    </div>
-
+        {!! Form::submit('Update', ['class'=>'btn btn-primary float-right']) !!}
+        {{ Form::close() }}
 @endsection

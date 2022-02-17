@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\PDFGenerator;
 use App\Service\sesTemplatesService;
 use App\Template;
 use Illuminate\Http\FileHelpers;
@@ -54,12 +55,16 @@ class TemplatesController extends Controller
         $data=$request->all();
         $id=$data['id'];
         $STS=new sesTemplatesService();
-        $rez=$STS->createSesTemplate('Template'.$id,$data['html_body'],$data['subject'],$data['plaintext_body']);
+        $rez=$STS->createSesTemplate('Template'.$id,$data['html_body'],$data['subject']/*,$data['plaintext_body']*/);
         if($rez=='200'){
             $template=Template::find($id);
             $template->name='Template'.$id;
             $template->term=$data['term'];
+            $template->html_pdf=$data['html_pdf'];
             $template->save();
+        }else{
+            $ses=$this->deleteTemplate('Template'.$id);
+            if($ses)$this->createTemplate($request);
         }
         return redirect('/admin/templates');
 
@@ -69,10 +74,11 @@ class TemplatesController extends Controller
         $STS=new sesTemplatesService();
         $template=Template::find($id);
         if(!$template)return false;
-        $rez=$STS->updateSesTemplate('Template'.$id,$data['html_body'],$data['subject'],$data['plaintext_body']);
+        $rez=$STS->updateSesTemplate('Template'.$id,$data['html_body'],$data['subject']/*,$data['plaintext_body']*/);
         if($rez=='200'){
             $template->name='Template'.$id;
             $template->term=$data['term'];
+            $template->html_pdf=$data['html_pdf'];
             $template->save();
         }
         return redirect('/admin/templates');
@@ -87,8 +93,11 @@ class TemplatesController extends Controller
         if(!is_array($ses))return redirect('/admin/templates');
         return view('admin.templates.edit',['template'=>$template,'ses'=>$ses,'terms'=>TemplatesGroupsController::$terms])->with('title',$title);
     }
-    function deleteTemplate(){
-
+    function deleteTemplate($name){
+        $STS=new sesTemplatesService();
+        $ses=$STS->deleteSesTemplate($name);
+        if($ses=='200')return true;
+        else return false;
     }
     function emailTemplate($id){
         $STS=new sesTemplatesService();
@@ -96,5 +105,17 @@ class TemplatesController extends Controller
         if(!$template||$template->name=='')return false;
         $STS->sendSesTemplateEmail($template->name,Auth::user()->email,Auth::user()->email,['name'=>Auth::user()->name]);
         return redirect('/admin/templates');
+    }
+
+    public function downloadPDF(PDFGenerator $pdfGenerator, $id)
+    {
+        $template = Template::find($id);
+        if(!$template || $template->html_pdf == '')
+            return false;
+        $result = $pdfGenerator->generatePDF($template->html_pdf, [], md5(rand(0, 99999) . time()) . '.pdf', false);
+        if($result === false)
+            return response()->view('errors.main', [], 500);
+        else
+            return response()->download($result, $template->name . '.pdf')->deleteFileAfterSend(true);
     }
 }

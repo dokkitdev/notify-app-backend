@@ -19,9 +19,6 @@ class checkAdmin
         if(!Auth::user()){
             return redirect('/admin/login');
         }
-        if(Auth::user()->role!=='admin'){
-            return redirect('/profile/info');
-        }
 
         return $next($request);
     }

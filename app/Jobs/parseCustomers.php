@@ -3,7 +3,9 @@
 namespace App\Jobs;
 
 use App\Customers;
+use App\Service\collectDataService;
 use App\Service\simProService;
+use App\SimProContracts;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -40,26 +42,34 @@ class parseCustomers implements ShouldQueue
         $customer=$this->getCustomer(isset($matches[2])?$matches[2]:false);
         $simProservice=new simProService();
         $parsedCustomer=$simProservice->parseCustomerByUrl($this->url);
-        #todo надо забирать ВСЕ контракты и инсертить(апдэйтить) их в таблицу контрактов в связке с текущим кастомером
-        $parsedCustomerContract=$simProservice->parseCustomerContractByUrl('/api/v1.0/companies/'.$matchesC[1].'/customers/'.$matches[2].'/contracts/');
-        if(!$parsedCustomer)$this->delete();
-
-
-        if($parsedCustomerContract) {
-            $customer->start_date = isset($parsedCustomerContract->StartDate) ? strtotime($parsedCustomerContract->StartDate) : '';
-            $customer->end_date = isset($parsedCustomerContract->EndDate) ? strtotime($parsedCustomerContract->EndDate) : '';
-            $customer->contract_no = isset($parsedCustomerContract->ContractNo) ? $parsedCustomerContract->ContractNo : '';
-            $customer->contract_name = isset($parsedCustomerContract->Name) ? $parsedCustomerContract->Name : '';
+        if(!$parsedCustomer){
+            //$this->delete();
+            return false;
         }
 
-        if(count($parsedCustomer->Tags)>0){
-            #todo форычить тэги и искать Housing если найден такой это Housing иначе это Private
-            $customer->customer_group_tag = $parsedCustomer->Tags[0]->Name;
-            $customer->customer_group_tag_id = $parsedCustomer->Tags[0]->ID;
+        $customer->parsedData=json_encode($parsedCustomer);
+
+
+
+        /**
+         * согласно ТЗ оринтируемся на наличие тега Housing у кастомера
+         */
+        $housing=false;
+        if(isset($parsedCustomer->Tags)&&count($parsedCustomer->Tags)>0){
+            foreach($parsedCustomer->Tags as $v){
+                if($v->Name=='Housing'){
+                    $housing=true;
+                    break;
+                }
+            }
+
         }
+        if($housing)$customer->customer_group_tag='Housing';
+        else $customer->customer_group_tag='Private';
 
 
         $customer->company_name=isset($parsedCustomer->CompanyName)?$parsedCustomer->CompanyName:'';
+        $customer->company_id=$matchesC[1];
         $customer->given_name=isset($parsedCustomer->GivenName)?$parsedCustomer->GivenName:'';
         $customer->family_name=isset($parsedCustomer->FamilyName)?$parsedCustomer->FamilyName:'';
         $customer->simpro_id=$parsedCustomer->ID;
@@ -69,6 +79,7 @@ class parseCustomers implements ShouldQueue
         $customer->postal_code=isset($parsedCustomer->Address->PostalCode)?$parsedCustomer->Address->PostalCode:'';
         $customer->country=isset($parsedCustomer->Address->Country)?$parsedCustomer->Address->Country:'';
         $customer->customer_type=isset($parsedCustomer->CustomerType)?$parsedCustomer->CustomerType:'';
+        $customer->email=isset($parsedCustomer->Email)?$parsedCustomer->Email:'';
 
         if($customer->customer_type=='Lead'){ # don't process the Lead, only Customer
             $this->delete();
@@ -79,10 +90,37 @@ class parseCustomers implements ShouldQueue
         //$customer->customer_group=isset($parsedCustomer->Profile->CustomerGroup)?$parsedCustomer->Profile->CustomerGroup:'';
         $customer->save();
 
+        #todo надо забирать ВСЕ контракты и инсертить(апдэйтить) их в таблицу контрактов в связке с текущим кастомером
+        $parsedCustomerContracts=$simProservice->parseCustomerContractByUrl('/api/v1.0/companies/'.$matchesC[1].'/customers/'.$matches[2].'/contracts/');
+        if(!$parsedCustomerContracts){
+            return false;
+        }
+        if($parsedCustomerContracts) { #сохраняем контракты Customer-а
+            foreach ($parsedCustomerContracts as $parsedCustomerContract) {
+                $customerContract=$this->getContract($parsedCustomerContract->ID);
+                $customerContract->simpro_id = $parsedCustomerContract->ID;
+                $customerContract->customers_id = $customer->id;
+                $customerContract->start_date = isset($parsedCustomerContract->StartDate) ? strtotime($parsedCustomerContract->StartDate) : '';
+                $customerContract->end_date = isset($parsedCustomerContract->EndDate) ? strtotime($parsedCustomerContract->EndDate) : '';
+                $customerContract->contract_no = isset($parsedCustomerContract->ContractNo) ? $parsedCustomerContract->ContractNo : '';
+                $customerContract->contract_name = isset($parsedCustomerContract->Name) ? $parsedCustomerContract->Name : '';
+                $customerContract->parsedData = json_encode($parsedCustomerContract);
+                $customerContract->save();
+
+                $process=new collectDataService();
+                $process->processContract($customerContract->id);
+            }
+        }
+
     }
     private function getCustomer($simpro_id=false){
         if($simpro_id)$customer=Customers::where(['simpro_id'=>$simpro_id])->get()->toArray();
         if($simpro_id&&isset($customer[0]['id']))return Customers::find($customer[0]['id']);
         else return new Customers();
+    }
+    private function getContract($simpro_id=false){
+        if($simpro_id)$contract=SimProContracts::where(['simpro_id'=>$simpro_id])->get()->toArray();
+        if($simpro_id&&isset($contract[0]['id']))return SimProContracts::find($contract[0]['id']);
+        else return new SimProContracts();
     }
 }

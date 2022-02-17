@@ -1,8 +1,7 @@
-@extends('admin.tpl.wrapper')
+@extends('layouts.app')
 
 @section('content')
 
-    <div class="container">
 
         @foreach ($errors->all() as $error)
             <li>{{ $error }}</li>
@@ -29,7 +28,6 @@
                 @endforeach
             </select>
         </div>
-        {!! Form::submit('Create', ['class'=>'btn btn-primary']) !!}
-    </div>
-
+        {!! Form::submit('Create', ['class'=>'btn btn-primary float-right']) !!}
+        {{ Form::close() }}
 @endsection

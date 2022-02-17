@@ -36,14 +36,13 @@ return [
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],
-        ],
-
-        'single' => [
-            'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
-            'level' => 'debug',
         ],
-
+        'single' => [
+            'driver' => 'errorlog',
+            'level' => 'debug',
+            'path' => storage_path('logs/laravel.log'),
+        ],
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
@@ -70,11 +69,13 @@ return [
         'syslog' => [
             'driver' => 'syslog',
             'level' => 'debug',
+            'path' => storage_path('logs/laravel.log'),
         ],
 
         'errorlog' => [
             'driver' => 'errorlog',
             'level' => 'debug',
+            'path' => storage_path('logs/laravel.log'),
         ],
     ],
 
