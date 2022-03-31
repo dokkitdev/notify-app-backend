@@ -161,6 +161,12 @@ class AssetReportJob implements ShouldQueue
             }
         }
 
+if (!$data['job_due_date'] || ($data['job_due_date'] < $this->today)) {
+            $data['service_due'] = $data['next_service_date'];
+        } else {
+            $data['service_due'] = $data['job_due_date'];
+        }
+
         if ($data['service_due']) {
             $daysBetween = $this->getDaysDiffWithoutAbs(strtotime($data['service_due']), $today);
             if ($daysBetween === 1) {
