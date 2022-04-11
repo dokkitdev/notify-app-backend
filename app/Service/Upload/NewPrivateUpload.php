@@ -24,9 +24,10 @@ class NewPrivateUpload
 
     public function rerapseByRecurringInvoiceId($recurringInvoiceId)
     {
+	set_time_limit(0);
         $recurringInvoice = $this->simpro->getRequest(
             'get',
-            '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId
+	            '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId
         );
         if ($recurringInvoice) {
             $this->processRecurringInvoice($recurringInvoice);

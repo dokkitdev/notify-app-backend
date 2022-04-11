@@ -10,6 +10,7 @@
         "aws/aws-sdk-php-laravel": "^3.1",
         "barryvdh/laravel-async-queue": "^0.7.1",
         "cloudconvert/cloudconvert-php": "^2.2",
+        "daltcore/lara-pdf-merger": "^2.0",
         "doctrine/dbal": "^2.8",
         "dompdf/dompdf": "^0.8.2",
         "fideloper/proxy": "^4.0",
@@ -65,7 +66,10 @@
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "kylekatarnls/update-helper": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true
