@@ -32,7 +32,7 @@ class simProRequestService
 
     protected function request($method, $url, $data = [], &$attemptCount = 0)
     {
-        $this->getToken();
+//        $this->getToken();
         $client = new Client();
         $url = $url.((strpos($url, '?') != false) ? '&' : '?').'access_token='.$this->token;
         try {

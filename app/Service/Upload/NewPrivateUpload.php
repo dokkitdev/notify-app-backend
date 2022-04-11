@@ -24,10 +24,12 @@ class NewPrivateUpload
 
     public function rerapseByRecurringInvoiceId($recurringInvoiceId)
     {
+        dump('Starting reparse', Date('d.m.Y H:i:s'));
         $recurringInvoice = $this->simpro->getRequest(
             'get',
             '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId
         );
+        dump('Finish recurring invoices request', Date('d.m.Y H:i:s'));
         if ($recurringInvoice) {
             $this->processRecurringInvoice($recurringInvoice);
             return true;
@@ -142,6 +144,8 @@ class NewPrivateUpload
 
     public function processRecurringInvoice($recurringInvoice): void
     {
+        dump('Start to process recurring invoices request', Date('d.m.Y H:i:s'));
+
         $this->month = null;
         $recurringInvoiceId = $recurringInvoice->ID;
         $this->recurringIds[] = $recurringInvoiceId;
@@ -149,6 +153,8 @@ class NewPrivateUpload
             'get',
             '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId
         );
+        dump('Finish recurring invoices request', Date('d.m.Y H:i:s'));
+
 
 //        dump('start to parse'.$recurringInvoiceId);
         if (!$recurringInvoice) {
@@ -166,6 +172,8 @@ class NewPrivateUpload
         $customFieldValues = ['Annual payment', 'Direct Debit'];
         $customFieldValue = null;
         $this->period = $this->payerReference = $this->payerAccountName = $this->directDate = null;
+        dump('Start custom fields parsing', Date('d.m.Y H:i:s'));
+
         foreach ($recurringInvoice->CustomFields as $customField) {
             if (
                 $customField->CustomField->ID === 4
@@ -198,9 +206,13 @@ class NewPrivateUpload
 
             return;
         }
+        dump('Finish custom fields', Date('d.m.Y H:i:s'));
+
 
         $customerId = $recurringInvoice->Customer->ID;
         $this->isCompanyCustomer = $this->isIndividualCustomer = false;
+        dump('Getting customers', Date('d.m.Y H:i:s'));
+
         $customer = $this->getCompanyCustomer($customerId);
         if (!$customer) {
             $customer = $this->getIndividualCustomer($customerId);
@@ -208,6 +220,8 @@ class NewPrivateUpload
         } else {
             $this->isCompanyCustomer = true;
         }
+        dump('Finish getting customers', Date('d.m.Y H:i:s'));
+
 
         if (!$customer) {
             $this->reasons[] = $recurringInvoiceId.'. No customer found for recurring invoice';
@@ -217,7 +231,10 @@ class NewPrivateUpload
         }
 
         $siteId = $recurringInvoice->Site->ID;
+        dump('Start to parse sites', Date('d.m.Y H:i:s'));
+
         $siteInfo = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/'.$siteId);
+        dump('Finish to parse sites', Date('d.m.Y H:i:s'));
 
         $customerId = $recurringInvoice->Customer->ID ?? null;
         $recurringDate = $recurringInvoice->NextRecurringDate ?? null;
@@ -228,6 +245,8 @@ class NewPrivateUpload
 
             return;
         }
+
+        dump('Starting to create private customer', Date('d.m.Y H:i:s'));
 
         PrivateCustomer::where('customer_id', $customerId)
             ->where('recurring_invoice_id', $recurringInvoiceId ?: 0)
@@ -275,19 +294,28 @@ class NewPrivateUpload
             ]
         );
 
+        dump('Finish create private customer', Date('d.m.Y H:i:s'));
+
         $this->totalSuccess++;
 
+        dump('Getting sections', Date('d.m.Y H:i:s'));
         $recurringInvoiceSections = $this->simpro->getRequest(
             'get',
             '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId.'/sections/?pageSize=100'
         );
+        dump('Finish gettins sections', Date('d.m.Y H:i:s'));
+
         if ($recurringInvoiceSections) {
             foreach ($recurringInvoiceSections as $recurringInvoiceSection) {
+                dump('Start to process invoice', Date('d.m.Y H:i:s'));
+
                 $this->processRecurringInvoiceSection(
                     $recurringInvoice,
                     $recurringInvoiceSection,
                     $privateCustomer
                 );
+                dump('Finish to process invoice', Date('d.m.Y H:i:s'));
+
             }
         }
     }

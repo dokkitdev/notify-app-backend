@@ -2,18 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\HousingPage;
-use App\Models\Asset;
-use App\Models\HousingJob;
-use App\Service\HousingUploader;
-use App\Service\Requester;
-use App\Service\Sender\Sender;
 use App\Service\simProRequestService;
-use App\Service\simProService;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
-use Psr\Http\Message\ResponseInterface;
 
 class Test extends Command
 {
@@ -41,6 +31,7 @@ class Test extends Command
         parent::__construct();
     }
 
+    protected $customers =[];
     /**
      * Execute the console command.
      *
@@ -48,12 +39,48 @@ class Test extends Command
      */
     public function handle()
     {
-        Sender::send(
-            'vitaliy.s.roslov@gmail.com',
-            'Hi vitaliy',
-            '<table><tr><td>Super td</td></tr></table>'
+        $simpro = new simProRequestService();
+        $fp = fopen(__DIR__. '/export.csv', 'w+');
+        fputcsv(
+            $fp,
+            [
+                'Recurring Invoice ID',
+                'Customer ID',
+                'Company Name',
+                'Address',
+                'City',
+                'PostalCode',
+            ]
         );
-        die;
+
+
+        $customerPages = $simpro->getRequestPage('get', "/api/v1.0/companies/0/customers/?columns=Address,ID&limit=50");
+        foreach ($customerPages as $page) {
+            $customers = $simpro->getRequest('get', $page);
+            foreach ($customers as $customer) {
+                $this->customers[$customer->ID] = $customer;
+            }
+            dump('finish customers page');
+        }
+        dump('finish customers');
+
+        $pages = $simpro->getRequestPage('get', "/api/v1.0/companies/0/recurringInvoices/?columns=ID,Customer&limit=50");
+        foreach ($pages as $page) {
+            $recurringInvoices = $simpro->getRequest('get', $page);
+            foreach ($recurringInvoices as $recurringInvoice) {
+                $customerId = $recurringInvoice->Customer->ID;
+                $customer = $this->customers[$customerId];
+                fputcsv($fp, [
+                    $recurringInvoice->ID,
+                    $recurringInvoice->Customer->ID,
+                    $recurringInvoice->Customer->CompanyName,
+                    $customer->Address->Address,
+                    $customer->Address->City,
+                    $customer->Address->PostalCode,
+                ]);
+            }
+        }
+        fclose($fp);
 
     }
 

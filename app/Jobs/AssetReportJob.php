@@ -162,7 +162,7 @@ class AssetReportJob implements ShouldQueue
         }
 
         if ($data['service_due']) {
-            $daysBetween = $this->getDaysDiffWithoutAbs($today, strtotime($data['service_due']));
+            $daysBetween = $this->getDaysDiffWithoutAbs(strtotime($data['service_due']), $today);
             if ($daysBetween === 1) {
                 $errors[] = 'Service due tomorrow';
             } else if ($daysBetween <= 30) {

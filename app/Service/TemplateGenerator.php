@@ -15,6 +15,7 @@ use App\Templates;
 use CloudConvert\Api;
 use Illuminate\Support\Facades\Config;
 use App\Appointment;
+use LynX39\LaraPdfMerger\Facades\PdfMerger;
 use LynX39\LaraPdfMerger\PdfManage;
 use PhpOffice\PhpWord\TemplateProcessor;
 
@@ -800,7 +801,7 @@ class TemplateGenerator
             return false;
         }
         $pdf_folder = Config::get('constants.storage_pdf') . '/';
-        $pdf_merger = new PdfManage();
+        $pdf_merger = PdfMerger::init();
         $name = 'temp';
         foreach ($pdf_names as $pdf) {
             if ($pdf instanceof HousingJob) {
@@ -831,6 +832,7 @@ class TemplateGenerator
         $today = new \DateTime();
         $new_file = $name . $today->format('Y-m-d.H-i-s') . '.pdf';
         $pdf_merger->merge('file', $pdf_folder . $new_file);
+
         return $new_file;
     }
 

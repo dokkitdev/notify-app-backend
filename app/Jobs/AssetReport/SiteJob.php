@@ -37,6 +37,10 @@ class SiteJob implements ShouldQueue
         $simpro = new simProRequestService();
         $siteId = $this->site->ID ?? 0;
 
+        if ($siteId != '35590') {
+            return;
+        }
+
         $da = new \DateTime('-1 day');
         $assets = $simpro->getRequest(
             'get',
@@ -54,6 +58,7 @@ class SiteJob implements ShouldQueue
 
         $today = (new \DateTime('+1 day'))->format('Y-m-d');
         foreach ($assets as $asset) {
+            dump($asset->ID);
             AssetJob::dispatch($this->site, $asset, $today);
         }
     }

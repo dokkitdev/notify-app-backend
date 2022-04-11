@@ -43,7 +43,7 @@ run: beanstalkd
 
 
 
-for PHP Word start to wok Make changes in vendor
+for PHP Word start to work Make changes in vendor
 /vendor/phpoffice/phpword/src/PhpWord/TemplateProcessor.php
 
         <?php
