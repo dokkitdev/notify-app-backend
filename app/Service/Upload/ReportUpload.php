@@ -30,8 +30,8 @@ class ReportUpload
 
     public function run()
     {
-        $todayDate = new \DateTime('-2 day');
-//        $todayDate = new \DateTime('+1 day');
+//        $todayDate = new \DateTime('-2 day');
+        $todayDate = new \DateTime('+1 day');
         $this->currentDate = new \DateTime();
         $schedulesUrls = $this->simpro->getRequestPage(
             'get',
@@ -159,7 +159,7 @@ class ReportUpload
         foreach ($catalogs as $catalog) {
             if ($catalog->Quantity->Required <= $catalog->Quantity->Assigned) {
                 dump('Catalog id '.$catalog->Catalog->ID.' less then assigned');
-                    continue;
+                continue;
             }
             $catalogsCount++;
 
@@ -167,6 +167,7 @@ class ReportUpload
                 'get',
                 '/api/v1.0/companies/0/catalogs/'.$catalog->Catalog->ID.'?columns=StorageLocation'
             );
+
             if ($storage_location) {
                 $this->generateReportRow(
                     $schedule,
@@ -178,7 +179,7 @@ class ReportUpload
                 );
             }
         }
-        dump('total catalogs ' . $catalogsCount . ' total catalogs without conditions ' . count($catalogs));
+        dump('total catalogs '.$catalogsCount.' total catalogs without conditions '.count($catalogs));
     }
 
     public function generateReportRow(
@@ -187,25 +188,23 @@ class ReportUpload
         $catalog,
         $storage_location
     ) {
-        $reportRow = ReportRow::where('part_no', $catalog->Catalog->PartNo)
+        ReportRow::where('part_no', $catalog->Catalog->PartNo)
             ->where('site_name', $job->Site->Name)
             ->where('engineer', $schedule->Staff->Name)
             ->where('job_id', $job->ID)
-            ->get();
+            ->delete();
 
-        if (count($reportRow) < 1) {
-            ReportRow::create([
-                                  'job_id' => $job->ID,
-                                  'site_name' => $job->Site->Name,
-                                  'engineer' => $schedule->Staff->Name,
-                                  'part_no' => $catalog->Catalog->PartNo,
-                                  'stock_name' => $catalog->Catalog->Name,
-                                  'storage_location' => $storage_location->StorageLocation,
-                                  'required' => $catalog->Quantity->Required,
-                                  'assigned' => $catalog->Quantity->Assigned,
-                                  'job_date' => $this->currentDate->format('Y-m-d H:i:s'),
-                              ]);
-        }
+        ReportRow::create([
+                              'job_id' => $job->ID,
+                              'site_name' => $job->Site->Name,
+                              'engineer' => $schedule->Staff->Name,
+                              'part_no' => $catalog->Catalog->PartNo,
+                              'stock_name' => $catalog->Catalog->Name,
+                              'storage_location' => $storage_location->StorageLocation,
+                              'required' => $catalog->Quantity->Required,
+                              'assigned' => $catalog->Quantity->Assigned,
+                              'job_date' => $this->currentDate->format('Y-m-d H:i:s'),
+                          ]);
     }
 
 
