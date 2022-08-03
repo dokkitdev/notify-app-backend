@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Service\Sender\Sender;
 
 class SiteJob implements ShouldQueue
 {
@@ -24,6 +25,11 @@ class SiteJob implements ShouldQueue
      */
     public function __construct($site)
     {
+        if($site == 'done')
+        {
+            $this->sendDoneMail();
+        }
+
         $this->site = $site;
     }
 
@@ -42,6 +48,7 @@ class SiteJob implements ShouldQueue
             'get',
             "/api/v1.0/companies/0/customerAssets/?display=all&Site.ID=$siteId&pageSize=100&Archived=false&columns=ID,AssetType,CustomFields,LastTest,StartDate"
         );
+
         if (!$assets) {
             AssetLogForDev::create(
                 [
@@ -58,4 +65,26 @@ class SiteJob implements ShouldQueue
         }
     }
 
+
+    /**
+     * Send mail if all sites done
+     *
+     * @return void
+     */
+    public function sendDoneMail()
+    {
+        Sender::send(
+            'adminteam@blueflameheat.co.uk',
+            'Asset Report',
+            'The Asset Report is now ready to be processed'
+        );
+
+        Sender::send(
+            'michelle@dokkit.co.uk',
+            'Asset Report',
+            'The Asset Report is now ready to be processed'
+        );
+
+        die;
+    }
 }

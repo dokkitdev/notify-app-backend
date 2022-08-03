@@ -14,6 +14,7 @@ use App\Models\ReportLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
+
 class AssetReportController extends Controller
 {
     public function test()

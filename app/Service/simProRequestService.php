@@ -115,7 +115,7 @@ class simProRequestService
     public function deleteRequest($url)
     {
         $client = new Client();
-        $this->getToken();
+        //$this->getToken();
         $res = $client->delete(
             self::API_URL.$url.'?access_token='.$this->token,
             [
@@ -158,11 +158,11 @@ class simProRequestService
             $set->value = '';
             $set->wait = 1;
             $set->save();
-            $this->getToken(true);
+            //$this->getToken(true);
 
             return;
         }
-        $this->getToken();
+        //$this->getToken();
     }
 
     private function getToken($reGet = false, &$count = 0)
@@ -175,7 +175,7 @@ class simProRequestService
                 sleep(10);
                 $count++;
 
-                return $this->getToken(false, $count);
+                //return $this->getToken(false, $count);
             } else {
                 Log::error('simPRO can`t get token');
 
