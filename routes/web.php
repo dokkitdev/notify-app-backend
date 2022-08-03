@@ -196,3 +196,9 @@ Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmailB
 Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
 Route::post('password/reset', 'Auth\ResetPasswordController@resetPasswordOwn');
 
+
+Route::group(
+    ['middleware' => ['CheckAdmin']], function () {
+    Route::get('/homepage', 'Admin\\HousingController@index')->name('housing.all');
+    Route::get('/homepage2', 'Admin\\HousingController@index')->name('housing.all');
+});

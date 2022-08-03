@@ -142,4 +142,5 @@ class UsersController extends Controller
         }
         return redirect('admin/users');
     }
+
 }

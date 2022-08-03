@@ -24,12 +24,12 @@ class NewPrivateUpload
 
     public function rerapseByRecurringInvoiceId($recurringInvoiceId)
     {
-        dump('Starting reparse', Date('d.m.Y H:i:s'));
+//        dump('Starting reparse', Date('d.m.Y H:i:s'));
         $recurringInvoice = $this->simpro->getRequest(
             'get',
             '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId
         );
-        dump('Finish recurring invoices request', Date('d.m.Y H:i:s'));
+//        dump('Finish recurring invoices request', Date('d.m.Y H:i:s'));
         if ($recurringInvoice) {
             $this->processRecurringInvoice($recurringInvoice);
             return true;
@@ -63,7 +63,7 @@ class NewPrivateUpload
                 'get',
                 "/api/v1.0/companies/0/recurringInvoices/?NextRecurringDate=${nextRecurringDate}&Removed=false"
             );
-//            dump(count($pages), $nextRecurringDate);
+////            dump(count($pages), $nextRecurringDate);
             $this->totalCount = $this->simpro->result_count;
             $this->totalSuccess = 0;
             $this->reasons = [];
@@ -98,7 +98,7 @@ class NewPrivateUpload
                         continue;
                     }
 
-//                    dump(
+////                    dump(
 //                        "Need  to  remove  customer - {$customerId}, recurring_invoice_id - {$recurringInvoiceId}, and date {$startYear}"
 //                    );
                     PrivateCustomer::where('customer_id', $customerId)
@@ -144,7 +144,7 @@ class NewPrivateUpload
 
     public function processRecurringInvoice($recurringInvoice): void
     {
-        dump('Start to process recurring invoices request', Date('d.m.Y H:i:s'));
+//        dump('Start to process recurring invoices request', Date('d.m.Y H:i:s'));
 
         $this->month = null;
         $recurringInvoiceId = $recurringInvoice->ID;
@@ -153,26 +153,26 @@ class NewPrivateUpload
             'get',
             '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId
         );
-        dump('Finish recurring invoices request', Date('d.m.Y H:i:s'));
+//        dump('Finish recurring invoices request', Date('d.m.Y H:i:s'));
 
 
-//        dump('start to parse'.$recurringInvoiceId);
+////        dump('start to parse'.$recurringInvoiceId);
         if (!$recurringInvoice) {
             $this->reasons[] = $recurringInvoiceId.'. No recurring invoice found';
-//            dump('no recurring invoice for '.$recurringInvoiceId);
+////            dump('no recurring invoice for '.$recurringInvoiceId);
 
             return;
         }
         if (!$recurringInvoice->CustomFields) {
             $this->reasons[] = $recurringInvoiceId.'. No custom fields found';
-//            dump('no custom fields '.$recurringInvoiceId);
+////            dump('no custom fields '.$recurringInvoiceId);
 
             return;
         }
         $customFieldValues = ['Annual payment', 'Direct Debit'];
         $customFieldValue = null;
         $this->period = $this->payerReference = $this->payerAccountName = $this->directDate = null;
-        dump('Start custom fields parsing', Date('d.m.Y H:i:s'));
+//        dump('Start custom fields parsing', Date('d.m.Y H:i:s'));
 
         foreach ($recurringInvoice->CustomFields as $customField) {
             if (
@@ -202,16 +202,16 @@ class NewPrivateUpload
         }
         if (!$customFieldValue) {
             $this->reasons[] = $recurringInvoiceId.'. No custom field found';
-//            dump('no custom field value for '.$recurringInvoiceId);
+////            dump('no custom field value for '.$recurringInvoiceId);
 
             return;
         }
-        dump('Finish custom fields', Date('d.m.Y H:i:s'));
+//        dump('Finish custom fields', Date('d.m.Y H:i:s'));
 
 
         $customerId = $recurringInvoice->Customer->ID;
         $this->isCompanyCustomer = $this->isIndividualCustomer = false;
-        dump('Getting customers', Date('d.m.Y H:i:s'));
+//        dump('Getting customers', Date('d.m.Y H:i:s'));
 
         $customer = $this->getCompanyCustomer($customerId);
         if (!$customer) {
@@ -220,33 +220,33 @@ class NewPrivateUpload
         } else {
             $this->isCompanyCustomer = true;
         }
-        dump('Finish getting customers', Date('d.m.Y H:i:s'));
+//        dump('Finish getting customers', Date('d.m.Y H:i:s'));
 
 
         if (!$customer) {
             $this->reasons[] = $recurringInvoiceId.'. No customer found for recurring invoice';
-//            dump('no Customer for '.$recurringInvoiceId);
+////            dump('no Customer for '.$recurringInvoiceId);
 
             return;
         }
 
         $siteId = $recurringInvoice->Site->ID;
-        dump('Start to parse sites', Date('d.m.Y H:i:s'));
+//        dump('Start to parse sites', Date('d.m.Y H:i:s'));
 
         $siteInfo = $this->simpro->getRequest('get', '/api/v1.0/companies/0/sites/'.$siteId);
-        dump('Finish to parse sites', Date('d.m.Y H:i:s'));
+//        dump('Finish to parse sites', Date('d.m.Y H:i:s'));
 
         $customerId = $recurringInvoice->Customer->ID ?? null;
         $recurringDate = $recurringInvoice->NextRecurringDate ?? null;
         $recurringDate = \DateTime::createFromFormat('Y-m-d', $recurringDate);
         if (!$customerId || !$recurringDate) {
             $this->reasons[] = $recurringInvoiceId.'. No customerId or recurring date found';
-//            dump('no CustomerId or recurring date for '.$recurringInvoiceId);
+////            dump('no CustomerId or recurring date for '.$recurringInvoiceId);
 
             return;
         }
 
-        dump('Starting to create private customer', Date('d.m.Y H:i:s'));
+//        dump('Starting to create private customer', Date('d.m.Y H:i:s'));
 
         PrivateCustomer::where('customer_id', $customerId)
             ->where('recurring_invoice_id', $recurringInvoiceId ?: 0)
@@ -259,7 +259,7 @@ class NewPrivateUpload
             ->count();
         if ($countCustomerForProvidedYear) {
             $this->totalSuccess++;
-//            dump('This recurring invoice for customer already exist '.$recurringInvoiceId);
+////            dump('This recurring invoice for customer already exist '.$recurringInvoiceId);
 
             return;
         }
@@ -294,27 +294,27 @@ class NewPrivateUpload
             ]
         );
 
-        dump('Finish create private customer', Date('d.m.Y H:i:s'));
+//        dump('Finish create private customer', Date('d.m.Y H:i:s'));
 
         $this->totalSuccess++;
 
-        dump('Getting sections', Date('d.m.Y H:i:s'));
+//        dump('Getting sections', Date('d.m.Y H:i:s'));
         $recurringInvoiceSections = $this->simpro->getRequest(
             'get',
             '/api/v1.0/companies/0/recurringInvoices/'.$recurringInvoiceId.'/sections/?pageSize=100'
         );
-        dump('Finish gettins sections', Date('d.m.Y H:i:s'));
+//        dump('Finish gettins sections', Date('d.m.Y H:i:s'));
 
         if ($recurringInvoiceSections) {
             foreach ($recurringInvoiceSections as $recurringInvoiceSection) {
-                dump('Start to process invoice', Date('d.m.Y H:i:s'));
+//                dump('Start to process invoice', Date('d.m.Y H:i:s'));
 
                 $this->processRecurringInvoiceSection(
                     $recurringInvoice,
                     $recurringInvoiceSection,
                     $privateCustomer
                 );
-                dump('Finish to process invoice', Date('d.m.Y H:i:s'));
+//                dump('Finish to process invoice', Date('d.m.Y H:i:s'));
 
             }
         }
@@ -419,7 +419,7 @@ class NewPrivateUpload
             'get',
             "/api/v1.0/companies/0/recurringInvoices/${recurringInvoiceId}/sections/${sectionId}/costCenters/${costCenterId}"
         );
-//        dump('offs', $offs, 'catalogs', $catalogs, 'Discount', $costCenter->Totals->Discount);
+////        dump('offs', $offs, 'catalogs', $catalogs, 'Discount', $costCenter->Totals->Discount);
         $exTax = $costCenter->Totals->Discount ?? 0; //3.02
         if ($exTax) {
             $incTax = $exTax + Round($exTax * 0.2, 2);

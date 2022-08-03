@@ -23,3 +23,16 @@ class checkAdmin
         return $next($request);
     }
 }
+
+
+    class A {
+        static function call() {
+            echo 'a';
+        }
+    }
+
+    class B extends A{
+
+    }
+
+    B::call();
