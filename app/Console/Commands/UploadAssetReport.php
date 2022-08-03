@@ -45,6 +45,8 @@ class UploadAssetReport extends Command
                 SiteJob::dispatch($site);
             }
         }
+
+        SiteJob::dispatch('done');
     }
 }
 
