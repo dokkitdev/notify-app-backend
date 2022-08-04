@@ -8,14 +8,12 @@
 
 namespace App\Service;
 
+use App\Appointment;
 use App\Models\Contract;
 use App\Models\Customer;
 use App\Models\HousingJob;
 use App\Templates;
-use CloudConvert\Api;
 use Illuminate\Support\Facades\Config;
-use App\Appointment;
-use LynX39\LaraPdfMerger\Facades\PdfMerger;
 use LynX39\LaraPdfMerger\PdfManage;
 use PhpOffice\PhpWord\TemplateProcessor;
 
@@ -23,11 +21,9 @@ class TemplateGenerator
 {
     public function fillAppoinmentLetterFromDocxTemplate($docx, Appointment $appointment = null)
     {
-
-
         set_time_limit(0);
         $docx_folder = Config::get('constants.storage_docx');
-        $file = $docx_folder . '/' . $docx;
+        $file = $docx_folder.'/'.$docx;
 
         if (!is_file($file)) {
             return false;
@@ -39,14 +35,18 @@ class TemplateGenerator
         $day = ltrim($today->format('d'), '0');
         if ($day % 10 == 1 && $day != 11) {
             $day .= 'st';
-        } else if ($day % 10 == 2 && $day != 12) {
-            $day .= 'nd';
-        } else if ($day % 10 == 3 && $day != 13) {
-            $day .= 'rd';
         } else {
-            $day .= 'th';
+            if ($day % 10 == 2 && $day != 12) {
+                $day .= 'nd';
+            } else {
+                if ($day % 10 == 3 && $day != 13) {
+                    $day .= 'rd';
+                } else {
+                    $day .= 'th';
+                }
+            }
         }
-        $today = $day . ' ' . $month . ' ' . $year;
+        $today = $day.' '.$month.' '.$year;
 
 
         $ContactName = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($appointment->getContact())))));
@@ -62,7 +62,9 @@ class TemplateGenerator
         $TodayDate = htmlspecialchars(($today));
         $JobID = htmlspecialchars(($appointment->job_id));
         $ScheduleDate = htmlspecialchars(($appointment->getFormatedScheduleDate()));
-        $ScheduleTime = htmlspecialchars(($appointment->getFormatedScheduleDate() . ' ' . $appointment->getFormatedScheduleTime()));
+        $ScheduleTime = htmlspecialchars(
+            ($appointment->getFormatedScheduleDate().' '.$appointment->getFormatedScheduleTime())
+        );
         $WorkType = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($appointment->work_type)))));
 
         $variables = [
@@ -71,7 +73,7 @@ class TemplateGenerator
             'Address2',
             'City',
             'County',
-            'Postcode'
+            'Postcode',
         ];
 
         $values = [
@@ -102,23 +104,23 @@ class TemplateGenerator
         $template->setValue('WorkType', $WorkType);
 
         $today = new \DateTime();
-        $new_file = $appointment->job_id . '.appointment.' . $today->format('Y-m-d') . '.docx';
+        $new_file = $appointment->job_id.'.appointment.'.$today->format('Y-m-d').'.docx';
 
         if ($appointment->docx) {
-            $old_file = $docx_folder . '/' . $appointment->docx;
+            $old_file = $docx_folder.'/'.$appointment->docx;
             if (file_exists($old_file)) {
                 unlink($old_file);
             }
         }
         if ($appointment->pdf) {
             $pdf_folder = Config::get('constants.storage_pdf');
-            $old_file = $pdf_folder . '/' . $appointment->pdf;
+            $old_file = $pdf_folder.'/'.$appointment->pdf;
             if (file_exists($old_file)) {
                 unlink($old_file);
             }
         }
 
-        $template->saveAs($docx_folder . '/' . $new_file);
+        $template->saveAs($docx_folder.'/'.$new_file);
 
         return $new_file;
     }
@@ -127,7 +129,6 @@ class TemplateGenerator
 
     public function fillHousingTemplate(HousingJob $housing)
     {
-
         if (!$this->housingTemplates) {
             $this->housingTemplates = [
                 'No Access 1 (Letter)' => Templates::where('alias', '=', Templates::HOUSING_NO_ACCESS)->first(),
@@ -140,7 +141,7 @@ class TemplateGenerator
 
         set_time_limit(0);
         $docx_folder = Config::get('constants.storage_docx');
-        $file = $docx_folder . '/' . $docx;
+        $file = $docx_folder.'/'.$docx;
         if (!is_file($file)) {
             return false;
         }
@@ -151,14 +152,18 @@ class TemplateGenerator
         $day = ltrim($today->format('d'), '0');
         if ($day % 10 == 1 && $day != 11) {
             $day .= 'st';
-        } else if ($day % 10 == 2 && $day != 12) {
-            $day .= 'nd';
-        } else if ($day % 10 == 3 && $day != 13) {
-            $day .= 'rd';
         } else {
-            $day .= 'th';
+            if ($day % 10 == 2 && $day != 12) {
+                $day .= 'nd';
+            } else {
+                if ($day % 10 == 3 && $day != 13) {
+                    $day .= 'rd';
+                } else {
+                    $day .= 'th';
+                }
+            }
         }
-        $today = $day . ' ' . $month . ' ' . $year;
+        $today = $day.' '.$month.' '.$year;
 
         $yesterday = new \DateTime('-1 day');
         $month = $yesterday->format('F');
@@ -166,14 +171,18 @@ class TemplateGenerator
         $day = ltrim($yesterday->format('d'), '0');
         if ($day % 10 == 1 && $day != 11) {
             $day .= 'st';
-        } else if ($day % 10 == 2 && $day != 12) {
-            $day .= 'nd';
-        } else if ($day % 10 == 3 && $day != 13) {
-            $day .= 'rd';
         } else {
-            $day .= 'th';
+            if ($day % 10 == 2 && $day != 12) {
+                $day .= 'nd';
+            } else {
+                if ($day % 10 == 3 && $day != 13) {
+                    $day .= 'rd';
+                } else {
+                    $day .= 'th';
+                }
+            }
         }
-        $yesterday = $day . ' ' . $month . ' ' . $year;
+        $yesterday = $day.' '.$month.' '.$year;
 
 
         $siteAddress = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->address)))));
@@ -184,7 +193,9 @@ class TemplateGenerator
         $serviceType = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->job_name)))));
         $first_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->given_name)))));
         $family_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->family_name)))));
-        $due_date = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->getScheduleDateWithDay())))));
+        $due_date = htmlspecialchars(
+            (str_replace("\n", ', ', ucwords(strtolower($housing->getScheduleDateWithDay()))))
+        );
         $company_name = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->company_name)))));
         $contactName = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->siteContact())))));
         $contactPhone = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($housing->getContactPhone())))));
@@ -194,7 +205,7 @@ class TemplateGenerator
             'Address2',
             'City',
             'County',
-            'Postcode'
+            'Postcode',
         ];
 
         $values = [
@@ -229,23 +240,24 @@ class TemplateGenerator
 
 
         $today = new \DateTime();
-        $new_file = $housing->job_id . '.housing.' . $today->format('Y-m-d') . '.docx';
+        $new_file = $housing->job_id.'.housing.'.$today->format('Y-m-d').'.docx';
 
         if ($housing->docx) {
-            $old_file = $docx_folder . '/' . $housing->docx;
+            $old_file = $docx_folder.'/'.$housing->docx;
             if (file_exists($old_file)) {
                 unlink($old_file);
             }
         }
         if ($housing->pdf) {
             $pdf_folder = Config::get('constants.storage_pdf');
-            $old_file = $pdf_folder . '/' . $housing->pdf;
+            $old_file = $pdf_folder.'/'.$housing->pdf;
             if (file_exists($old_file)) {
                 unlink($old_file);
             }
         }
 
-        $template->saveAs($docx_folder . '/' . $new_file);
+        $template->saveAs($docx_folder.'/'.$new_file);
+
         return $new_file;
     }
 
@@ -266,19 +278,23 @@ class TemplateGenerator
         $assets_id = [];
         $dates = [];
         $site = null;
-        $startDate = $date . ' 00:00:00';
-        $endDate = $date . ' 23:59:59';
+        $startDate = $date.' 00:00:00';
+        $endDate = $date.' 23:59:59';
         foreach ($customer->contracts as $contract) {
             $temp_end = $contract->end_date;
 
             if ($type == '1 wk') {
                 $isValid = $contract->is_processed_1;
-            } else if ($type == '4 wks') {
-                $isValid = $contract->is_processed_4;
-            } else if ($type == '8 wks') {
-                $isValid = $contract->is_processed_8;
             } else {
-                continue;
+                if ($type == '4 wks') {
+                    $isValid = $contract->is_processed_4;
+                } else {
+                    if ($type == '8 wks') {
+                        $isValid = $contract->is_processed_8;
+                    } else {
+                        continue;
+                    }
+                }
             }
 
 
@@ -286,9 +302,13 @@ class TemplateGenerator
                 $end_date = $temp_end ?: $endDate;
                 $contractNum[] = ($contract->contract_no);
                 $assets[] = htmlspecialchars($contract->name);
-                $eD = $contract->end_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->end_date)->format('d/m/Y') : '';
-                $sD = $contract->start_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->start_date)->format('d/m/Y') : '';
-                $contract_dates = $sD . ' -  ' . $eD;
+                $eD = $contract->end_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->end_date)->format(
+                    'd/m/Y'
+                ) : '';
+                $sD = $contract->start_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->start_date)->format(
+                    'd/m/Y'
+                ) : '';
+                $contract_dates = $sD.' -  '.$eD;
                 $dates[] = htmlspecialchars(trim(trim($contract_dates, ' '), '-'));
             }
         }
@@ -299,12 +319,16 @@ class TemplateGenerator
 
         if ($end_date >= $week1Minus2Day && $end_date <= $week1) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_1_WEEK)->first();
-        } else if ($week4Minus2Day && $end_date <= $week4) {
-            $template = Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first();
-        } else if ($week8Minus2Day && $end_date <= $week8) {
-            $template = Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first();
         } else {
-            return false;
+            if ($week4Minus2Day && $end_date <= $week4) {
+                $template = Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first();
+            } else {
+                if ($week8Minus2Day && $end_date <= $week8) {
+                    $template = Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first();
+                } else {
+                    return false;
+                }
+            }
         }
         $docx = $template->docx;
         if (!$docx) {
@@ -313,7 +337,7 @@ class TemplateGenerator
 
 
         $docx_folder = Config::get('constants.storage_docx');
-        $file = $docx_folder . '/' . $docx;
+        $file = $docx_folder.'/'.$docx;
         if (!is_file($file)) {
             return false;
         }
@@ -325,14 +349,18 @@ class TemplateGenerator
         $day = ltrim($today->format('d'), '0');
         if ($day % 10 == 1 && $day != 11) {
             $day .= 'st';
-        } else if ($day % 10 == 2 && $day != 12) {
-            $day .= 'nd';
-        } else if ($day % 10 == 3 && $day != 13) {
-            $day .= 'rd';
         } else {
-            $day .= 'th';
+            if ($day % 10 == 2 && $day != 12) {
+                $day .= 'nd';
+            } else {
+                if ($day % 10 == 3 && $day != 13) {
+                    $day .= 'rd';
+                } else {
+                    $day .= 'th';
+                }
+            }
         }
-        $today = $day . ' ' . $month . ' ' . $year;
+        $today = $day.' '.$month.' '.$year;
 
 
         $address = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->address)))));
@@ -364,7 +392,7 @@ class TemplateGenerator
             'Address2',
             'City',
             'County',
-            'Postcode'
+            'Postcode',
         ];
 
 
@@ -427,25 +455,25 @@ class TemplateGenerator
         $template->setValue('TodayDate', $today);
 
         $today = new \DateTime();
-        $new_file = $customerId . '.' . str_replace(' ', '.', $type) . '.' . $today->format('Y-m-d') . '.docx';
+        $new_file = $customerId.'.'.str_replace(' ', '.', $type).'.'.$today->format('Y-m-d').'.docx';
 
         if ($contract->docx) {
-            $old_file = $docx_folder . '/' . $contract->docx;
+            $old_file = $docx_folder.'/'.$contract->docx;
             if (file_exists($old_file)) {
                 unlink($old_file);
             }
         }
         if ($contract->pdf) {
             $pdf_folder = Config::get('constants.storage_pdf');
-            $old_file = $pdf_folder . '/' . $contract->pdf;
+            $old_file = $pdf_folder.'/'.$contract->pdf;
             if (file_exists($old_file)) {
                 unlink($old_file);
             }
         }
 
-        $template->saveAs($docx_folder . '/' . $new_file);
-        return $new_file;
+        $template->saveAs($docx_folder.'/'.$new_file);
 
+        return $new_file;
     }
 
 
@@ -460,28 +488,36 @@ class TemplateGenerator
         $assets_id = [];
         $dates = [];
         $site = null;
-        $startDate = $date . ' 00:00:00';
-        $endDate = $date . ' 23:59:59';
+        $startDate = $date.' 00:00:00';
+        $endDate = $date.' 23:59:59';
         foreach ($customer->contracts as $contract) {
             $temp_end = $contract->end_date;
 
             if ($type == '1 wk') {
                 $isValid = $contract->is_processed_1;
-            } else if ($type == '4 wks') {
-                $isValid = $contract->is_processed_4;
-            } else if ($type == '8 wks') {
-                $isValid = $contract->is_processed_8;
             } else {
-                continue;
+                if ($type == '4 wks') {
+                    $isValid = $contract->is_processed_4;
+                } else {
+                    if ($type == '8 wks') {
+                        $isValid = $contract->is_processed_8;
+                    } else {
+                        continue;
+                    }
+                }
             }
 
             if ($temp_end >= $startDate && $temp_end <= $endDate && !$isValid) {
                 $end_date = $temp_end;
                 $contractNum[] = ($contract->contract_no);
                 $assets[] = htmlspecialchars($contract->name);
-                $eD = $contract->end_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->end_date)->format('d/m/Y') : '';
-                $sD = $contract->start_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->start_date)->format('d/m/Y') : '';
-                $contract_dates = $sD . ' -  ' . $eD;
+                $eD = $contract->end_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->end_date)->format(
+                    'd/m/Y'
+                ) : '';
+                $sD = $contract->start_date ? \DateTime::createFromFormat('Y-m-d H:i:s', $contract->start_date)->format(
+                    'd/m/Y'
+                ) : '';
+                $contract_dates = $sD.' -  '.$eD;
                 $dates[] = htmlspecialchars(trim(trim($contract_dates, ' '), '-'));
             }
         }
@@ -492,14 +528,18 @@ class TemplateGenerator
         $day = ltrim($today->format('d'), '0');
         if ($day % 10 == 1 && $day != 11) {
             $day .= 'st';
-        } else if ($day % 10 == 2 && $day != 12) {
-            $day .= 'nd';
-        } else if ($day % 10 == 3 && $day != 13) {
-            $day .= 'rd';
         } else {
-            $day .= 'th';
+            if ($day % 10 == 2 && $day != 12) {
+                $day .= 'nd';
+            } else {
+                if ($day % 10 == 3 && $day != 13) {
+                    $day .= 'rd';
+                } else {
+                    $day .= 'th';
+                }
+            }
         }
-        $today = $day . ' ' . $month . ' ' . $year;
+        $today = $day.' '.$month.' '.$year;
 
         $address = htmlspecialchars((str_replace("\n", ', ', ucwords(strtolower($customer->address)))));
         $address2 = '';
@@ -531,7 +571,7 @@ class TemplateGenerator
             '${Address2}',
             '${City}',
             '${County}',
-            '${Postcode}'
+            '${Postcode}',
         ];
 
 
@@ -618,14 +658,18 @@ class TemplateGenerator
         if ($week1->format('Y-m-d') == $end_date) {
             $template = Templates::where('alias', '=', Templates::PRIVATE_1_WEEK)->first();
             $type = '1wk';
-        } else if ($week4->format('Y-m-d') == $end_date) {
-            $template = Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first();
-            $type = '4wks';
-        } else if ($week8->format('Y-m-d') == $end_date) {
-            $template = Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first();
-            $type = '8wks';
         } else {
-            return false;
+            if ($week4->format('Y-m-d') == $end_date) {
+                $template = Templates::where('alias', '=', Templates::PRIVATE_4_WEEK)->first();
+                $type = '4wks';
+            } else {
+                if ($week8->format('Y-m-d') == $end_date) {
+                    $template = Templates::where('alias', '=', Templates::PRIVATE_8_WEEK)->first();
+                    $type = '8wks';
+                } else {
+                    return false;
+                }
+            }
         }
         $docx = $template->docx;
         if (!$docx) {
@@ -633,7 +677,7 @@ class TemplateGenerator
         }
 
         $docx_folder = Config::get('constants.storage_docx');
-        $file = $docx_folder . '/' . $docx;
+        $file = $docx_folder.'/'.$docx;
         if (!is_file($file)) {
             return false;
         }
@@ -644,14 +688,18 @@ class TemplateGenerator
         $day = ltrim($today->format('d'), '0');
         if ($day % 10 == 1 && $day != 11) {
             $day .= 'st';
-        } else if ($day % 10 == 2 && $day != 12) {
-            $day .= 'nd';
-        } else if ($day % 10 == 3 && $day != 13) {
-            $day .= 'rd';
         } else {
-            $day .= 'th';
+            if ($day % 10 == 2 && $day != 12) {
+                $day .= 'nd';
+            } else {
+                if ($day % 10 == 3 && $day != 13) {
+                    $day .= 'rd';
+                } else {
+                    $day .= 'th';
+                }
+            }
         }
-        $today = $day . ' ' . $month . ' ' . $year;
+        $today = $day.' '.$month.' '.$year;
 
 
         $customer = $contract->customer()->first();
@@ -685,7 +733,7 @@ class TemplateGenerator
             'Address2',
             'City',
             'County',
-            'Postcode'
+            'Postcode',
         ];
 
 
@@ -747,23 +795,24 @@ class TemplateGenerator
         $template->setValue('TodayDate', $today);
 
         $today = new \DateTime();
-        $new_file = $customerId . '.' . $type . '.' . $today->format('Y-m-d') . '.docx';
+        $new_file = $customerId.'.'.$type.'.'.$today->format('Y-m-d').'.docx';
 
         if ($contract->docx) {
-            $old_file = $docx_folder . '/' . $contract->docx;
+            $old_file = $docx_folder.'/'.$contract->docx;
             if (file_exists($old_file)) {
                 unlink($old_file);
             }
         }
         if ($contract->pdf) {
             $pdf_folder = Config::get('constants.storage_pdf');
-            $old_file = $pdf_folder . '/' . $contract->pdf;
+            $old_file = $pdf_folder.'/'.$contract->pdf;
             if (file_exists($old_file)) {
                 unlink($old_file);
             }
         }
 
-        $template->saveAs($docx_folder . '/' . $new_file);
+        $template->saveAs($docx_folder.'/'.$new_file);
+
         return $new_file;
     }
 
@@ -771,12 +820,16 @@ class TemplateGenerator
     {
         $docx_folder = Config::get('constants.storage_docx');
         $pdf_folder = Config::get('constants.storage_pdf');
-        $file = $docx_folder . '/' . $docx;
+        $file = $docx_folder.'/'.$docx;
         if (!is_file($file)) {
             return false;
         }
-        exec(Config::get('constants.libreoffice') . ' --headless --writer --convert-to pdf:writer_pdf_Export ' . $file . ' --outdir ' . $pdf_folder);
-        $new_file = substr($docx, 0, -4) . 'pdf';
+        exec(
+            Config::get(
+                'constants.libreoffice'
+            ).' --headless --writer --convert-to pdf:writer_pdf_Export '.$file.' --outdir '.$pdf_folder
+        );
+        $new_file = substr($docx, 0, -4).'pdf';
 
         return $new_file;
     }
@@ -785,13 +838,18 @@ class TemplateGenerator
     {
         $docxFolder = Config::get('constants.storage_docx');
         $pdfFolder = Config::get('constants.storage_pdf');
-        $file = $docxFolder . '/' . $docx;
+        $file = $docxFolder.'/'.$docx;
         if (!is_file($file)) {
             return false;
         }
-        shell_exec(Config::get('constants.libreoffice') . ' --headless --writer --convert-to pdf:writer_pdf_Export ' . $file . ' --outdir ' . $pdfFolder);
+        shell_exec(
+            Config::get(
+                'constants.libreoffice'
+            ).' --headless --writer --convert-to pdf:writer_pdf_Export '.$file.' --outdir '.$pdfFolder
+        );
         sleep(1.5);
-        $newFile = substr($docx, 0, -4) . 'pdf';
+        $newFile = substr($docx, 0, -4).'pdf';
+
         return $newFile;
     }
 
@@ -800,55 +858,60 @@ class TemplateGenerator
         if (count($pdf_names) == 0) {
             return false;
         }
-        $pdf_folder = Config::get('constants.storage_pdf') . '/';
-        $pdf_merger = PdfMerger::init();
+        $pdf_folder = Config::get('constants.storage_pdf').'/';
+        $pdf_merger = new PdfManage();;
         $name = 'temp';
         foreach ($pdf_names as $pdf) {
             if ($pdf instanceof HousingJob) {
                 $name = 'housing';
-                $file = $pdf_folder . $pdf->pdf;
+                $file = $pdf_folder.$pdf->pdf;
                 if ($pdf->tags == 'No Access 3 (Letter)') {
                     $pages = '1-2';
                 } else {
                     $pages = '1';
                 }
-            } else if ($pdf instanceof Contract) {
-                $file = $pdf_folder . $pdf->pdf;
-                $pages = '1-2';
-                $name = 'private';
-            } else if (is_array($pdf)) {
-                $file = $pdf_folder . $pdf['pdf'];
-                $pages = $pdf['page'];
-                $name = 'private';
             } else {
-                $file = $pdf_folder . $pdf;
-                $pages = '1';
-                $name = 'appointment';
+                if ($pdf instanceof Contract) {
+                    $file = $pdf_folder.$pdf->pdf;
+                    $pages = '1-2';
+                    $name = 'private';
+                } else {
+                    if (is_array($pdf)) {
+                        $file = $pdf_folder.$pdf['pdf'];
+                        $pages = $pdf['page'];
+                        $name = 'private';
+                    } else {
+                        $file = $pdf_folder.$pdf;
+                        $pages = '1';
+                        $name = 'appointment';
+                    }
+                }
             }
             if (file_exists($file)) {
                 $pdf_merger->addPDF($file, $pages);
             }
         }
         $today = new \DateTime();
-        $new_file = $name . $today->format('Y-m-d.H-i-s') . '.pdf';
-        $pdf_merger->merge('file', $pdf_folder . $new_file);
+        $new_file = $name.$today->format('Y-m-d.H-i-s').'.pdf';
+        $pdf_merger->merge('file', $pdf_folder.$new_file);
 
         return $new_file;
     }
 
     public static function mergeAllPdfsPages($pdfs, $name)
     {
-        $pdfFolder = Config::get('constants.storage_pdf') . '/';
+        $pdfFolder = Config::get('constants.storage_pdf').'/';
         $pdfMerger = new PdfManage();
         foreach ($pdfs as $pdf) {
-            $file = $pdfFolder . $pdf;
+            $file = $pdfFolder.$pdf;
             if (file_exists($file)) {
                 $pdfMerger->addPDF($file);
             } else {
-                dump('no file ' . $file);
+                dump('no file '.$file);
             }
         }
-        $pdfMerger->merge('file', $pdfFolder . $name);
+        $pdfMerger->merge('file', $pdfFolder.$name);
+
         return $name;
     }
 
@@ -858,25 +921,26 @@ class TemplateGenerator
             return false;
         }
 
-        $pdf_folder = Config::get('constants.storage_pdf') . '/';
+        $pdf_folder = Config::get('constants.storage_pdf').'/';
         $pdf_merger = new PdfManage();
         $name = 'report.';
         foreach ($pdf_names as $pdf) {
-            $file = $pdf_folder . $pdf;
+            $file = $pdf_folder.$pdf;
             $pdf_merger->addPDF($file);
         }
 
         $today = new \DateTime();
-        $new_file = $name . $today->format('Y-m-d.H-i-s') . '.pdf';
-        $pdf_merger->merge('file', $pdf_folder . $new_file);
+        $new_file = $name.$today->format('Y-m-d.H-i-s').'.pdf';
+        $pdf_merger->merge('file', $pdf_folder.$new_file);
+
         return $new_file;
     }
 
     public function removeProvidedPdfs($pdf_names = [])
     {
-        $pdf_folder = Config::get('constants.storage_pdf') . '/';
+        $pdf_folder = Config::get('constants.storage_pdf').'/';
         foreach ($pdf_names as $pdf) {
-            $file = $pdf_folder . $pdf;
+            $file = $pdf_folder.$pdf;
             if (file_exists($file)) {
                 unlink($file);
             }
@@ -885,9 +949,9 @@ class TemplateGenerator
 
     public function removeProvidedHtmls($html_names = [])
     {
-        $html_folder = Config::get('constants.storage_html') . '/';
+        $html_folder = Config::get('constants.storage_html').'/';
         foreach ($html_names as $html) {
-            $file = $html_folder . $html;
+            $file = $html_folder.$html;
             if (file_exists($file)) {
                 unlink($file);
             }
@@ -915,8 +979,12 @@ class TemplateGenerator
         return number_format((float)TemplateGenerator::getCorrectString($value), 2);
     }
 
-    public static function fillValuesIfExistWithLimit(TemplateProcessor $templateProcessor, $variables, $values, $limit = 1)
-    {
+    public static function fillValuesIfExistWithLimit(
+        TemplateProcessor $templateProcessor,
+        $variables,
+        $values,
+        $limit = 1
+    ) {
         foreach ($variables as $v) {
             $str = '';
             while (($value = array_shift($values)) !== null) {
