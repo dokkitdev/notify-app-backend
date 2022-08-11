@@ -43,9 +43,9 @@ class SiteJob implements ShouldQueue
         $simpro = new simProRequestService();
         $siteId = $this->site->ID ?? 0;
 
-        if ($siteId != '35590') {
-            return;
-        }
+//        if ($siteId != '35590') {
+//            return;
+//        }
 
         $da = new \DateTime('-1 day');
         $assets = $simpro->getRequest(
