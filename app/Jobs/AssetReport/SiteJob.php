@@ -40,6 +40,9 @@ class SiteJob implements ShouldQueue
      */
     public function handle()
     {
+        if ($this->site == 'done') {
+            return;
+        }
         $simpro = new simProRequestService();
         $siteId = $this->site->ID ?? 0;
 
