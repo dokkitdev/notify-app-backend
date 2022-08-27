@@ -26,5 +26,8 @@ class AssetReport extends Model
         'service_due',
         'next_scheduled_appointment_date',
         'no_access_visits',
+        'location',
+        'cancellation',
+        'is_updated',
     ];
 }

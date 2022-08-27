@@ -42,6 +42,7 @@ class simProRequestService
                 return $res;
             }
         } catch (\Exception $e) {
+            dump('request failed', $e);
             if ($attemptCount < 3) {
                 sleep(2);
                 $this->reGenToken();

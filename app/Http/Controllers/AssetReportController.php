@@ -210,6 +210,7 @@ class AssetReportController extends Controller
                 'Fuel Type',
                 'Make',
                 'Model',
+                'Location',
                 'Last Service Date',
                 'Service Level Start Date',
                 'Job Due Date',
@@ -220,6 +221,7 @@ class AssetReportController extends Controller
                 'Service Due',
                 'Next Scheduled Appointment Date',
                 'No Access Visits',
+                'Cancellations',
             ],
             ','
         );
@@ -254,6 +256,7 @@ class AssetReportController extends Controller
                     $assetReport->fuel_type,
                     $assetReport->make,
                     $assetReport->model,
+                    $assetReport->location ?? '',
                     $assetReport->last_service_date,
                     $assetReport->service_level_start_date,
                     $jobDueDate,
@@ -264,6 +267,7 @@ class AssetReportController extends Controller
                     $serviceDue,
                     $assetReport->next_scheduled_appointment_date && $d >= $now ? $assetReport->next_scheduled_appointment_date : '',
                     $assetReport->no_access_visits,
+                    $assetReport->cancellation ?? '',
                 ],
                 ','
             );

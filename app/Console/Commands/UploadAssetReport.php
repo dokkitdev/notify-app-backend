@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\AssetLogForDev;
 use App\Jobs\AssetReport\SiteJob;
 use App\Models\AssetReport;
-use App\Models\AssetReportValidation;
+use App\Models\Job;
 use App\Service\simProRequestService;
 use Illuminate\Console\Command;
 
@@ -31,9 +30,13 @@ class UploadAssetReport extends Command
      */
     public function handle()
     {
-        AssetLogForDev::query()->truncate();
-        AssetReportValidation::query()->truncate();
-        AssetReport::query()->truncate();
+//        AssetLogForDev::query()->truncate();
+//        AssetReportValidation::query()->truncate();
+        AssetReport::query()
+            ->update([
+                         'is_updated' => 0,
+                     ]
+            );
 
         $pages = $this->simpro->getRequestPage(
             'get',
@@ -45,7 +48,6 @@ class UploadAssetReport extends Command
                 SiteJob::dispatch($site);
             }
         }
-
 //        SiteJob::dispatch('done');
     }
 }

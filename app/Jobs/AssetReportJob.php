@@ -88,6 +88,7 @@ class AssetReportJob implements ShouldQueue
             'service_due' => null,
             'next_scheduled_appointment_date' => null,
             'no_access_visits' => null,
+            'is_updated' => 1,
         ];
         foreach ($site->CustomFields as $customField) {
             if ($customField->CustomField->ID == 4) {
@@ -112,6 +113,8 @@ class AssetReportJob implements ShouldQueue
                 $data['model'] = $value;
             } elseif ($customFieldName == 'Last Years MOT Date') {
                 $data['last_MOT_date'] = $value;
+            } elseif ($customFieldId == 1041) {
+                $data['location'] = $value;
             }
         }
         $data['last_service_date'] = $data['last_service_date'] ?: $asset->StartDate;
@@ -122,10 +125,17 @@ class AssetReportJob implements ShouldQueue
             $data['job_due_date'] = $job->DueDate ?? null;
 
             $jobId = $job->ID ?? 0;
-            $job = $simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$jobId.'?columns=Stage,Tags,DueDate');
+            $job = $simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$jobId.'?columns=Stage,Tags,DueDate,CustomFields');
             if ($job) {
                 $data['job_stage'] = $job->Stage ?? null;
                 $data['service_due'] = $job->DueDate;
+                foreach ($job->CustomFields as $customField) {
+                    $customFieldId = $customField->CustomField->ID ?? 0;
+                    $value = $customField->Value;
+                    if ($customFieldId == 'tbd') {
+                        $data['cancellation'] = $value;
+                    }
+                }
                 foreach ($job->Tags ?? [] as $tag) {
                     $tagId = $tag->ID ?? 0;
                     if ($tagId == 56) {
@@ -238,6 +248,7 @@ class AssetReportJob implements ShouldQueue
                 ]
             );
         }
+
     }
 
     public function getDaysDiff($firstTime, $secondTime)

@@ -43,6 +43,8 @@ class AssetJob implements ShouldQueue
      */
     public function handle()
     {
+        dump('Start', Date('d.m.Y H:i:s'));
+
         $simpro = new simProRequestService();
         $site = $this->site;
         $asset = $this->asset;
@@ -87,6 +89,7 @@ class AssetJob implements ShouldQueue
             'service_due' => null,
             'next_scheduled_appointment_date' => null,
             'no_access_visits' => null,
+            'is_updated' => 1,
         ];
         foreach ($site->CustomFields as $customField) {
             if ($customField->CustomField->ID == 4) {
@@ -117,6 +120,8 @@ class AssetJob implements ShouldQueue
                 $data['model'] = $value;
             } elseif ($customFieldName == 'Last Years MOT Date') {
                 $data['last_MOT_date'] = $value;
+            } elseif ($customFieldId == 1041) {
+                $data['location'] = $value;
             }
         }
 //        $data['last_service_date'] = $data['last_service_date'] ?: $asset->StartDate;
@@ -132,10 +137,17 @@ class AssetJob implements ShouldQueue
             $data['job_due_date'] = $job->DueDate ?? null;
 
             $jobId = $job->ID ?? 0;
-            $job = $simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$jobId.'?columns=Stage,Tags,DueDate');
+            $job = $simpro->getRequest('get', '/api/v1.0/companies/0/jobs/'.$jobId.'?columns=Stage,Tags,DueDate,CustomFields');
             if ($job) {
                 $data['job_stage'] = $job->Stage ?? null;
                 $data['service_due'] = $job->DueDate;
+                foreach ($job->CustomFields as $customField) {
+                    $customFieldId = $customField->CustomField->ID ?? 0;
+                    $value = $customField->Value;
+                    if ($customFieldId == 'tbd') {
+                        $data['cancellation'] = $value;
+                    }
+                }
                 foreach ($job->Tags ?? [] as $tag) {
                     $tagId = $tag->ID ?? 0;
                     if ($tagId == 56) {
@@ -199,8 +211,10 @@ class AssetJob implements ShouldQueue
             $daysBetween = $this->getDaysDiffWithoutAbs(strtotime($data['service_due']), $today);
             if ($daysBetween === 1) {
                 $errors[] = 'Service due tomorrow';
-            } else if ($daysBetween <= 30) {
-                $errors[] = 'Service due within ' . $daysBetween . ' days';
+            } else {
+                if ($daysBetween <= 30) {
+                    $errors[] = 'Service due within '.$daysBetween.' days';
+                }
             }
         }
 
@@ -251,7 +265,8 @@ class AssetJob implements ShouldQueue
             ->where('asset_id', $assetId)
             ->delete();
 
-        $assetReport = AssetReport::create($data);
+        $assetReport = AssetReport::query()
+            ->create($data);
         foreach ($errors as $error) {
             AssetReportValidation::create(
                 [
@@ -267,6 +282,7 @@ class AssetJob implements ShouldQueue
                 ]
             );
         }
+        dump('Finished', Date('d.m.Y H:i:s'));
     }
 
     public function getDaysDiff($firstTime, $secondTime)
