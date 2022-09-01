@@ -3,18 +3,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Appointment;
 use App\Console\Commands\ProcessAppointmentChlCommand;
-use App\Console\Commands\ProcessPrivateCommand;
 use App\Http\Controllers\Controller;
-use App\Logs;
-use App\Models\AppointmentLogged;
+use App\Models\Appointment;
+use App\Models\Logs;
+use App\Models\Templates;
 use App\Service\AppointmentChlService;
 use App\Service\Exceptions\MessageException;
-use App\Templates;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
 
 class AppointmentsChlController extends Controller
 {
@@ -33,8 +30,6 @@ class AppointmentsChlController extends Controller
             ->where('send_date', '>', (new \DateTime('+4 day'))->format('Y-m-d'))
             ->orderBy($sort, $direction)
             ->paginate($limit);
-
-        $today = new \DateTime();
 
         foreach ($appointments as $appointment) {
             switch ($appointment->letter_type) {
@@ -68,11 +63,12 @@ class AppointmentsChlController extends Controller
             }
         }
 
+
+        $appointments->appends($request->except(['page', '_token']));
+
+
         return view('admin.appointments.index_chl', [
             'appointments' => $appointments,
-            'limit' => $limit,
-            'start' => $today->format('d.m.Y'),
-            'end' => $today->format('d.m.Y'),
         ]);
     }
 
@@ -87,11 +83,12 @@ class AppointmentsChlController extends Controller
             AppointmentChlService::generateFilesForAppointment($appointment);
             $pdf = $appointment->pdf;
             $pdfFolder = Config::get('constants.storage_pdf');
-            return response()->file($pdfFolder . '/' . $pdf);
+
+            return response()->file($pdfFolder.'/'.$pdf);
         } catch (\InvalidArgumentException $e) {
             return redirect()->route('chl.appointments.all')->with([
-                'error' => $e->getMessage(),
-            ]);
+                                                                       'error' => $e->getMessage(),
+                                                                   ]);
         }
     }
 
@@ -103,15 +100,15 @@ class AppointmentsChlController extends Controller
         try {
             if (!$appointments || !is_array($appointments) || !count($appointments)) {
                 throw new MessageException([
-                    'error' => 'Please select at least one private letter.',
-                ]);
+                                               'error' => 'Please select at least one private letter.',
+                                           ]);
             }
             $countAppointment = count($appointments);
             $log = Logs::create([
-                'customer_type' => 'CHL letter',
-                'letters_generated' => 0,
-                'email_generated' => 0,
-            ]);
+                                    'customer_type' => 'CHL letter',
+                                    'letters_generated' => 0,
+                                    'email_generated' => 0,
+                                ]);
             if ($countAppointment >= 1) {
                 foreach ($appointments as $appointment) {
                     $appointment = Appointment::find($appointment);
@@ -124,16 +121,17 @@ class AppointmentsChlController extends Controller
                 $log->command = ProcessAppointmentChlCommand::getCommand($appointments, $log);
                 $log->save();
                 throw new MessageException([
-                    'ok' => 'Your letters are being processed and will appear in the logs page shortly.',
-                ]);
+                                               'ok' => 'Your letters are being processed and will appear in the logs page shortly.',
+                                           ]);
             }
             AppointmentChlService::startProcessing($appointments, $log);
             $message = [
-                'ok' => 'Appointment Letters has been successfully generated.'
+                'ok' => 'Appointment Letters has been successfully generated.',
             ];
         } catch (MessageException $exception) {
             $message = $exception->getDescription();
         }
+
         return redirect()->back()->with($message);
     }
 }

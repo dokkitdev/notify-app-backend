@@ -2,17 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Appointment;
-use App\Logs;
-use App\Models\Contract;
-use App\Models\HousingJob;
-use App\Models\PrivateCustomer;
+use App\Models\Logs;
 use App\Service\AppointmentChlService;
-use App\Service\JobUploader;
-use App\Service\PrivateService;
-use App\Service\simProRequestService;
-use App\Service\TemplateGenerator;
-use App\Templates;
 use Illuminate\Console\Command;
 
 class ProcessAppointmentChlCommand extends Command

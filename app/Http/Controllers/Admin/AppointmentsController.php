@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Appointment;
 use App\Http\Controllers\Controller;
-use App\Logs;
+use App\Models\Appointment;
 use App\Models\AppointmentProcessed;
+use App\Models\Logs;
+use App\Models\Templates;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
 use App\Service\Upload\JobUpload;
-use App\Templates;
 use Illuminate\Http\Request;
 
 class AppointmentsController extends Controller
@@ -31,14 +31,9 @@ class AppointmentsController extends Controller
             ->orderBy($sort, $direction)
             ->paginate($limit);
 
-        $today = new \DateTime();
-
+        $appointments->appends($request->except(['page', '_token']));
         return view('admin.appointments.index', [
             'appointments' => $appointments,
-//            'today' => $start,
-            'limit' => $limit,
-            'start' => $today->format('d.m.Y'),
-            'end' => $today->format('d.m.Y'),
         ]);
     }
 

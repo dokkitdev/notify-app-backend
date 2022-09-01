@@ -12,7 +12,6 @@ namespace App\Service\Upload;
 use App\Models\HousingJob;
 use App\Models\ParsingLog;
 use App\Service\simProRequestService;
-use Illuminate\Support\Facades\DB;
 
 class HousingUpload
 {

@@ -73,24 +73,6 @@ class simProService
         return $jobsLinks;
     }
 
-    /**
-     * собирает ссылки на определенный job для парсинга
-     * @param $link - ссылка с постраничкой или без для хапроа списка job
-     * @param $companyId - id компании нужно для создания сылки
-     * @return array
-     */
-    public function parseJobsLinks($link, $companyId)
-    {
-        $jobs = $this->simProRequest->getRequest('GET', $link);
-        $JobsLinks = [];
-        if (count($jobs) > 0) {
-            foreach ($jobs as $val) {
-                $JobsLinks[] = '/api/v1.0/companies/' . $companyId . '/jobs/' . $val->ID;
-                parseJobs::dispatch('/api/v1.0/companies/' . $companyId . '/jobs/' . $val->ID, $companyId, $val->ID)->delay(now()->addSecond(5));
-            }
-        }
-        return $JobsLinks;
-    }
 
 
     function parseCustomersCompaniesPg($companies)

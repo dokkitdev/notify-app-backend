@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
                         'term' => 4,
                         'title' => 'Annual Contracts',
                         'tag' => null,
-                        'alias' => \App\Templates::PRIVATE_ANNUAL,
+                        'alias' => \App\Models\Templates::PRIVATE_ANNUAL,
                         'html_body' => null,
                         'html' => null,
                         'subject' => null,
@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
                         'term' => 4,
                         'title' => 'Monthly Contracts',
                         'tag' => null,
-                        'alias' => \App\Templates::PRIVATE_DEBIT,
+                        'alias' => \App\Models\Templates::PRIVATE_DEBIT,
                         'html_body' => null,
                         'html' => null,
                         'subject' => null,
@@ -147,16 +147,16 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($append as $parent_template) {
-            $pt = \App\TemplateParent::create(['title' => $parent_template['title']]);
+            $pt = \App\Models\TemplateParent::create(['title' => $parent_template['title']]);
             foreach ($parent_template['templates'] as $template) {
-                $t = \App\Templates::create($template);
+                $t = \App\Models\Templates::create($template);
                 $pt->templates()->save($t);
             }
         }
         \Illuminate\Support\Facades\DB::statement("
         INSERT IGNORE INTO users
 (id,
-name, 
+name,
 email,
 password,
 role,

@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Service\PrivateUploader;
-use App\Service\simProRequestService;
 use App\Service\Upload\PrivateUpload;
 use Illuminate\Console\Command;
 

@@ -120,7 +120,7 @@ class AssetJob implements ShouldQueue
                 $data['model'] = $value;
             } elseif ($customFieldName == 'Last Years MOT Date') {
                 $data['last_MOT_date'] = $value;
-            } elseif ($customFieldId == 1041) {
+            } elseif ($customFieldName == 'Location') {
                 $data['location'] = $value;
             }
         }

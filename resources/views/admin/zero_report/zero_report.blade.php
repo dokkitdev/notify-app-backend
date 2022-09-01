@@ -1,40 +1,45 @@
-@extends('layouts.app')
+@extends('admin.layout')
 @section('css')
     <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
     <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
 @endsection
 @section('content')
-    @if ($zero_constant->is_need_parsing == true and !session('ok'))
-        <div class="alert-info alert">
-            Parsing is running
+    <div class="container-fluid">
+        <div class="page-title-box">
+            <h4 class="page-title">Zero Report</h4>
         </div>
-    @endif
-
-    <h2>Zero Report</h2>
-    <form method="POST" id="zero-form">
-        @csrf
         <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="daterange">Dates</label>
-                    <input type="text" id="daterange" name="dates" value="{{ Date('d/m/Y') }} - {{ Date('d/m/Y') }}"
-                           class="form-control"/>
+            <div class="col-sm-12 col-md-5">
+                <div class="card-box clearfix">
+                    @if ($zero_constant->is_need_parsing == true and !session('ok'))
+                        <div class="alert alert-danger mt-1">
+                            <strong>Parsing is running</strong>
+                        </div>
+                    @elseif(session('ok'))
+                        <div class="alert alert-success mt-1">
+                            <strong>{{ session('ok') }}</strong>
+                        </div>
+                    @endif
+                    <form method="POST" id="zero-form">
+                        @csrf
+                        <div class="form-group">
+                            <label for="daterange">Dates</label>
+                            <input type="text" id="daterange" name="dates"
+                                   value="{{ Date('d/m/Y') }} - {{ Date('d/m/Y') }}"
+                                   class="form-control"/>
+                        </div>
+                        @if ($zero_constant->is_need_parsing == true)
+                            <button type="button" disabled class="btn btn-primary float-right">Run Report</button>
+                        @else
+                            <button type="submit"
+                                    class="btn btn-primary float-right">Run Report
+                            </button>
+                        @endif
+                    </form>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-4 text-right">
-                @if ($zero_constant->is_need_parsing == true)
-                    <button type="button" disabled class="btn btn-primary">Run Report</button>
-                @else
-                    <button type="submit"
-                            class="btn btn-primary">Run Report
-                    </button>
-                @endif
-
-            </div>
-        </div>
-    </form>
+    </div>
 @endsection
 
 @section('js')

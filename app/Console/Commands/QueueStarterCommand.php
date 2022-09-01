@@ -2,14 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Appointment;
-use App\Logs;
-use App\Service\JobUploader;
-use App\Service\simProRequestService;
-use App\Service\TemplateGenerator;
-use App\Templates;
+use App\Models\Logs;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class QueueStarterCommand extends Command
 {

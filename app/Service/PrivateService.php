@@ -10,7 +10,7 @@ namespace App\Service;
 
 
 use App\Console\Commands\ProcessPrivateCommand;
-use App\Logs;
+use App\Models\Logs;
 use App\Models\PrivateCustomer;
 use App\Service\Exceptions\MessageException;
 use Illuminate\Support\Facades\Config;

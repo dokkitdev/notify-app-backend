@@ -2,17 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\HousingPage;
-use App\Service\HousingUploader;
-use App\Service\Requester;
-use App\Service\simProRequestService;
-use App\Service\simProService;
-use App\Service\Upload\HousingUpload;
 use App\Service\Upload\ReportUpload;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
-use Psr\Http\Message\ResponseInterface;
 
 class UploadReport extends Command
 {

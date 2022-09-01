@@ -2,20 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\HousingPage;
-use App\Models\AssetReport;
-use App\Models\AssetReportValidation;
 use App\Models\ParsingConstant;
 use App\Models\ReportLog;
-use App\Service\HousingUploader;
-use App\Service\Requester;
 use App\Service\simProRequestService;
-use App\Service\simProService;
-use App\Service\Upload\HousingUpload;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
-use Psr\Http\Message\ResponseInterface;
 
 class UploadZeroReport extends Command
 {

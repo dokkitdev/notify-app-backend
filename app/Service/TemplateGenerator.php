@@ -8,11 +8,11 @@
 
 namespace App\Service;
 
-use App\Appointment;
+use App\Models\Appointment;
 use App\Models\Contract;
 use App\Models\Customer;
 use App\Models\HousingJob;
-use App\Templates;
+use App\Models\Templates;
 use Illuminate\Support\Facades\Config;
 use LynX39\LaraPdfMerger\PdfManage;
 use PhpOffice\PhpWord\TemplateProcessor;

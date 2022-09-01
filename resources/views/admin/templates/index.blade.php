@@ -1,75 +1,125 @@
-@extends('layouts.app')
-
+@extends('admin.layout')
+@section('css')
+    <style>
+        a.disabled {
+            cursor: not-allowed;
+        }
+    </style>
+@endsection
 @section('content')
-        <h1>Templates</h1>
-        <h4 class="pt-3">Private</h4>
-        @foreach ($templatesGroups as $tg)
-            <div class="content">
-                <table class="table table-bordered">
-                    @foreach ($tg['templates'] as $template)
-                    <tr>
-                        <td>Letter {{$template->state}}</td>
-                        <td>
-                            {{$terms[$template->term]}}
-                        </td>
-                        <td>
-                            @if($template->name=='')<a class="btn btn-danger" href="/admin/template/{{$template->id}}" title="Create template"><i class="fas fa-plus"></i></a>@endif
-                            @if($template->name!='')<a class="btn btn-primary" href="/admin/template/{{$template->id}}/edit" title="Edit template"><i class="fas fa-pen"></i></a>@endif
-                            @if($template->name!='')
-                                @if(strpos($template->name,'Letter'))
-                                    <button class="btn btn-danger"> <i class="fas fa-exclamation-triangle"></i></button>
-                                @else
-                                    <a class="btn btn-dark" href="/admin/template/{{$template->id}}/email" title="Email to Me"><i class="far fa-envelope"></i></a>
-                                @endif
-                            @endif
-                            @if($template->html_pdf != '')<a class="btn btn-dark" href="/admin/template/{{$template->id}}/download-pdf" title="Download PDF template">PDF</a>@endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </table>
-            </div>
-        @endforeach
-
-    <div class="clearfix"></div>
-
-        <h4 class="pt-5">Housing Authorities</h4>
-        <div class="content">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-            {!! Form::open(['url' => '/admin/housingtemplategroup', 'method' => 'POST','enctype'=>'multipart/form-data']) !!}
-            <div class="form-group">
-                {!! Form::label('Customer', 'Customer') !!}
-                {!! Form::select('customer',$customers,'',['class'=>'form-control']) !!}
-            </div>
-            {!! Form::submit('Add new', (count($customers) > 0 ? (['class'=>'btn btn-primary float-right mb-3']) : (['class'=>'btn btn-primary float-right mb-3', 'disabled' => 'disabled', 'title' => 'No customers available']))) !!}
-            {{ Form::close() }}
+    <div class="container-fluid">
+        <div class="page-title-box">
+            <h4 class="page-title">Templates</h4>
         </div>
-
-    <div class="clearfix"></div>
-    @foreach ($housingTemplatesGroups as $tg)
-        <div class="content">
-        <h3>{{$tg->company_name}}</h3>
-            <table class="table table-bordered">
-                @foreach ($tg['housingTemplates'] as $housingTemplate)
-                    <tr>
-                        <td>Letter {{$housingTemplate->state}}</td>
-                        <td>
-                            @if($housingTemplate->name=='')<a class="btn btn-danger" href="/admin/housingtemplate/{{$housingTemplate->id}}" title="Create template"><i class="fas fa-plus"></i></a>@endif
-                            @if($housingTemplate->name!='')<a class="btn btn-primary" href="/admin/housingtemplate/{{$housingTemplate->id}}/edit" title="Edit template"><i class="fas fa-pen"></i></a>@endif
-                            @if($housingTemplate->name!='')
-                                @if(strpos($housingTemplate->name,'Letter'))
-                                    <button class="btn btn-danger"> <i class="fas fa-exclamation-triangle"></i></button>
-                                @else
-                                    <a class="btn btn-dark" href="/admin/housingtemplate/{{$housingTemplate->id}}/email" title="Email to Me"><i class="far fa-envelope"></i></a>
-                                @endif
-                            @endif
-                            @if($housingTemplate->html_pdf != '')<a class="btn btn-dark" href="/admin/housingtemplate/{{$housingTemplate->id}}/download-pdf" title="Download PDF template">PDF</a>@endif
-                        </td>
-                    </tr>
-                @endforeach
-            </table>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card-box">
+                    <div id="accordion" class="mb-3">
+                        @foreach ($templateParents as $key => $parent)
+                        <div class="card mb-1">
+                            <div class="card-header" id="heading-{!! $key !!}">
+                                <h5 class="m-0">
+                                    <a class="text-dark collapsed" data-toggle="collapse" href="#collapse-{!! $key !!}" aria-expanded="false">
+                                        {!! $parent->title !!}
+                                    </a>
+                                </h5>
+                            </div>
+                            <div id="collapse-{!! $key !!}" class="collapse" aria-labelledby="heading-{!! $key !!}" data-parent="#accordion" style="">
+                                <div class="card-body">
+                                    <table class="table table-bordered" style="table-layout: fixed;">
+                                        @foreach ($parent->templates as $t)
+                                            <tr>
+                                                <td>{!! $t->title !!} {!! $t->tag !!}</td>
+                                                {{--@if ($t->term !== null)--}}
+                                                {{--<td>{!! $t->term !!} {!! $t->term > 1 ? 'weeks' : 'week' !!}</td>--}}
+                                                {{--@endif--}}
+                                                <td>
+                                                    <form>
+                                                        @csrf
+                                                        {{--@if ($t->is_html)--}}
+                                                        {{--<a class="btn btn-primary"--}}
+                                                        {{--href="{{ route('templates.edit', ['id' => $t->id]) }}"--}}
+                                                        {{--title="Edit template"><i class="fas fa-pen"></i></a>--}}
+                                                        {{--@endif--}}
+                                                        <input type="file" name="file" class="d-none" accept=".docx"/>
+                                                        <input type="hidden" name="alias" value="{!! $t->alias !!}">
+                                                        <a href="#" style="margin: 0 20px;" class="upload-file"><i
+                                                                class="fas fa-upload"></i>
+                                                            Upload</a>
+                                                        <a download @if ($t->docx)
+                                                        href="/storage/docx/{!! $t->docx !!}" class='download'
+                                                           @else
+                                                           href="#" class='download disabled'
+                                                            @endif
+                                                        ><i class="fas fa-download"></i> Download</a>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
         </div>
-    @endforeach
-    <div class="clearfix"></div>
+    </div>
+
+@endsection
+@section('js')
+    <script>
+        const storage_path = '/storage/docx/';
+
+        $('.upload-file').click(function (e) {
+            e.preventDefault()
+            const form = $(this).closest('form'),
+                inputFile = form.find('[type="file"]');
+            inputFile.trigger('click');
+        });
+
+        $(document).on('click', 'a.disabled', e => {
+            e.preventDefault();
+        });
+
+        $('input[type="file"]').on('change', function (e) {
+            e.preventDefault();
+            const form = $(this).closest('form'),
+                url = "{{ route('templates.upload_docx') }}",
+                data = new FormData(form[0]);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                processData: false,
+                contentType: false,
+                success: data => {
+                    if (data) {
+                        const a = form.find('a.download');
+                        a.removeClass('disabled');
+                        a.attr('href', storage_path + data);
+                        $.toast({
+                            heading: "Upload",
+                            text: "File uploaded successfully",
+                            position: "top-right",
+                            loaderBg: '#3b98b5',
+                            icon: "info",
+                        });
+                    }
+                },
+                fail: data => {
+                    $.toast({
+                        heading: "Upload",
+                        text: "Error via upload file",
+                        position: "top-right",
+                        loaderBg: '#bf441d',
+                        icon: "error",
+                    });
+                }
+            });
+        });
+
+    </script>
 @endsection

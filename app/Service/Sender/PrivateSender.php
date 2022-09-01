@@ -10,9 +10,7 @@ namespace App\Service\Sender;
 
 
 use App\Models\Contract;
-use App\Templates;
-use Aws\Credentials\CredentialProvider;
-use Aws\Ses\SesClient;
+use App\Models\Templates;
 
 class PrivateSender
 {

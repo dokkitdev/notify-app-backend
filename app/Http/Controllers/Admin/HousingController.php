@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Logs;
 use App\Models\HousingJob;
+use App\Models\Logs;
+use App\Models\Templates;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
-use App\Templates;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
 class HousingController extends Controller
 {
@@ -53,18 +52,18 @@ class HousingController extends Controller
             ->orderBy($sort, $direction)
             ->paginate($limit);
 
+        $housing->appends($request->except(['page', '_token']));
+
+
         $templates = [
             'No Access 1 (Letter)' => Templates::where('alias', '=', Templates::HOUSING_NO_ACCESS)->first(),
             'No Access 2 (Letter)' => Templates::where('alias', '=', Templates::HOUSING_1_ACCESS)->first(),
             'No Access 3 (Letter)' => Templates::where('alias', '=', Templates::HOUSING_2_ACCESS)->first(),
         ];
 
+
         return view('admin.housing.housing', [
             'housing' => $housing,
-            'today' => $start,
-            'limit' => $limit,
-            'start' => $start->format('d.m.Y'),
-            'end' => $end->format('d.m.Y'),
             'templates' => $templates,
         ]);
     }
