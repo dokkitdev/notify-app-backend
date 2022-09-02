@@ -38,9 +38,7 @@
                                            id="private-table">
                                         <thead>
                                         <tr>
-                                            <th class="checkbox-th position-relative"><input type="checkbox"> <i
-                                                    title="Select entries that should be processed"
-                                                    class="fas fa-info"></i></th>
+                                            <th class="checkbox-th position-relative"><input type="checkbox"></th>
                                             <th>
                                                 {!! \App\Service\Sorting::order('Customer ID', 'customer_id') !!}
                                             </th>

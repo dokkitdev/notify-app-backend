@@ -27,9 +27,6 @@
                                         <tr>
                                             <th class="checkbox-th position-relative">
                                                 <input type="checkbox">
-                                                <i
-                                                    title="Select entries that should be processed"
-                                                    class="fas fa-info"></i>
                                             </th>
                                             <th style="width: 5%;">
                                                 {!! \App\Service\Sorting::order('Job ID', 'job_id') !!}

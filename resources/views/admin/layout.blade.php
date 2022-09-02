@@ -56,14 +56,18 @@
                             <span class="logo-sm">
                                 <img src="{{ asset('/images/favicon-32x32.png') }}" alt="" height="22">
                             </span>
-                    <span class="logo-lg"></span>
+                    <span class="logo-lg text-white">
+                        <strong>Notify</strong>
+                    </span>
                 </a>
 
-                <a href="index.html" class="logo logo-light text-center">
-                            <span class="logo-sm">
+                <a href="index.html" class="logo logo-light">
+                            <span class="logo-sm text-center">
                                 <img src="{{ asset('/images/favicon-32x32.png') }}" alt="" height="22">
                             </span>
-                    <span class="logo-lg"></span>
+                    <span class="logo-lg text-white" style="padding: 0 20px;">
+                        <strong style="font-size:21px;">Notify</strong>
+                    </span>
                 </a>
             </div>
             <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
@@ -113,7 +117,7 @@
                     <li>
                         <a href="{{ route('dashboard') }}">
                             <i class="mdi mdi-account-circle"></i>
-                            <span>Dashobard</span>
+                            <span>Dashboard</span>
                         </a>
                     </li>
                     <li>
