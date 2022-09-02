@@ -32,25 +32,6 @@ class DashboardController extends \Illuminate\Routing\Controller
             ->where('send_date', '>', (new \DateTime('+4 day'))->format('Y-m-d'))
             ->count();
 
-        $start = new \DateTime('-4 day');
-        $end = new \DateTime('-1 day');
-        $housing = HousingJob::query()
-            ->where('tags', '<>', null)
-            ->where(function ($query) {
-                $query->where('is_proccessed', '<>', 1)
-                    ->orWhere('is_proccessed', '=', null);
-            })
-            ->where(function ($query) use ($start, $end) {
-                $query->where(function ($query) use ($start, $end) {
-                    $query->where('schedule_date', '>=', $start)
-                        ->where('schedule_date', '<=', $end);
-                })->orWhere(function ($query) {
-                    $query->where('customer_id', '=', 11851)
-                        ->where('tags', '=', 'No Access 2 (Letter)');
-                });
-            })
-            ->count();
-
         $private_debit = PrivateCustomer::query()
             ->where('is_processed', false)
             ->where('type', PrivateCustomer::DEBIT)
@@ -69,7 +50,6 @@ class DashboardController extends \Illuminate\Routing\Controller
             compact(
                 'chl',
                 'appointments',
-                'housing',
                 'private_debit',
                 'private_annual',
                 'assets_validation'

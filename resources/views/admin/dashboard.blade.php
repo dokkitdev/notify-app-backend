@@ -44,23 +44,6 @@
                 <div class="widget-rounded-circle card-box">
                     <div class="row">
                         <div class="col-4">
-                            <div class="avatar-lg rounded-circle bg-success border-success border shadow">
-                                <i class="fe-shield font-22 avatar-title text-white"></i>
-                            </div>
-                        </div>
-                        <div class="col-8">
-                            <div class="text-right">
-                                <h3 class="mt-1">{{ $housing }}</h3>
-                                <p class="text-muted mb-1">Housing</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-xl-3">
-                <div class="widget-rounded-circle card-box">
-                    <div class="row">
-                        <div class="col-4">
                             <div class="avatar-lg rounded-circle bg-info border-info border shadow">
                                 <i class="fe-lock font-22 avatar-title text-white"></i>
                             </div>
