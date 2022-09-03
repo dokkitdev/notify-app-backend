@@ -1,52 +1,51 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Jobs;
 
 use App\Models\Logs;
 use App\Models\ReportRow;
 use App\Service\Sender\Sender;
 use App\Service\Upload\ReportUpload;
-use Illuminate\Console\Command;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 
-class UploadReportOwn extends Command
+class ReportOwnJob implements ShouldQueue
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'upload:report:own {date} {log}';
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $date;
+    protected $log;
 
     /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
-
-    /**
-     * Create a new command instance.
+     * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($date, $log)
     {
-        parent::__construct();
+        $this->date = $date;
+        $this->log = $log;
     }
 
     /**
-     * Execute the console command.
+     * Execute the job.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
+        if ($this->attempts() > 3) {
+            $this->delete();
+        }
         set_time_limit(0);
-        $date = $this->argument('date');
-        $log = $this->argument('log');
+        $date = $this->date;
+        $log = $this->log;
         $log = Logs::find($log);
         $begin_at = new \DateTime('+1 day');
         $begin_at->setTime(0, 0, 0, 0);
@@ -64,7 +63,8 @@ class UploadReportOwn extends Command
         foreach ($period as $dt) {
             $repotService->runByDate($dt);
         }
-        $path = __DIR__ . '/../../../public/images/logo.png';
+
+        $path = __DIR__ . '/../../public/images/logo.png';
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data = file_get_contents($path);
         $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
@@ -120,17 +120,13 @@ class UploadReportOwn extends Command
         $date = new \DateTime();
         $unique_name = 'report.' . $date->format('Y-m-d-H-i-s') . '.html';
         file_put_contents($html_folder . '/' . $unique_name, $content);
-//        exec('/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --writer --convert-to pdf:writer_pdf_Export ' . $html_folder . '/' . $unique_name . ' --outdir ' . $pdf_folder);
+
         exec(Config::get('constants.libreoffice') . ' --headless --writer --convert-to pdf:writer_pdf_Export ' . $html_folder . '/' . $unique_name . ' --outdir ' . $pdf_folder);
 
         $log->pdf = str_replace('html', 'pdf', $unique_name);
         $log->is_finished = 1;
         $log->is_started = 0;
         $log->save();
-
         Sender::send('warehouse@blueflameheat.co.uk', 'Warehouse report', 'Warehouser report', null, $pdf_folder . '/' . $log->pdf, $log->pdf);
-
-//        unlink($html_folder . '/' . $unique_name);
     }
-
 }

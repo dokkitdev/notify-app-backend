@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Admin;
 
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ReportOwnJob;
 use App\Models\Logs;
 use Illuminate\Http\Request;
 
@@ -38,8 +39,8 @@ class ReportController extends Controller
             'is_started' => 1,
         ]);
         $date = $request->get('date');
-        $command = 'php ' . base_path() . '/artisan upload:report:own ' . $date . ' ' . $log->id . ' > /dev/null 2>&1 &';
-        exec($command);
+        ReportOwnJob::dispatch($date, $log->id)->onQueue('high');
+
         return redirect()->back()->with([
             'ok' => 'Your report is being processed and will appear in the logs page shortly.',
         ]);

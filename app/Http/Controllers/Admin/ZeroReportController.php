@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Admin;
 
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ZeroReportJob;
 use App\Models\ParsingConstant;
 use Illuminate\Http\Request;
 
-use function base_path;
 use function redirect;
 use function view;
 
@@ -24,6 +24,7 @@ class ZeroReportController extends Controller
                 'is_need_parsing' => false,
             ]
         );
+
         return view(
             'admin.zero_report.zero_report',
             [
@@ -58,9 +59,7 @@ class ZeroReportController extends Controller
             $zeroConstant->is_need_parsing = true;
             $zeroConstant->save();
         }
-
-        $command = 'php ' . base_path() . '/artisan upload:zero:report ' . $from->format('Y-m-d') . ' ' . $to->format('Y-m-d') . ' > /dev/null 2>&1 &';
-        exec($command);
+        ZeroReportJob::dispatch($from->format('Y-m-d'), $to->format('Y-m-d'))->onQueue('high');
 
         return redirect()->back()->with(
             [

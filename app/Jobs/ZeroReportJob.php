@@ -1,36 +1,45 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Jobs;
 
 use App\Models\ParsingConstant;
 use App\Models\ReportLog;
 use App\Service\simProRequestService;
-use Illuminate\Console\Command;
+use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Config;
 
-class UploadZeroReport extends Command
+class ZeroReportJob implements ShouldQueue
 {
-    /** @var simProRequestService */
-    protected $simpro;
-    protected $signature = 'upload:zero:report {from} {to}';
-    protected $description = 'Command description';
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct()
+    private $from;
+    private $to;
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct($from, $to)
     {
-        $this->simpro = new simProRequestService();
-        parent::__construct();
+        $this->from = $from;
+        $this->to = $to;
     }
 
     /**
-     * Execute the console command.
+     * Execute the job.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
-        $from = $this->argument('from');
-        $to = $this->argument('to');
-        $pages = $this->simpro->getRequestPage(
+        $from = $this->from;
+        $to = $this->to;
+        $simpro = new simProRequestService();
+        $pages = $simpro->getRequestPage(
             'get',
             '/api/v1.0/companies/0/jobs/?Customer.ID=11514&columns=ID,OrderNo,DateIssued,Stage,Status,Total&DateIssued=between('.$from.','.$to.')'
         );
@@ -50,7 +59,7 @@ class UploadZeroReport extends Command
         fputcsv($fp, $titles, ',');
 
         foreach ($pages as $page) {
-            $jobs = $this->simpro->getRequest('get', $page);
+            $jobs = $simpro->getRequest('get', $page);
             foreach ($jobs as $job) {
                 $exTax = $job->Total->ExTax;
                 if ($exTax != 0) {
