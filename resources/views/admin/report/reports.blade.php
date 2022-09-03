@@ -7,6 +7,15 @@
         <div class="row">
             <div class="col-sm-12 col-md-4">
                 <div class="card-box clearfix">
+                    @if (session('error'))
+                        <div class="alert alert-danger mt-1">
+                            <strong>{{ session('error') }}</strong>
+                        </div>
+                    @elseif(session('ok'))
+                        <div class="alert alert-success mt-1">
+                            <strong>{{ session('ok') }}</strong>
+                        </div>
+                    @endif
                     <form action="{{ route('reports.generate') }}" method="post" id="appointment-form">
                         @csrf
                         <div class="form-group">

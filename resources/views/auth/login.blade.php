@@ -1,5 +1,5 @@
 @extends('auth.layout')
-@section('title', 'Blue Flame | Login')
+@section('title', 'Notify | Login')
 @section('body-class', 'authentication-bg authentication-bg-pattern')
 @section('content')
     <div class="account-pages mt-5 mb-5">

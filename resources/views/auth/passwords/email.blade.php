@@ -1,5 +1,5 @@
 @extends('auth.layout')
-@section('title', 'Blue Flame | Reset Password')
+@section('title', 'Notify | Reset Password')
 @section('body-class', 'authentication-bg authentication-bg-pattern')
 @section('content')
     <div class="account-pages mt-5 mb-5">
