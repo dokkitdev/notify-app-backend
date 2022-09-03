@@ -6,6 +6,6 @@ return [
     'storage_pdf' => storage_path() . '/app/public/pdf',
     'storage_html' => storage_path() . '/app/public/html',
     'storage_docx' => storage_path() . '/app/public/docx',
-    'libreoffice' => '/Applications/LibreOffice.app/Contents/MacOS/soffice',
-//    'libreoffice' => 'libreoffice',
+//    'libreoffice' => '/Applications/LibreOffice.app/Contents/MacOS/soffice',
+    'libreoffice' => 'libreoffice',
 ];

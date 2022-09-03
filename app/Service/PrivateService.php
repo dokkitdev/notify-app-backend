@@ -112,6 +112,7 @@ class PrivateService
         $generator = new PrivateTemplateGenerator();
         $docx = $generator->generateDocx($customer);
         $pdf = TemplateGenerator::sGeneratePdfFromDocx($docx);
+
         if ($isUpload) {
             $sim = new simProRequestService();
             $sim->uploadNewPrivate($customer, $pdf);
