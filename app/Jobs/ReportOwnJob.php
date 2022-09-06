@@ -19,9 +19,10 @@ class ReportOwnJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+
+    public $timeout = 3600;
     protected $date;
     protected $log;
-
     /**
      * Create a new job instance.
      *
@@ -40,13 +41,15 @@ class ReportOwnJob implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->attempts() > 3) {
-            $this->delete();
-        }
-        set_time_limit(0);
         $date = $this->date;
         $log = $this->log;
         $log = Logs::find($log);
+
+        if ($this->attempts() > 3) {
+            $log->delete();
+            $this->delete();
+            return;
+        }
         $begin_at = new \DateTime('+1 day');
         $begin_at->setTime(0, 0, 0, 0);
         $end_at = new \DateTime('+1 day');

@@ -21,9 +21,11 @@ class ReportUpload
     private $totalSuccess = 0;
     private $reasons = [];
     private $ids = [];
+    private $isDev;
 
     public function __construct()
     {
+        $this->isDev = env('dev', false);
         $this->simpro = new simProRequestService();
     }
 
@@ -63,7 +65,9 @@ class ReportUpload
     public function runByDate($datetime)
     {
         $this->currentDate = $datetime;
-        dump('/api/v1.0/companies/0/schedules/?Type=job&Date='.$datetime->format('Y-m-d'));
+        if ($this->isDev) {
+            dump('/api/v1.0/companies/0/schedules/?Type=job&Date='.$datetime->format('Y-m-d'));
+        }
         $schedulesUrls = $this->simpro->getRequestPage(
             'get',
             '/api/v1.0/companies/0/schedules/?Type=job&Date='.$datetime->format(
@@ -102,7 +106,9 @@ class ReportUpload
     public function parseSchedule($schedule)
     {
         $job_id = array_first(explode('-', $schedule->Reference));
-        dump('job_id ' . $job_id);
+        if ($this->isDev) {
+            dump('job_id '.$job_id);
+        }
 //        if ($job_id != 103429) {
 //            return;
 //        }
@@ -114,7 +120,9 @@ class ReportUpload
         $this->ids[] = $job_id;
 
         $stage = $job->Stage;
-        dump($stage);
+        if ($this->isDev) {
+            dump($stage);
+        }
         if ($stage != 'Pending' && $stage != 'Progress') {
             $this->reasons[] = 'Job "'.$job_id.'". Stage is not Pending or Progress';
 
@@ -134,9 +142,13 @@ class ReportUpload
                 continue;
             }
             foreach ($cost_centers as $cost_center) {
-                dump('cost center - '.$cost_center->ID);
+                if ($this->isDev) {
+                    dump('cost center - '.$cost_center->ID);
+                }
                 if ($cost_center->Total->ExTax == 0) {
-                    dump('cost center - '.$cost_center->ID.' ex tax zero');
+                    if ($this->isDev) {
+                        dump('cost center - '.$cost_center->ID.' ex tax zero');
+                    }
                     continue;
                 }
                 $this->parseCatalogsForJobSectionCostCenter($schedule, $job, $section, $cost_center);
@@ -158,7 +170,9 @@ class ReportUpload
         $catalogsCount = 0;
         foreach ($catalogs as $catalog) {
             if ($catalog->Quantity->Required <= $catalog->Quantity->Assigned) {
-                dump('Catalog id '.$catalog->Catalog->ID.' less then assigned');
+                if ($this->isDev) {
+                    dump('Catalog id '.$catalog->Catalog->ID.' less then assigned');
+                }
                 continue;
             }
             $catalogsCount++;
@@ -179,7 +193,9 @@ class ReportUpload
                 );
             }
         }
-        dump('total catalogs '.$catalogsCount.' total catalogs without conditions '.count($catalogs));
+        if ($this->isDev) {
+            dump('total catalogs '.$catalogsCount.' total catalogs without conditions '.count($catalogs));
+        }
     }
 
     public function generateReportRow(
