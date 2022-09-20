@@ -60,6 +60,7 @@ class AssetReportMiniExportJob implements ShouldQueue
         );
         $now = Date('Y-m-d');
         $today = (new \DateTime('+1 day'))->format('Y-m-d');
+        /** @var AssetReportMini $assetReport */
         foreach ($assetReports as $assetReport) {
             $jobDueDate = '';
             $jobStage = $assetReport->job_stage;
@@ -88,7 +89,7 @@ class AssetReportMiniExportJob implements ShouldQueue
                     $assetReport->type,
                     $assetReport->fuel_type,
                     $assetReport->make,
-                    $assetReport->model,
+                    $assetReport->model ?? '',
                     $assetReport->last_service_date,
                     $assetReport->service_level_start_date,
                     $jobDueDate,
