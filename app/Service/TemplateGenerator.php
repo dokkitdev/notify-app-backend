@@ -860,7 +860,7 @@ class TemplateGenerator
             return false;
         }
         $pdf_folder = Config::get('constants.storage_pdf').'/';
-        $pdf_merger = new PdfManage();;
+        $pdfMerger = PdfMerger::init();
         $name = 'temp';
         foreach ($pdf_names as $pdf) {
             if ($pdf instanceof HousingJob) {
@@ -889,13 +889,13 @@ class TemplateGenerator
                 }
             }
             if (file_exists($file)) {
-                $pdf_merger->addPDF($file, $pages);
+                $pdfMerger->addPDF($file, $pages);
             }
         }
         $today = new \DateTime();
         $new_file = $name.$today->format('Y-m-d.H-i-s').'.pdf';
-        $pdf_merger->merge('file', $pdf_folder.$new_file);
-
+        $pdfMerger->merge('file');
+        $pdfMerger->save($pdf_folder.$new_file);
         return $new_file;
     }
 
@@ -925,16 +925,17 @@ class TemplateGenerator
         }
 
         $pdf_folder = Config::get('constants.storage_pdf').'/';
-        $pdf_merger = new PdfManage();
+        $pdfMerger = PdfMerger::init();
         $name = 'report.';
         foreach ($pdf_names as $pdf) {
             $file = $pdf_folder.$pdf;
-            $pdf_merger->addPDF($file);
+            $pdfMerger->addPDF($file);
         }
 
         $today = new \DateTime();
         $new_file = $name.$today->format('Y-m-d.H-i-s').'.pdf';
-        $pdf_merger->merge('file', $pdf_folder.$new_file);
+        $pdfMerger->merge('file');
+        $pdfMerger->save($pdf_folder.$new_file);
 
         return $new_file;
     }
