@@ -910,7 +910,8 @@ class TemplateGenerator
                 dump('no file '.$file);
             }
         }
-        $pdfMerger->merge('file', $pdfFolder.$name);
+        $pdfMerger->merge('file');
+        $pdfMerger->save($pdfFolder.$name);
 
         return $name;
     }
