@@ -131,8 +131,9 @@ class AssetReportJob implements ShouldQueue
                 $data['service_due'] = $job->DueDate;
                 foreach ($job->CustomFields as $customField) {
                     $customFieldId = $customField->CustomField->ID ?? 0;
+                    $customFieldName = $customField->CustomField->Name ?? null;
                     $value = $customField->Value;
-                    if ($customFieldId == 'tbd') {
+                    if ($customFieldName == 'Cancellation') {
                         $data['cancellation'] = $value;
                     }
                 }
