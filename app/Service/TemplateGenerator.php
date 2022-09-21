@@ -14,6 +14,7 @@ use App\Models\Customer;
 use App\Models\HousingJob;
 use App\Models\Templates;
 use Illuminate\Support\Facades\Config;
+use LynX39\LaraPdfMerger\Facades\PdfMerger;
 use LynX39\LaraPdfMerger\PdfManage;
 use PhpOffice\PhpWord\TemplateProcessor;
 
@@ -901,7 +902,8 @@ class TemplateGenerator
     public static function mergeAllPdfsPages($pdfs, $name)
     {
         $pdfFolder = Config::get('constants.storage_pdf').'/';
-        $pdfMerger = new PdfManage();
+        $pdfMerger = PdfMerger::init();
+//        $pdfMerger = new PdfManage();
         foreach ($pdfs as $pdf) {
             $file = $pdfFolder.$pdf;
             if (file_exists($file)) {
