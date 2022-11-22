@@ -61,7 +61,10 @@ class AssetReportJob implements ShouldQueue
                 return;
             }
         }
-        $asset = $simpro->getRequest('get', $assetUrl.'?columns=ID,AssetType,CustomFields,LastTest,StartDate');
+        $asset = $simpro->getRequest('get', $assetUrl.'?columns=ID,AssetType,CustomFields,LastTest,StartDate,Archived');
+        if ($asset->Archived) {
+            return;
+        }
         $today = strtotime(Date('Y-m-d'));
         if (Date('H:m') > '16:00') {
             $todayFormat = (new \DateTime('+1 day'))->format('Y-m-d');
