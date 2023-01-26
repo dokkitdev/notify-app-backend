@@ -63,6 +63,20 @@ class AssetReportJob implements ShouldQueue
         }
         $asset = $simpro->getRequest('get', $assetUrl.'?columns=ID,AssetType,CustomFields,LastTest,StartDate,Archived');
         if ($asset->Archived) {
+            AssetReport::query()
+                ->where('site_id', $siteId)
+                ->where('asset_id', $assetId)
+                ->delete();
+
+            AssetReportMini::query()
+                ->where('site_id', $siteId)
+                ->where('asset_id', $assetId)
+                ->delete();
+
+            AssetReportValidation::query()
+                ->where('site_id', $siteId)
+                ->where('asset_id', $assetId)
+                ->delete();
             return;
         }
         $today = strtotime(Date('Y-m-d'));
