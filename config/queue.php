@@ -65,13 +65,13 @@ return [
             'region' => env('SQS_REGION', 'us-east-1'),
         ],
 
-        'redis' => [
-            'driver' => 'redis',
-            'connection' => 'default',
-            'queue' => 'default',
-            'retry_after' => 3600,
-            'block_for' => null,
-        ],
+            'redis' => [
+                'driver' => 'redis',
+                'connection' => 'default',
+                'queue' => 'default',
+                'retry_after' => 3600,
+                'block_for' => null,
+            ],
 
     ],
 

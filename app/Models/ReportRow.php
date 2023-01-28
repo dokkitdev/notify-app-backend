@@ -16,6 +16,7 @@ class ReportRow extends Model
     protected $table = 'report_row';
     protected $fillable = [
         'job_id',
+        'type',
         'site_name',
         'engineer',
         'part_no',
