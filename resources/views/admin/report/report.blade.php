@@ -3,7 +3,7 @@
 @foreach($generate as $k => $block)
     <p style="margin-bottom: 20px;">
         Blue Flame Heating Solutions <br>
-        Warehouse Report for <b>{{ $k }}</b>
+        {{ $type }}Warehouse Report for <b>{{ $k }}</b>
     </p>
     @foreach($block as $g)
         @php ($first = array_first($g['rows']))

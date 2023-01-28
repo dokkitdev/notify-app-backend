@@ -212,6 +212,7 @@ class ReportUpload
 
         ReportRow::create([
                               'job_id' => $job->ID,
+                              'type' => $job->Type,
                               'site_name' => $job->Site->Name,
                               'engineer' => $schedule->Staff->Name,
                               'part_no' => $catalog->Catalog->PartNo,

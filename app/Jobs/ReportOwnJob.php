@@ -79,57 +79,73 @@ class ReportOwnJob implements ShouldQueue
 
         $html_folder = Config::get('constants.storage_html');
         $pdf_folder = Config::get('constants.storage_pdf');
-        $generate = [];
 
-        foreach ($period as $dt) {
+        foreach (['Project', 'Service'] as $type) {
+            $generate = [];
 
-            $weekday = $dt->format('l');
-            $month = $dt->format('F');
-            $year = $dt->format('Y');
-            $day = ltrim($dt->format('d'), '0');
-            if ($day % 10 == 1 && $day != 11) {
-                $day .= 'st';
-            } else if ($day % 10 == 2 && $day != 12) {
-                $day .= 'nd';
-            } else if ($day % 10 == 3 && $day != 13) {
-                $day .= 'rd';
-            } else {
-                $day .= 'th';
+            foreach ($period as $dt) {
+
+                $weekday = $dt->format('l');
+                $month = $dt->format('F');
+                $year = $dt->format('Y');
+                $day = ltrim($dt->format('d'), '0');
+                if ($day % 10 == 1 && $day != 11) {
+                    $day .= 'st';
+                } else if ($day % 10 == 2 && $day != 12) {
+                    $day .= 'nd';
+                } else if ($day % 10 == 3 && $day != 13) {
+                    $day .= 'rd';
+                } else {
+                    $day .= 'th';
+                }
+
+                $date = $weekday . ', ' . $day . ' ' . $month . ' ' . $year;
+                $generate[$date] = [];
+                $jobs = DB::table('report_row')
+                    ->select('job_id', 'engineer')
+                    ->groupBy('job_id')
+                    ->groupBy('engineer')
+                    ->where('type', $type)
+                    ->where('job_date', '>=', $dt->format('Y-m-d 00:00:00'))
+                    ->where('job_date', '<=', $dt->format('Y-m-d 23:59:59'))
+                    ->get();
+
+
+                foreach ($jobs as $job) {
+                    $generate[$date][] = [
+                        'job_id' => $job->job_id,
+                        'rows' => ReportRow::where('job_id', '=', $job->job_id)->where('engineer', '=', $job->engineer)->get()
+                    ];
+                }
             }
+            $content = View::make('admin.report.report', [
+                'type' => $type,
+                'generate' => $generate,
+                'logo' => $path,
+            ])->render();
 
-            $date = $weekday . ', ' . $day . ' ' . $month . ' ' . $year;
-            $generate[$date] = [];
-            $jobs = DB::table('report_row')
-                ->select('job_id', 'engineer')
-                ->groupBy('job_id')
-                ->groupBy('engineer')
-                ->where('job_date', '>=', $dt->format('Y-m-d 00:00:00'))
-                ->where('job_date', '<=', $dt->format('Y-m-d 23:59:59'))
-                ->get();
+            $date = new \DateTime();
+            $unique_name = $type.'.report.'.$date->format('Y-m-d-H-i-s').'.html';
+            file_put_contents($html_folder.'/'.$unique_name, $content);
 
+            exec(
+                Config::get(
+                    'constants.libreoffice'
+                ).' --headless --writer --convert-to pdf:writer_pdf_Export '.$html_folder.'/'.$unique_name.' --outdir '.$pdf_folder
+            );
 
-            foreach ($jobs as $job) {
-                $generate[$date][] = [
-                    'job_id' => $job->job_id,
-                    'rows' => ReportRow::where('job_id', '=', $job->job_id)->where('engineer', '=', $job->engineer)->get()
-                ];
-            }
+            $log->pdf = str_replace('html', 'pdf', $unique_name);
+            $log->is_finished = 1;
+            $log->is_started = 0;
+            $log->save();
+//            Sender::send(
+//                'warehouse@blueflameheat.co.uk',
+//                $type . ' Warehouse report',
+//                $type . ' Warehouse report',
+//                null,
+//                $pdf_folder.'/'.$log->pdf,
+//                $log->pdf
+//            );
         }
-        $content = View::make('admin.report.report', [
-            'generate' => $generate,
-            'logo' => $path,
-        ])->render();
-
-        $date = new \DateTime();
-        $unique_name = 'report.' . $date->format('Y-m-d-H-i-s') . '.html';
-        file_put_contents($html_folder . '/' . $unique_name, $content);
-
-        exec(Config::get('constants.libreoffice') . ' --headless --writer --convert-to pdf:writer_pdf_Export ' . $html_folder . '/' . $unique_name . ' --outdir ' . $pdf_folder);
-
-        $log->pdf = str_replace('html', 'pdf', $unique_name);
-        $log->is_finished = 1;
-        $log->is_started = 0;
-        $log->save();
-        Sender::send('warehouse@blueflameheat.co.uk', 'Warehouse report', 'Warehouser report', null, $pdf_folder . '/' . $log->pdf, $log->pdf);
     }
 }
