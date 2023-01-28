@@ -24,7 +24,6 @@ class DeleteAssetReport extends Command
 
 
         AssetReport::query()
-            ->select('asset_id')
             ->where('is_updated', 0)
             ->delete();
         if ($ids) {
