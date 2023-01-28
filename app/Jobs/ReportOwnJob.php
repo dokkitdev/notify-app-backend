@@ -160,14 +160,14 @@ class ReportOwnJob implements ShouldQueue
                 );
             }
 
-//            Sender::send(
-//                'warehouse@blueflameheat.co.uk',
-//                $type . ' Warehouse report',
-//                $type . ' Warehouse report',
-//                null,
-//                $pdf_folder.'/'.$log->pdf,
-//                $log->pdf
-//            );
+            Sender::send(
+                'warehouse@blueflameheat.co.uk',
+                $type . ' Warehouse report',
+                $type . ' Warehouse report',
+                null,
+                $pdf_folder.'/'.$log->pdf,
+                $log->pdf
+            );
         }
     }
 }
