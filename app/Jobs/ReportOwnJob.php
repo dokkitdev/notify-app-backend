@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\Logs;
 use App\Models\ReportRow;
-use App\Service\Sender\Sender;
 use App\Service\Upload\ReportUpload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,6 +22,7 @@ class ReportOwnJob implements ShouldQueue
     public $timeout = 3600;
     protected $date;
     protected $log;
+
     /**
      * Create a new job instance.
      *
@@ -48,6 +48,7 @@ class ReportOwnJob implements ShouldQueue
         if ($this->attempts() > 3) {
             $log->delete();
             $this->delete();
+
             return;
         }
         $begin_at = new \DateTime('+1 day');
@@ -67,10 +68,10 @@ class ReportOwnJob implements ShouldQueue
             $repotService->runByDate($dt);
         }
 
-        $path = __DIR__ . '/../../public/images/logo.png';
+        $path = __DIR__.'/../../public/images/logo.png';
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data = file_get_contents($path);
-        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        $base64 = 'data:image/'.$type.';base64,'.base64_encode($data);
 
         $imageContent = file_get_contents($base64);
         $path = tempnam(sys_get_temp_dir(), 'prefix');
@@ -80,26 +81,30 @@ class ReportOwnJob implements ShouldQueue
         $html_folder = Config::get('constants.storage_html');
         $pdf_folder = Config::get('constants.storage_pdf');
 
+        $log->customer_type = 'Project Warehouse report';
         foreach (['Project', 'Service'] as $type) {
             $generate = [];
 
             foreach ($period as $dt) {
-
                 $weekday = $dt->format('l');
                 $month = $dt->format('F');
                 $year = $dt->format('Y');
                 $day = ltrim($dt->format('d'), '0');
                 if ($day % 10 == 1 && $day != 11) {
                     $day .= 'st';
-                } else if ($day % 10 == 2 && $day != 12) {
-                    $day .= 'nd';
-                } else if ($day % 10 == 3 && $day != 13) {
-                    $day .= 'rd';
                 } else {
-                    $day .= 'th';
+                    if ($day % 10 == 2 && $day != 12) {
+                        $day .= 'nd';
+                    } else {
+                        if ($day % 10 == 3 && $day != 13) {
+                            $day .= 'rd';
+                        } else {
+                            $day .= 'th';
+                        }
+                    }
                 }
 
-                $date = $weekday . ', ' . $day . ' ' . $month . ' ' . $year;
+                $date = $weekday.', '.$day.' '.$month.' '.$year;
                 $generate[$date] = [];
                 $jobs = DB::table('report_row')
                     ->select('job_id', 'engineer')
@@ -114,7 +119,11 @@ class ReportOwnJob implements ShouldQueue
                 foreach ($jobs as $job) {
                     $generate[$date][] = [
                         'job_id' => $job->job_id,
-                        'rows' => ReportRow::where('job_id', '=', $job->job_id)->where('engineer', '=', $job->engineer)->get()
+                        'rows' => ReportRow::where('job_id', '=', $job->job_id)->where(
+                            'engineer',
+                            '=',
+                            $job->engineer
+                        )->get(),
                     ];
                 }
             }
@@ -134,10 +143,23 @@ class ReportOwnJob implements ShouldQueue
                 ).' --headless --writer --convert-to pdf:writer_pdf_Export '.$html_folder.'/'.$unique_name.' --outdir '.$pdf_folder
             );
 
-            $log->pdf = str_replace('html', 'pdf', $unique_name);
-            $log->is_finished = 1;
-            $log->is_started = 0;
-            $log->save();
+            $pdfName = str_replace('html', 'pdf', $unique_name);
+            if ($type == 'Project') {
+                $log->pdf = $pdfName;
+                $log->is_finished = 1;
+                $log->is_started = 0;
+                $log->save();
+            } else {
+                $serviceLog = Logs::create(
+                    [
+                        'customer_type' => 'Service Warehouse report',
+                        'pdf' => $pdfName,
+                        'is_finished' => 1,
+                        'is_started' => 0,
+                    ]
+                );
+            }
+
 //            Sender::send(
 //                'warehouse@blueflameheat.co.uk',
 //                $type . ' Warehouse report',
