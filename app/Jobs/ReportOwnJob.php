@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Logs;
 use App\Models\ReportRow;
+use App\Service\Sender\Sender;
 use App\Service\Upload\ReportUpload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
