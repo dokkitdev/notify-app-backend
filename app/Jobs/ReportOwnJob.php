@@ -166,8 +166,8 @@ class ReportOwnJob implements ShouldQueue
                 $type . ' Warehouse report',
                 $type . ' Warehouse report',
                 null,
-                $pdf_folder.'/'.$log->pdf,
-                $log->pdf
+                $pdf_folder.'/'.$pdfName,
+                $pdfName
             );
         }
     }
