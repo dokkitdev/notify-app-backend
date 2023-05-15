@@ -130,11 +130,13 @@ class AssetReportController extends Controller
                         $e = (int)$e;
                         if ($e == 0) {
                             $like = 'Last service%ago';
-                        } else if ($e == 1) {
-                            $like = 'Service due within%days';
                         } else {
-                            $like = $errors[$e] ?? '';
-                            $like .= '%';
+                            if ($e == 1) {
+                                $like = 'Service due within%days';
+                            } else {
+                                $like = $errors[$e] ?? '';
+                                $like .= '%';
+                            }
                         }
                         if ($e != 3) {
                             $q->orWhere('error', 'LIKE', $like);
@@ -264,7 +266,7 @@ class AssetReportController extends Controller
                     $serviceDue,
                     $assetReport->next_scheduled_appointment_date && $d >= $now ? $assetReport->next_scheduled_appointment_date : '',
                     $assetReport->no_access_visits,
-                    $assetReport->cancellation ?? '',
+                    $jobStage == 'Archived' ? '' : ($assetReport->cancellation ?? ''),
                 ],
                 ','
             );
