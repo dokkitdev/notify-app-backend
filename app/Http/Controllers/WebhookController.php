@@ -17,7 +17,7 @@ class WebhookController extends Controller
     {
         $data = $request->all();
         $id = $data['ID'];
-        if (in_array($id, ['asset.created', 'asset.updated'])) {
+                if (in_array($id, ['asset.created', 'asset.updated', 'job.asset.tested'])) {
             AssetReportJob::dispatch($data, true)->onQueue('high');
         } elseif ($id == 'asset.deleted') {
             $siteId = $data['reference']['siteID'];
