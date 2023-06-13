@@ -23,6 +23,7 @@
                             <select name="date" required class="form-control">
                                 <option value="1">One day</option>
                                 <option value="3">Three day</option>
+                                <option value="4">Four day</option>
                             </select>
                         </div>
                         <input class="btn btn-primary float-right" form="appointment-form" type="submit" value="Process">

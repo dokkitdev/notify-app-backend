@@ -58,6 +58,9 @@ class ReportOwnJob implements ShouldQueue
         if ($date == 3) {
             $end_at->modify('+2 day');
         }
+        if ($date == 4) {
+            $end_at->modify('+3 day');
+        }
         $end_at->setTime(23, 59, 59);
 
         $interval = \DateInterval::createFromDateString('1 day');
