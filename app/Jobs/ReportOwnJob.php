@@ -115,6 +115,7 @@ class ReportOwnJob implements ShouldQueue
                     ->groupBy('job_id')
                     ->groupBy('engineer')
                     ->where('type', $type)
+                    ->where('assigned', '=', 0)
                     ->where('job_date', '>=', $dt->format('Y-m-d 00:00:00'))
                     ->where('job_date', '<=', $dt->format('Y-m-d 23:59:59'))
                     ->get();
@@ -126,7 +127,7 @@ class ReportOwnJob implements ShouldQueue
                         'rows' => ReportRow::where('job_id', '=', $job->job_id)->where(
                             'engineer',
                             '=',
-                            $job->engineer
+                            0
                         )->get(),
                     ];
                 }
