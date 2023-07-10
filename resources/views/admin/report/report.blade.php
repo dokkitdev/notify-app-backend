@@ -27,7 +27,7 @@
             </thead>
             <tbody>
             @foreach ($g['rows'] as $key => $a)
-                <tr style="background: {{ $key % 2 != 0 ? 'rgb(233, 237, 247);' : 'white;' }} border: 1px solid black;">
+                <tr style="background: {{ $key % 2 != 0 ? 'rgb(233, 237, 247);' : 'white;' }}; border: 1px solid black;">
                     <td style="border: 1px solid black; padding: 5px; text-align: left;">{{ $a->part_no }}</td>
                     <td style="max-width: 300px; border: 1px solid black; padding: 5px; text-align: left;">{{ $a->stock_name }}</td>
                     <td style="border: 1px solid black; padding: 5px; text-align: left;">{{ $a->storage_location }}</td>
