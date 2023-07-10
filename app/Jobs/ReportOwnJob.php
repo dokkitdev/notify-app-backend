@@ -58,10 +58,11 @@ class ReportOwnJob implements ShouldQueue
         if ($date == 3) {
             $end_at->modify('+2 day');
         }
-        if ($date == 4) {
-            $end_at->modify('+3 day');
-        }
         $end_at->setTime(23, 59, 59);
+
+        if ($date == 4) {
+            $end_at = new \DateTime('+4 day');
+        }
 
         $interval = \DateInterval::createFromDateString('1 day');
         $period = new \DatePeriod($begin_at, $interval, $end_at);
@@ -127,7 +128,8 @@ class ReportOwnJob implements ShouldQueue
                         'rows' => ReportRow::where('job_id', '=', $job->job_id)->where(
                             'engineer',
                             $job->engineer
-                        )->get(),
+                        )->where('assigned',  0)
+                        ->get(),
                     ];
                 }
             }
