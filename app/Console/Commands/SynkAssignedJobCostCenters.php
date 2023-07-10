@@ -118,6 +118,6 @@ class SynkAssignedJobCostCenters extends Command
         $job,
         $catalog
     ) {
-        dump($job->ID,  $catalog->Quantity->Assigned);
+        dump($job->ID, $catalog->Catalog->Name, $catalog->Quantity->Assigned);
     }
 }
