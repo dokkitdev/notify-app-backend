@@ -60,7 +60,7 @@ class ReportOwnJob implements ShouldQueue
         }
         $end_at->setTime(23, 59, 59);
 
-        if ($date == 4) {
+        if ((int)$date == 4) {
             $end_at = new \DateTime('+4 day');
         }
 
@@ -125,10 +125,9 @@ class ReportOwnJob implements ShouldQueue
                 foreach ($jobs as $job) {
                     $generate[$date][] = [
                         'job_id' => $job->job_id,
-                        'rows' => ReportRow::where('job_id', '=', $job->job_id)->where(
-                            'engineer',
-                            $job->engineer
-                        )->where('assigned',  0)
+                        'rows' => ReportRow::where('job_id', '=', $job->job_id)
+                            ->where('engineer', $job->engineer)
+                            ->where('assigned',  0)
                         ->get(),
                     ];
                 }
