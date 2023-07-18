@@ -210,18 +210,19 @@ class ReportUpload
             ->where('job_id', $job->ID)
             ->delete();
 
-        ReportRow::create([
-                              'job_id' => $job->ID,
-                              'type' => $job->Type,
-                              'site_name' => $job->Site->Name,
-                              'engineer' => $schedule->Staff->Name,
-                              'part_no' => $catalog->Catalog->PartNo,
-                              'stock_name' => $catalog->Catalog->Name,
-                              'storage_location' => $storage_location->StorageLocation,
-                              'required' => $catalog->Quantity->Required,
-                              'assigned' => $catalog->Quantity->Assigned,
-                              'job_date' => $this->currentDate->format('Y-m-d H:i:s'),
-                          ]);
+        ReportRow::updateOnCreate([
+            'job_id' => $job->ID,
+            'type' => $job->Type,
+            'engineer' => $schedule->Staff->Name,
+            'stock_name' => $catalog->Catalog->Name,
+            'part_no' => $catalog->Catalog->PartNo,
+        ],[
+          'site_name' => $job->Site->Name,
+          'storage_location' => $storage_location->StorageLocation,
+          'required' => $catalog->Quantity->Required,
+          'assigned' => $catalog->Quantity->Assigned,
+          'job_date' => $this->currentDate->format('Y-m-d H:i:s'),
+      ]);
     }
 
 

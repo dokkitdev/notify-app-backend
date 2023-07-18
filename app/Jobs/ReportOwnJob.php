@@ -129,6 +129,7 @@ class ReportOwnJob implements ShouldQueue
                         'rows' => ReportRow::where('job_id', '=', $job->job_id)
                             ->where('engineer', $job->engineer)
                             ->where('assigned',  0)
+                            ->groupBy('stock_name')
                         ->get(),
                     ];
                 }
