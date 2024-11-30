@@ -210,7 +210,7 @@ class ReportUpload
             ->where('job_id', $job->ID)
             ->delete();
 
-        ReportRow::updateOnCreate([
+        ReportRow::updateOrCreate([
             'job_id' => $job->ID,
             'type' => $job->Type,
             'engineer' => $schedule->Staff->Name,
