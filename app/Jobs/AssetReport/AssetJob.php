@@ -120,7 +120,7 @@ class AssetJob implements ShouldQueue
                 $data['model'] = $value;
             } elseif ($customFieldName == 'Last Years MOT Date') {
                 $data['last_MOT_date'] = $value;
-            } elseif ($customFieldId == 1041) {
+            } elseif ($customFieldName == 'Location') {
                 $data['location'] = $value;
             }
         }
@@ -143,8 +143,9 @@ class AssetJob implements ShouldQueue
                 $data['service_due'] = $job->DueDate;
                 foreach ($job->CustomFields as $customField) {
                     $customFieldId = $customField->CustomField->ID ?? 0;
+                    $customFieldName = $customField->CustomField->Name ?? null;
                     $value = $customField->Value;
-                    if ($customFieldId == 'tbd') {
+                    if ($customFieldName == 'Cancellation') {
                         $data['cancellation'] = $value;
                     }
                 }

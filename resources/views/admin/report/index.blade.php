@@ -1,35 +1,4 @@
-@extends('layouts.app')
-
-@section('css')
-    <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
-    <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
-    <style>
-        /*#appointment-table {*/
-        /*table-layout: fixed;*/
-        /*}*/
-
-        input[type="checkbox"] {
-            width: 15px;
-            height: 15px;
-        }
-
-        .fa-info {
-            position: absolute;
-            right: 2px;
-            box-shadow: 0 0 1px;
-            width: 16px;
-            height: 16px;
-            text-align: center;
-            line-height: 16px;
-            border-radius: 50px;
-            top: 10px;
-            cursor: pointer;
-            background: #f5a622;
-            font-size: 10px;
-        }
-    </style>
-@endsection
-
+@extends('admin.layout')
 @section('content')
     <form action="{{ route('appointments.generate') }}" method="post" id="appointment-form">
         @csrf

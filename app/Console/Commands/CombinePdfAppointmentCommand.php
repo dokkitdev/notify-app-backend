@@ -2,13 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Appointment;
-use App\Logs;
+use App\Models\Appointment;
 use App\Models\AppointmentProcessed;
-use App\Service\JobUploader;
+use App\Models\Logs;
+use App\Models\Templates;
 use App\Service\simProRequestService;
 use App\Service\TemplateGenerator;
-use App\Templates;
 use Illuminate\Console\Command;
 
 class CombinePdfAppointmentCommand extends Command

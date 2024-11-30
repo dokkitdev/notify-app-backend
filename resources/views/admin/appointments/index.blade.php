@@ -1,204 +1,110 @@
-@extends('layouts.app')
-
-@section('css')
-    <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
-    <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
-    <style>
-        /*#appointment-table {*/
-        /*table-layout: fixed;*/
-        /*}*/
-
-        input[type="checkbox"] {
-            width: 15px;
-            height: 15px;
-        }
-
-        .fa-info {
-            position: absolute;
-            right: 2px;
-            box-shadow: 0 0 1px;
-            width: 16px;
-            height: 16px;
-            text-align: center;
-            line-height: 16px;
-            border-radius: 50px;
-            top: 10px;
-            cursor: pointer;
-            background: #f5a622;
-            font-size: 10px;
-        }
-    </style>
-@endsection
-
+@extends('admin.layout')
 @section('content')
-    <form action="{{ route('appointments.generate') }}" method="post" id="appointment-form">
-        @csrf
-        <h2>Appointment Letters</h2>
-        <table id="appointment-table" class="tablesorter" style="width: 100%">
-            <thead>
-            <tr>
-                <th class="col checkbox-th"><input type="checkbox"> <i
-                            title="Select entries that should be processed"
-                            class="fas fa-info"></i></th>
-                <th style="width: 5%;">
-                    <a href="{{ route('appointments.all') }}?page=1&sort=job_id&direction={{ request()->get('sort') == 'job_id' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Job ID
-                        @if (request()->get('sort') == 'job_id')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ route('appointments.all') }}?page=1&sort=company_name&direction={{ request()->get('sort') == 'company_name' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Company Name
-                        @if (request()->get('sort') == 'company_name')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ route('appointments.all') }}?page=1&sort=given_name&direction={{ request()->get('sort') == 'given_name' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Contact Name
-                        @if (request()->get('sort') == 'given_name')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ route('appointments.all') }}?page=1&sort=address&direction={{ request()->get('sort') == 'address' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Address
-                        @if (request()->get('sort') == 'address')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ route('appointments.all') }}?page=1&sort=city&direction={{ request()->get('sort') == 'city' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        City
-                        @if (request()->get('sort') == 'city')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th style="width: 7%;">
-                    <a href="{{ route('appointments.all') }}?page=1&sort=postcode&direction={{ request()->get('sort') == 'postcode' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Postcode
-                        @if (request()->get('sort') == 'postcode')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th style="width: 10%;">
-                    <a href="{{ route('appointments.all') }}?page=1&sort=send_date&direction={{ request()->get('sort') == 'send_date' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Schedule Date
-                        @if (request()->get('sort') == 'send_date')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                    {{--<i id="filter" class="fas fa-filter cursor-pointer"></i>--}}
-                    {{--<input type="text" class="datepicker hidden-input" id="range">--}}
-                </th>
-                <th style="width: 10%;">
-                    Schedule time
-                </th>
-                <th>
-                    <a href="{{ route('appointments.all') }}?page=1&sort=work_type&direction={{ request()->get('sort') == 'work_type' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Work type
-                        @if (request()->get('sort') == 'work_type')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th class="col" style="width: 9%;"></th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach ($appointments as $a)
-                <tr>
-                    <td>
-                        <input type="checkbox" name="appointments[]" value="{!! $a->id !!}">
-                    </td>
-                    <td>{!! $a->job_id !!}</td>
-                    <td>{!! $a->company_name !!}</td>
-                    <td>{!! $a->getContact() !!}</td>
-                    <td>{!! $a->getAddress() !!}</td>
-                    <td>{!! $a->city !!}</td>
-                    <td>{!! $a->postcode !!}</td>
-                    <td>{!! $a->getYmd() !!}</td>
-                    <td>{!! $a->getFormatedScheduleTime() !!}</td>
-                    <td>{!! $a->work_type !!}</td>
-                    <td class="text-center">
-                        <a target="_blank"
-                           href="{{ route('appointments.view', ['id' => $a->id]) }}">View</a>
-                        {{--@if ($a->pdf || $a->docx)--}}
-                        {{--<div class="dropdown" style="display: inline-block;">--}}
-                        {{--<a href="#" data-toggle="dropdown" aria-haspopup="true"--}}
-                        {{--aria-expanded="false"><i class="fa fa-bars"></i></a>--}}
-                        {{--<div class="dropdown-menu actions-menu" aria-labelledby="dropdownMenuButton">--}}
-                        {{--@if ($a->pdf)--}}
-                        {{--<a target="_blank" class="dropdown-item" href="/storage/pdf/{!! $a->pdf !!}">Download--}}
-                        {{--PDF</a>--}}
-                        {{--@endif--}}
-                        {{--@if ($a->docx)--}}
-                        {{--<a target="_blank" class="dropdown-item"--}}
-                        {{--href="/storage/docx/{!! $a->docx !!}">Download DOC</a>--}}
-                        {{--@endif--}}
-                        {{--<a class="dropdown-item"--}}
-                        {{--href="{{ route('appointments.clear', ['id' => $a->id]) }}">Clear PDF and DOC</a>--}}
-                        {{--</div>--}}
-                        {{--</div>--}}
-                        {{--@endif--}}
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-    </form>
-    <form method="get" id="filter-form" class="d-none">
-        <input type="text" name="limit" value="{!! $limit !!}">
-        <input type="text" name="start">
-        <input type="text" name="end">
-    </form>
-    <div class="form-group  clearfix">
-        {{ $appointments->links('admin.pagination.default', [
-        'limit' => $limit,
-        'start' => $start,
-        'end' => $end,
-        ]
-        ) }}
-    </div>
-    <div class="form-group text-right">
-        <input class="btn btn-primary" form="appointment-form" type="submit" value="Process">
-    </div>
-    <script>
+    <div class="container-fluid">
+        <div class="page-title-box">
+            <h4 class="page-title">Appointment Letters</h4>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card-box">
+                    @if (session('error'))
+                        <div class="alert alert-danger mt-1">
+                            <strong>{{ session('error') }}</strong>
+                        </div>
+                    @elseif(session('ok'))
+                        <div class="alert alert-success mt-1">
+                            <strong>{{ session('ok') }}</strong>
+                        </div>
+                    @endif
+                    <div class="dataTables_wrapper">
+                        <form action="{{ route('appointments.generate') }}" method="post" id="appointment-form">
+                            @csrf
+                            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                                <div class="table-responsive">
+                                    <table class="table table-centered table-striped dt-responsive nowrap w-100"
+                                           id="appointment-table">
+                                        <thead>
+                                        <tr>
+                                            <th class="checkbox-th position-relative">
+                                                <input type="checkbox">
+                                            </th>
+                                            <th style="width: 5%;">
+                                                {!! \App\Service\Sorting::order('Job ID', 'job_id') !!}
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('Company Name', 'company_name') !!}
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('Contact Name', 'given_name') !!}
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('Address', 'address') !!}
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('City', 'city') !!}
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('Postcode', 'postcode') !!}
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('Schedule Date', 'send_date') !!}
+                                            </th>
+                                            <th style="width: 10%;">
+                                                Schedule time
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('Work type', 'work_type') !!}
+                                            </th>
+                                            <th class="col" style="width: 9%;"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach ($appointments as $a)
+                                            <tr role="row">
+                                                <td>
+                                                    <input type="checkbox" name="appointments[]" value="{!! $a->id !!}">
+                                                </td>
+                                                <td>
+                                                    {!! $a->job_id !!}
+                                                </td>
+                                                <td>{!! $a->company_name !!}</td>
+                                                <td>{!! $a->getContact() !!}</td>
+                                                <td>{!! $a->getAddress() !!}</td>
+                                                <td>{!! $a->city !!}</td>
+                                                <td>{!! $a->postcode !!}</td>
+                                                <td>{!! $a->getYmd() !!}</td>
+                                                <td>{!! $a->getFormatedScheduleTime() !!}</td>
+                                                <td>{!! $a->work_type !!}</td>
+                                                <td class="text-center">
+                                                    <a target="_blank"
+                                                       href="{{ route('appointments.view', ['id' => $a->id]) }}">View</a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
 
+                            </div>
+                        </form>
+                        <div class="form-group  clearfix">
+                            {{ $appointments->links('admin.pagination.default') }}
+                        </div>
+                        <div class="form-group text-right">
+                            <input class="btn btn-primary" form="appointment-form" type="submit" value="Process">
+                        </div>
+                    </div>
 
-    </script>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('js')
-    <script type="text/javascript" src="{{ asset('js/moment.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('js/daterangepicker.min.js') }}"></script>
-
-    <script src="{{ asset('vendor/tablesorter/jquery.tablesorter.min.js') }}"></script>
     <script>
         $(document).ready(function () {
+
             $('body').on('click', '.disabled', e => {
                 e.preventDefault();
             })
@@ -206,7 +112,6 @@
 
         const checkboxAll = $('.checkbox-th input[type="checkbox"]'),
             checkboxes = $('#appointment-table > tbody input[type="checkbox"]');
-
         checkboxAll.click(function (e) {
             const checked = this.checked;
             checkboxes.each((i, el) => {
@@ -226,18 +131,7 @@
             }
         }
 
-        $('#filter').click(e => {
-            e.preventDefault();
-            $('#range').trigger('click');
-        });
-
-        $('.datepicker').daterangepicker().on('apply.daterangepicker', function (ev, picker) {
-            $('[name="start"]').val(picker.startDate.format('DD.MM.YYYY'));
-            $('[name="end"]').val(picker.endDate.format('DD.MM.YYYY'));
-            $('#filter-form').submit();
-        });
-
-        $('form').submit(function(e) {
+        $('form').submit(function (e) {
             $('input[type="submit"]').attr('disabled', 'disabled');
         });
 

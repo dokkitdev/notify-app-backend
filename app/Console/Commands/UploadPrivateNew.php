@@ -2,25 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\HousingPage;
-use App\Logs;
-use App\Models\ReportRow;
-use App\Service\HousingUploader;
-use App\Service\Requester;
-use App\Service\Sender\Sender;
-use App\Service\simProRequestService;
-use App\Service\simProService;
-use App\Service\TemplateGenerator;
-use App\Service\Upload\HousingUpload;
-use App\Service\Upload\NewPrivateUpload;
-use App\Service\Upload\ReportUpload;
-use GuzzleHttp\Exception\RequestException;
+use App\Jobs\PrivateParseJob;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\View;
-use Psr\Http\Message\ResponseInterface;
-use Spipu\Html2Pdf\Html2Pdf;
 
 class UploadPrivateNew extends Command
 {
@@ -56,8 +39,27 @@ class UploadPrivateNew extends Command
     public function handle()
     {
         set_time_limit(0);
-        (new NewPrivateUpload())
-            ->startToParse();
+        foreach (
+            [
+                new \DateTime('+17 day'),
+                new \DateTime('+18 day'),
+                new \DateTime('+19 day'),
+                new \DateTime('+20 day'),
+                new \DateTime('+21 day'),
+                new \DateTime('+22 day'),
+                new \DateTime('+23 day'),
+                new \DateTime('+24 day'),
+                new \DateTime('+25 day'),
+                new \DateTime('+26 day'),
+                new \DateTime('+27 day'),
+                new \DateTime('+28 day'),
+                new \DateTime('+29 day'),
+                new \DateTime('+30 day'),
+
+            ] as $nextRecurringDate
+        ) {
+            PrivateParseJob::dispatch($nextRecurringDate)->onQueue('high');
+        }
     }
 
 }

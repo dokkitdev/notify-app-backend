@@ -4,13 +4,13 @@
 namespace App\Service;
 
 
-use App\Appointment;
 use App\Helpers\Date;
-use App\Logs;
+use App\Models\Appointment;
 use App\Models\AppointmentLogged;
 use App\Models\AppointmentProcessed;
+use App\Models\Logs;
+use App\Models\Templates;
 use Illuminate\Support\Facades\Config;
-use App\Templates;
 
 class AppointmentChlService
 {

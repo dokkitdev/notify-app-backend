@@ -1,141 +1,89 @@
-@extends('layouts.app')
-
-@section('css')
-    <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
-    <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
-    <style>
-        /*#appointment-table {*/
-        /*table-layout: fixed;*/
-        /*}*/
-
-        input[type="checkbox"] {
-            width: 15px;
-            height: 15px;
-        }
-
-        .fa-info {
-            position: absolute;
-            right: 2px;
-            box-shadow: 0 0 1px;
-            width: 16px;
-            height: 16px;
-            text-align: center;
-            line-height: 16px;
-            border-radius: 50px;
-            top: 10px;
-            cursor: pointer;
-            background: #f5a622;
-            font-size: 10px;
-        }
-    </style>
-@endsection
-
+@extends('admin.layout')
 @section('content')
-    <form action="{{ route('housing.generate') }}" method="post" id="housing-form">
-        @csrf
-        <h2>Housing Letters</h2>
-        <table id="housing-table" class="tablesorter" style="width: 100%">
-            <thead>
-            <tr>
-                <th class="col checkbox-th"><input type="checkbox"> <i
-                            title="Select entries that should be processed"
-                            class="fas fa-info"></i></th>
-                <th>
-                    <a href="{{ route('housing.all') }}?page=1&sort=job_id&direction={{ request()->get('sort') == 'job_id' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Job ID
-                        @if (request()->get('sort') == 'job_id')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ route('housing.all') }}?page=1&sort=company_name&direction={{ request()->get('sort') == 'company_name' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Company Name
-                        @if (request()->get('sort') == 'company_name')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ route('housing.all') }}?page=1&sort=schedule_date&direction={{ request()->get('sort') == 'schedule_date' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Schedule date
-                        @if (request()->get('sort') == 'schedule_date')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ route('housing.all') }}?page=1&sort=job_name&direction={{ request()->get('sort') == 'job_name' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Service type
-                        @if (request()->get('sort') == 'job_name')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th>
-                    <a href="{{ route('housing.all') }}?page=1&sort=tags&direction={{ request()->get('sort') == 'tags' && request()->get('direction') == 'asc' ? 'desc' : 'asc' }}">
-                        Tag
-                        @if (request()->get('sort') == 'tags')
-                            <i class="fas {{ request()->get('direction') == 'asc' ? 'fa-sort-down' : 'fa-sort-up' }}"></i>
-                        @else
-                            <i class="fas fa-sort"></i>
-                        @endif
-                    </a>
-                </th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach ($housing as $a)
-                <tr>
-                    <td>
-                        <input type="checkbox" name="housing[]"
-                               {!! $templates[$a->tags]->docx ? '' : 'disabled' !!} value="{!! $a->id !!}">
-                    </td>
-                    <td>{{$a->job_id}}</td>
-                    <td>{{$a->company_name}}</td>
-                    <td>{{$a->getScheduleDate()}}</td>
-                    <td>{{$a->job_name}}</td>
-                        <td>{{$a->isLivewest() ? 'Letter No Access 2 (Livewest Properties)' : $a->tags}} </td>
-                    <td>
-                        @if( $templates[$a->tags]->docx)
-                            <a href="{{ route('housing.view', ['id' => $a->id]) }}"
-                               target="_blank">View</a>
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-    </form>
-    <form method="get" id="filter-form" class="d-none">
-        <input type="text" name="limit" value="{!! $limit !!}">
-        <input type="text" name="start">
-        <input type="text" name="end">
-    </form>
-    <div class="form-group  clearfix">
-        {{ $housing->links('admin.pagination.default', [
-        'limit' => $limit,
-        'start' => $start,
-        'end' => $end,
-        ]
-        ) }}
-    </div>
-    <div class="form-group text-right">
-        <input class="btn btn-primary" form="housing-form" type="submit" value="Process">
-    </div>
-    <script>
+    <div class="container-fluid">
+        <div class="page-title-box">
+            <h4 class="page-title">Housing Letters</h4>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card-box">
+                    @if (session('error'))
+                        <div class="alert alert-danger mt-1">
+                            <strong>{{ session('error') }}</strong>
+                        </div>
+                    @elseif(session('ok'))
+                        <div class="alert alert-success mt-1">
+                            <strong>{{ session('ok') }}</strong>
+                        </div>
+                    @endif
+                    <div class="dataTables_wrapper">
+                        <form action="{{ route('housing.generate') }}" method="post" id="housing-form">
+                        @csrf
+                            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                                <div class="table-responsive">
+                                    <table class="table table-centered table-striped dt-responsive nowrap w-100"
+                                           id="housing-table">
+                                        <thead>
+                                        <tr>
+                                            <th class="checkbox-th position-relative">
+                                                <input type="checkbox">
+                                            </th>
+                                            <th style="width: 5%;">
+                                                {!! \App\Service\Sorting::order('Job ID', 'job_id') !!}
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('Company Name', 'company_name') !!}
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('Schedule date', 'schedule_date') !!}
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('Service type', 'job_name') !!}
+                                            </th>
+                                            <th>
+                                                {!! \App\Service\Sorting::order('Tag', 'tags') !!}
+                                            </th>
+                                            <th class="col" style="width: 9%;"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach ($housing as $a)
+                                            <tr role="row">
+                                                <td>
+                                                    <input type="checkbox" name="housing[]"
+                                                           {!! $templates[$a->tags]->docx ? '' : 'disabled' !!} value="{!! $a->id !!}">
+                                                </td>
+                                                <td>{{$a->job_id}}</td>
+                                                <td>{{$a->company_name}}</td>
+                                                <td>{{$a->getScheduleDate()}}</td>
+                                                <td>{{$a->job_name}}</td>
+                                                <td>{{$a->isLivewest() ? 'Letter No Access 2 (Livewest Properties)' : $a->tags}} </td>
+                                                <td>
+                                                    @if( $templates[$a->tags]->docx)
+                                                        <a href="{{ route('housing.view', ['id' => $a->id]) }}"
+                                                           target="_blank">View</a>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
 
+                            </div>
+                        </form>
+                        <div class="form-group  clearfix">
+                            {{ $housing->links('admin.pagination.default') }}
+                        </div>
+                        <div class="form-group text-right">
+                            <input class="btn btn-primary" form="housing-form" type="submit" value="Process">
+                        </div>
+                    </div>
 
-    </script>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('js')

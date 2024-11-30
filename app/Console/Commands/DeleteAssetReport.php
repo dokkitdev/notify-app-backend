@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\AssetReport;
-use App\Models\Job;
+use App\Models\AssetReportMini;
 use Illuminate\Console\Command;
 
 class DeleteAssetReport extends Command
@@ -11,25 +11,26 @@ class DeleteAssetReport extends Command
     protected $signature = 'delete:asset:report';
     protected $description = 'Command description';
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
+
     public function handle()
     {
-        $size = Job::query()
-            ->select('id')
-            ->where('payload', 'LIKE', '%SiteJob%')
-            ->orWhere('payload', 'LIKE', '%AssetJob%')
-            ->first();
-        if ($size) {
-            return;
-        }
+        $assets = AssetReport::query()
+            ->select('asset_id')
+            ->where('is_updated', 0)
+            ->get();
+        $ids = $assets->map(function ($asset) {
+            return $asset->asset_id;
+        });
+
 
         AssetReport::query()
             ->where('is_updated', 0)
             ->delete();
+        if ($ids) {
+            AssetReportMini::query()
+                ->whereIn('asset_id', $ids)
+                ->delete();
+        }
     }
 }
 

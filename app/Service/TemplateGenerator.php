@@ -8,12 +8,13 @@
 
 namespace App\Service;
 
-use App\Appointment;
+use App\Models\Appointment;
 use App\Models\Contract;
 use App\Models\Customer;
 use App\Models\HousingJob;
-use App\Templates;
+use App\Models\Templates;
 use Illuminate\Support\Facades\Config;
+use LynX39\LaraPdfMerger\Facades\PdfMerger;
 use LynX39\LaraPdfMerger\PdfManage;
 use PhpOffice\PhpWord\TemplateProcessor;
 
@@ -859,7 +860,7 @@ class TemplateGenerator
             return false;
         }
         $pdf_folder = Config::get('constants.storage_pdf').'/';
-        $pdf_merger = new PdfManage();;
+        $pdfMerger = PdfMerger::init();
         $name = 'temp';
         foreach ($pdf_names as $pdf) {
             if ($pdf instanceof HousingJob) {
@@ -888,20 +889,21 @@ class TemplateGenerator
                 }
             }
             if (file_exists($file)) {
-                $pdf_merger->addPDF($file, $pages);
+                $pdfMerger->addPDF($file, $pages);
             }
         }
         $today = new \DateTime();
         $new_file = $name.$today->format('Y-m-d.H-i-s').'.pdf';
-        $pdf_merger->merge('file', $pdf_folder.$new_file);
-
+        $pdfMerger->merge('file');
+        $pdfMerger->save($pdf_folder.$new_file);
         return $new_file;
     }
 
     public static function mergeAllPdfsPages($pdfs, $name)
     {
         $pdfFolder = Config::get('constants.storage_pdf').'/';
-        $pdfMerger = new PdfManage();
+        $pdfMerger = PdfMerger::init();
+//        $pdfMerger = new PdfManage();
         foreach ($pdfs as $pdf) {
             $file = $pdfFolder.$pdf;
             if (file_exists($file)) {
@@ -910,7 +912,8 @@ class TemplateGenerator
                 dump('no file '.$file);
             }
         }
-        $pdfMerger->merge('file', $pdfFolder.$name);
+        $pdfMerger->merge('file');
+        $pdfMerger->save($pdfFolder.$name);
 
         return $name;
     }
@@ -922,16 +925,17 @@ class TemplateGenerator
         }
 
         $pdf_folder = Config::get('constants.storage_pdf').'/';
-        $pdf_merger = new PdfManage();
+        $pdfMerger = PdfMerger::init();
         $name = 'report.';
         foreach ($pdf_names as $pdf) {
             $file = $pdf_folder.$pdf;
-            $pdf_merger->addPDF($file);
+            $pdfMerger->addPDF($file);
         }
 
         $today = new \DateTime();
         $new_file = $name.$today->format('Y-m-d.H-i-s').'.pdf';
-        $pdf_merger->merge('file', $pdf_folder.$new_file);
+        $pdfMerger->merge('file');
+        $pdfMerger->save($pdf_folder.$new_file);
 
         return $new_file;
     }

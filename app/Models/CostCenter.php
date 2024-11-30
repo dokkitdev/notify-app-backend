@@ -9,8 +9,6 @@
 namespace App\Models;
 
 
-use App\Service\Sender\PrivateSender;
-use App\Templates;
 use Illuminate\Database\Eloquent\Model;
 
 class CostCenter extends Model

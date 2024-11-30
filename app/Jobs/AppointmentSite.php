@@ -2,17 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Appointment;
 use App\Service\JobUploader;
-use App\Service\Requester;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\DB;
-use Psr\Http\Message\ResponseInterface;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class AppointmentSite implements ShouldQueue
 {

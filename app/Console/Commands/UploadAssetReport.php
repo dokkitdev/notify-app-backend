@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Jobs\AssetReport\SiteJob;
 use App\Models\AssetReport;
-use App\Models\Job;
 use App\Service\simProRequestService;
 use Illuminate\Console\Command;
 

@@ -2,14 +2,14 @@
 
 namespace App\Jobs\AssetReport;
 
-use App\AssetLogForDev;
+use App\Models\AssetLogForDev;
+use App\Service\Sender\Sender;
 use App\Service\simProRequestService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Service\Sender\Sender;
 
 class SiteJob implements ShouldQueue
 {

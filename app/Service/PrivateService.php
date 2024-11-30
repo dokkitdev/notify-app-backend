@@ -10,7 +10,7 @@ namespace App\Service;
 
 
 use App\Console\Commands\ProcessPrivateCommand;
-use App\Logs;
+use App\Models\Logs;
 use App\Models\PrivateCustomer;
 use App\Service\Exceptions\MessageException;
 use Illuminate\Support\Facades\Config;
@@ -112,6 +112,7 @@ class PrivateService
         $generator = new PrivateTemplateGenerator();
         $docx = $generator->generateDocx($customer);
         $pdf = TemplateGenerator::sGeneratePdfFromDocx($docx);
+
         if ($isUpload) {
             $sim = new simProRequestService();
             $sim->uploadNewPrivate($customer, $pdf);

@@ -1,9 +1,5 @@
-@extends('layouts.app')
+@extends('admin.layout')
 @section('css')
-    <link rel="stylesheet" href="{{ asset('vendor/tablesorter/themes/blue/style.css') }}">
-    <link rel="stylesheet" href="{{asset('css/daterangepicker.css')}}">
-
-
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css"/>
     <style>
@@ -13,147 +9,165 @@
     </style>
 @endsection
 @section('content')
-
-    @if ($asset_constant->is_need_parsing == true and !session('ok'))
-        <div class="alert-info alert">
-            Parsing is scheduled
-        </div>
-    @endif
-
-    <h2>Asset Report</h2>
-    <form method="get" id="filter-asset-form">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="site_id">Site</label>
-                            <select name="site_id" id="site_id" class="form-control">
-                                <option></option>
-                                @foreach($sites as $site)
-                                    <option
-                                        {{ $site_id == $site->site_id ? 'selected' : '' }} value="{{$site->site_id}}">{{$site->site_id}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="service_level_name">Service Level</label>
-                            <select multiple name="service_level_name[]" id="service_level_name"
-                                    class="selectpicker form-control"
-                                    multiple data-live-search="true">
-                                @foreach($service_level_names as $a)
-                                    <option
-                                        {{  in_array($a->service_level_name, $service_level_name) ? 'selected' : '' }} value="{{$a->service_level_name}}">{{$a->service_level_name}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="asset_type">Asset Type</label>
-                            <select multiple name="asset_type[]" id="asset_type" class="selectpicker form-control"
-                                    multiple data-live-search="true">
-                                @foreach($asset_types as $a)
-                                    <option
-                                        {{ in_array($a->asset_type, $asset_type) ? 'selected' : '' }} value="{{$a->asset_type}}">{{$a->asset_type}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="error_selected">Error</label>
-                            <select multiple name="error_selected[]" id="error_selected"
-                                    class="selectpicker form-control"
-                                    multiple data-live-search="true">
-                                @foreach($errors as $k => $a)
-                                    <option
-                                        {{ in_array($k, $error_selected) ? 'selected' : '' }} value="{{ $k }}">{{$a}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="stages">Stage</label>
-                            <select multiple name="stages[]" id="stages"
-                                    class="selectpicker form-control"
-                                    multiple data-live-search="true">
-                                @foreach($stages as $k => $a)
-                                    <option
-                                        {{ in_array($a->job_stage, $stages_selected) ? 'selected' : '' }} value="{{ $a->job_stage }}">{{$a->job_stage}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <br>
-                        <input type="submit"  class="btn btn-primary" value="Save Filters" name="save_filter">
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 text-right">
+    <div class="container-fluid">
+        <div class="page-title-box">
+            <div class="page-title-right">
                 <a href="{{ route('asset_report.download_csv') }}"
                    class="btn btn-primary">Process Report</a>
             </div>
+            <h4 class="page-title">Asset Report</h4>
         </div>
-    </form>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card-box">
+                    <form method="get" id="filter-asset-form">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4>
+                                            Filters
+                                        </h4>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="site_id">Site</label>
+                                            <select name="site_id" id="site_id" class="form-control">
+                                                <option></option>
+                                                @foreach($sites as $site)
+                                                    <option
+                                                        {{ $site_id == $site->site_id ? 'selected' : '' }} value="{{$site->site_id}}">{{$site->site_id}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="service_level_name">Service Level</label>
+                                            <select multiple name="service_level_name[]" id="service_level_name"
+                                                    class="selectpicker form-control"
+                                                    multiple data-live-search="true">
+                                                @foreach($service_level_names as $a)
+                                                    <option
+                                                        {{  in_array($a->service_level_name, $service_level_name) ? 'selected' : '' }} value="{{$a->service_level_name}}">{{$a->service_level_name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="asset_type">Asset Type</label>
+                                            <select multiple name="asset_type[]" id="asset_type"
+                                                    class="selectpicker form-control"
+                                                    multiple data-live-search="true">
+                                                @foreach($asset_types as $a)
+                                                    <option
+                                                        {{ in_array($a->asset_type, $asset_type) ? 'selected' : '' }} value="{{$a->asset_type}}">{{$a->asset_type}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="error_selected">Error</label>
+                                            <select multiple name="error_selected[]" id="error_selected"
+                                                    class="selectpicker form-control"
+                                                    multiple data-live-search="true">
+                                                @foreach($errors as $k => $a)
+                                                    <option
+                                                        {{ in_array($k, $error_selected) ? 'selected' : '' }} value="{{ $k }}">{{$a}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="stages">Stage</label>
+                                            <select multiple name="stages[]" id="stages"
+                                                    class="selectpicker form-control"
+                                                    multiple data-live-search="true">
+                                                @foreach($stages as $k => $a)
+                                                    <option
+                                                        {{ in_array($a->job_stage, $stages_selected) ? 'selected' : '' }} value="{{ $a->job_stage }}">{{$a->job_stage}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 pt-3">
+                                        <input type="submit" class="btn btn-primary" value="Save Filters"
+                                               name="save_filter">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="card-box">
+                    @if ($asset_constant->is_need_parsing == true and !session('ok'))
+                        <div class="alert alert-danger mt-1">
+                            <strong>Parsing is scheduled</strong>
+                        </div>
+                    @endif
 
-    <table id="assets-report-table" class="tablesorter" style="width: 100%">
-        <thead>
-        <tr>
-            <th style="width:10%;">
-                @include('admin.pagination.sort', ['sortName' => 'Site ID','sortId' => 'site_id'])
-            </th>
-            <th style="width:20%;">
-                @include('admin.pagination.sort', ['sortName' => '~UPRN','sortId' => 'uprn'])
-            </th>
-            <th style="width:10%;">
-                @include('admin.pagination.sort', ['sortName' => 'Asset ID','sortId' => 'asset_id'])
-            </th>
-            <th style="width:20%;">
-                @include('admin.pagination.sort', ['sortName' => 'Asset Type','sortId' => 'asset_type'])
-            </th>
-            <th style="width:20%;">
-                @include('admin.pagination.sort', ['sortName' => 'Service Level','sortId' => 'service_level_name'])
-            </th>
-            <th style="width:20%;">
-                @include('admin.pagination.sort', ['sortName' => 'Error','sortId' => 'error'])
-            </th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach($validations as $validation)
-            <tr>
-                <td>{{ $validation->site_id }} {{ $validation->job_stage }}</td>
-                <td>{{ $validation->uprn }}</td>
-                <td>{{ $validation->asset_id }}</td>
-                <td>{{ $validation->asset_type }}</td>
-                <td>{{ $validation->service_level_name }}</td>
-                <td>{{ $validation->error }}</td>
-            </tr>
-        @endforeach
-        </tbody>
-    </table>
-    <form method="get" id="filter-form" class="d-none">
-        <input type="text" name="limit" value="{!! $limit !!}">
-        <input type="text" name="start">
-        <input type="text" name="end">
-    </form>
-    <div class="form-group  clearfix">
-        {{ $validations->links('admin.pagination.asset_report', [
-        'limit' => $limit,
-        'start' => '',
-        'end' => '',
-        'site_id' => $site_id,
-        'asset_type' => $asset_type,
-        'service_level_name' => $service_level_name,
-        'error_selected' => $error_selected,
-        'stages_selected' => $stages_selected,
-        ]
-        ) }}
+                    <div class="dataTables_wrapper">
+                        <form action="{{ route('appointments.generate') }}" method="post" id="appointment-form">
+                            @csrf
+                            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                                <div class="table-responsive">
+                                    <table class="table table-centered table-striped dt-responsive nowrap w-100"
+                                           id="assets-report-table">
+                                        <thead>
+                                        <tr>
+                                            <th style="width:10%;">
+                                                {!! \App\Service\Sorting::order('Site ID', 'site_id') !!}
+                                            </th>
+                                            <th style="width:20%;">
+                                                {!! \App\Service\Sorting::order('~UPRN', 'uprn') !!}
+                                            </th>
+                                            <th style="width:10%;">
+                                                {!! \App\Service\Sorting::order('Asset ID', 'asset_id') !!}
+                                            </th>
+                                            <th style="width:20%;">
+                                                {!! \App\Service\Sorting::order('Asset Type', 'asset_type') !!}
+                                            </th>
+                                            <th style="width:20%;">
+                                                {!! \App\Service\Sorting::order('Service Level', 'service_level_name') !!}
+                                            </th>
+                                            <th style="width:20%;">
+                                                {!! \App\Service\Sorting::order('Error', 'error') !!}
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach ($validations as $validation)
+                                            <tr role="row">
+                                                <td>{{ $validation->site_id }} {{ $validation->job_stage }}</td>
+                                                <td>{{ $validation->uprn }}</td>
+                                                <td>{{ $validation->asset_id }}</td>
+                                                <td>{{ $validation->asset_type }}</td>
+                                                <td>{{ $validation->service_level_name }}</td>
+                                                <td>{{ $validation->error }}</td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+                        </form>
+                        <div class="form-group  clearfix">
+                            {{ $validations->links('admin.pagination.default') }}
+                        </div>
+                        <div class="form-group text-right">
+                            <input class="btn btn-primary" form="appointment-form" type="submit" value="Process">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 

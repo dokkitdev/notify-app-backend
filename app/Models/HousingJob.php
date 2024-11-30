@@ -10,7 +10,6 @@ namespace App\Models;
 
 
 use App\Service\Upload\HousingUpload;
-use App\Templates;
 use Illuminate\Database\Eloquent\Model;
 
 class HousingJob extends Model

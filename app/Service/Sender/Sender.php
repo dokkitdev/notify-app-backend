@@ -9,8 +9,6 @@
 namespace App\Service\Sender;
 
 
-use Aws\Credentials\CredentialProvider;
-use Aws\Ses\SesClient;
 use SendGrid\Mail\Attachment;
 
 class Sender
@@ -57,7 +55,6 @@ class Sender
         }
         try {
             $response = $instance->send_grid->send($email);
-            dump($response);
 //            print $response->statusCode() . "\n";
 //            print_r($response->headers());
 //            print $response->body() . "\n";

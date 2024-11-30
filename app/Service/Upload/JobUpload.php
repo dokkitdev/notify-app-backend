@@ -9,14 +9,12 @@
 namespace App\Service\Upload;
 
 
-use App\Appointment;
-use App\Jobs\HousingJob;
+use App\Models\Appointment;
 use App\Models\AppointmentProcessed;
 use App\Models\CostCenter;
 use App\Models\ParsingLog;
+use App\Models\Templates;
 use App\Service\simProRequestService;
-use App\Service\simProService;
-use App\Templates;
 use Illuminate\Support\Facades\DB;
 
 class JobUpload

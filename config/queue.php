@@ -46,7 +46,7 @@ return [
             'driver' => 'database',
             'table' => 'jobs',
             'queue' => 'default',
-            'retry_after' => 90,
+            'retry_after' => 3600,
         ],
 
         'beanstalkd' => [
@@ -65,13 +65,13 @@ return [
             'region' => env('SQS_REGION', 'us-east-1'),
         ],
 
-        'redis' => [
-            'driver' => 'redis',
-            'connection' => 'default',
-            'queue' => 'default',
-            'retry_after' => 90,
-            'block_for' => null,
-        ],
+            'redis' => [
+                'driver' => 'redis',
+                'connection' => 'default',
+                'queue' => 'default',
+                'retry_after' => 3600,
+                'block_for' => null,
+            ],
 
     ],
 
@@ -87,7 +87,7 @@ return [
     */
 
     'failed' => [
-        'driver' => 'database-uuids',
+        'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
         'database' => env('DB_CONNECTION', 'mysql'),
         'table' => 'failed_jobs',
     ],

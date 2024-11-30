@@ -61,7 +61,24 @@ class AssetReportJob implements ShouldQueue
                 return;
             }
         }
-        $asset = $simpro->getRequest('get', $assetUrl.'?columns=ID,AssetType,CustomFields,LastTest,StartDate');
+        $asset = $simpro->getRequest('get', $assetUrl.'?columns=ID,AssetType,CustomFields,LastTest,StartDate,Archived');
+        if ($asset->Archived) {
+            AssetReport::query()
+                ->where('site_id', $siteId)
+                ->where('asset_id', $assetId)
+                ->delete();
+
+            AssetReportMini::query()
+                ->where('site_id', $siteId)
+                ->where('asset_id', $assetId)
+                ->delete();
+
+            AssetReportValidation::query()
+                ->where('site_id', $siteId)
+                ->where('asset_id', $assetId)
+                ->delete();
+            return;
+        }
         $today = strtotime(Date('Y-m-d'));
         if (Date('H:m') > '16:00') {
             $todayFormat = (new \DateTime('+1 day'))->format('Y-m-d');
@@ -131,8 +148,9 @@ class AssetReportJob implements ShouldQueue
                 $data['service_due'] = $job->DueDate;
                 foreach ($job->CustomFields as $customField) {
                     $customFieldId = $customField->CustomField->ID ?? 0;
+                    $customFieldName = $customField->CustomField->Name ?? null;
                     $value = $customField->Value;
-                    if ($customFieldId == 'tbd') {
+                    if ($customFieldName == 'Cancellation') {
                         $data['cancellation'] = $value;
                     }
                 }
