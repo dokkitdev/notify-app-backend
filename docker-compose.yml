@@ -1,6 +1,6 @@
-version: '2'
+version: '3.8'
 services:
-  php: 
+  php:
     build:
       context: .
       dockerfile: docker/php.Dockerfile
@@ -8,8 +8,8 @@ services:
     depends_on: ["db"]
     volumes:
       - .:/var/www/html/
-    
-  nginx: 
+
+  nginx:
     build:
       context: .
       dockerfile: docker/Nginx.Dockerfile
@@ -19,7 +19,8 @@ services:
     volumes:
       - .:/var/www/html/
   db:
-      image: mysql:5.7
+      image: mysql:8.0
+      platform: linux/arm64
       restart: always
       environment:
         MYSQL_ROOT_PASSWORD: bf
@@ -30,9 +31,10 @@ services:
         - "33062:3306"
       volumes:
         - "./../volumes/blue_flame_mysql:/var/lib/mysql:rw"
-      
+
   adminer:
-    image: adminer
+    image: arm64v8/adminer
+    platform: linux/arm64
     restart: always
     depends_on: ["db"]
     ports:
@@ -40,4 +42,3 @@ services:
 
 
 
-      
