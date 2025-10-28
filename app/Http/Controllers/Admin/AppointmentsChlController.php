@@ -43,12 +43,15 @@ class AppointmentsChlController extends Controller
                     $appointment->letter_type_name = 'O 3';
                     break;
                 case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1:
+                case Templates::APPOINTMENT_REMEDIAL_WORK_LETTER_CHL_1:
                     $appointment->letter_type_name = 'E 1';
                     break;
                 case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2:
+                case Templates::APPOINTMENT_REMEDIAL_WORK_LETTER_CHL_2:
                     $appointment->letter_type_name = 'E 2';
                     break;
                 case Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3:
+                case Templates::APPOINTMENT_REMEDIAL_WORK_LETTER_CHL_3:
                     $appointment->letter_type_name = 'E 3';
                     break;
                 case Templates::APPOINTMENT_LETTER_GAS_CHL_1:
