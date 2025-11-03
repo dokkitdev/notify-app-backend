@@ -369,23 +369,33 @@ LIMIT '.($row->total - 1).';',
 
         if ($costCenter && $costCenter->type == CostCenter::TYPE_ELECTRIC) {
 
-            if($costCenter->cost_center_id == 206){ //Electric - EICR Remedial Work
-                $letterType = Templates::APPOINTMENT_REMEDIAL_WORK_LETTER_CHL_1;
-                if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
-                    $letterType = Templates::APPOINTMENT_REMEDIAL_WORK_LETTER_CHL_2;
-                } else {
-                    if ($tag == HousingUpload::TAG_NO_ACCESSS_3) {
-                        $letterType = Templates::APPOINTMENT_REMEDIAL_WORK_LETTER_CHL_3;
-                    }
-                }
-            }else{
-                $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1;
-                if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
-                    $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2;
-                } else {
-                    if ($tag == HousingUpload::TAG_NO_ACCESSS_3) {
-                        $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3;
-                    }
+//            if($costCenter->cost_center_id == 206){ //Electric - EICR Remedial Work
+//                $letterType = Templates::APPOINTMENT_REMEDIAL_WORK_LETTER_CHL_1;
+//                if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
+//                    $letterType = Templates::APPOINTMENT_REMEDIAL_WORK_LETTER_CHL_2;
+//                } else {
+//                    if ($tag == HousingUpload::TAG_NO_ACCESSS_3) {
+//                        $letterType = Templates::APPOINTMENT_REMEDIAL_WORK_LETTER_CHL_3;
+//                    }
+//                }
+//            }else{
+//                $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1;
+//                if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
+//                    $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2;
+//                } else {
+//                    if ($tag == HousingUpload::TAG_NO_ACCESSS_3) {
+//                        $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3;
+//                    }
+//                }
+//            }
+
+
+            $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_1;
+            if ($tag == HousingUpload::TAG_NO_ACCESSS_2) {
+                $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_2;
+            } else {
+                if ($tag == HousingUpload::TAG_NO_ACCESSS_3) {
+                    $letterType = Templates::APPOINTMENT_LETTER_ELECTRIC_CHL_3;
                 }
             }
         } elseif ($costCenter && $costCenter->type == CostCenter::TYPE_GAS) {
