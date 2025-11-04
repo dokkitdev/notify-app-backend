@@ -241,8 +241,12 @@ class AppointmentChlService
     {
         $pdfs = [];
         foreach ($appointments as $appointment) {
-            dump($appointment);
             $appointment = Appointment::find($appointment);
+
+            if(!$appointment){
+                dump('appointment not found');
+                continue;
+            }
             self::generateFilesForAppointment($appointment);
             $appointment->is_proccessed = 1;
             $appointment->save();
