@@ -31,6 +31,7 @@ class ProcessAppointmentChlCommand extends Command
         $log->save();
         $customers = $this->argument('appointments');
         $customers = explode(',', $customers);
+        dump('========startProcessing======');
         AppointmentChlService::startProcessing($customers, $log);
         $log->is_finished = 1;
         $log->save();

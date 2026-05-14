@@ -30,8 +30,11 @@ class AppointmentChlService
         if (!$template || !$template->docx) {
             throw new \InvalidArgumentException('Please fill "' . $template->title . '" template by docx');
         }
+        dump('=======self::generateDocxForAppointment======');
         $docx = self::generateDocxForAppointment($appointment, $template);
+        dump('===end==self::generateDocxForAppointment======');
         $pdf = TemplateGenerator::sGeneratePdfFromDocx($docx);
+        dump('===end==self::sGeneratePdfFromDocx======');
         $appointment->pdf = $pdf;
         $appointment->docx = $docx;
         $appointment->save();
@@ -247,7 +250,9 @@ class AppointmentChlService
                 dump('appointment not found');
                 continue;
             }
+            dump("=====generateFilesForAppointment=====");
             self::generateFilesForAppointment($appointment);
+            dump("===end==generateFilesForAppointment=====");
             $appointment->is_proccessed = 1;
             $appointment->save();
             $pdfs[] = $appointment->pdf;
