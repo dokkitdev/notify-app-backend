@@ -262,9 +262,14 @@ class AppointmentChlService
             ]);
             self::getSimProService()->uploadAppointmentChl($appointment);
         }
-        $today = new \DateTime();
-        $file = 'appointments.' . $today->format('Y-m-d.H-i-s') . '.pdf';
-        TemplateGenerator::mergeAllPdfsPages($pdfs, $file);
+
+        if($pdfs){
+            $today = new \DateTime();
+            $file = 'appointments.' . $today->format('Y-m-d.H-i-s') . '.pdf';
+            TemplateGenerator::mergeAllPdfsPages($pdfs, $file);
+        }else{
+            $file = null;
+        }
         $log->letters_generated = count($pdfs);
         $log->email_generated = 0;
         $log->pdf = $file;
