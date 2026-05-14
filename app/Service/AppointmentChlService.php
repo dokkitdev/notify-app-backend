@@ -243,11 +243,11 @@ class AppointmentChlService
     public static function startProcessing($appointments, Logs $log)
     {
         $pdfs = [];
-        foreach ($appointments as $appointment) {
-            $appointment = Appointment::find($appointment);
+        foreach ($appointments as $appointmentId) {
+            $appointment = Appointment::find($appointmentId);
 
             if(!$appointment){
-                dump('appointment not found');
+                dump('appointment not found. '.$appointmentId);
                 continue;
             }
             dump("=====generateFilesForAppointment=====");
